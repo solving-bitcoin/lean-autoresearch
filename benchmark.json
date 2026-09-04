@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "name": "bn254-g1-garbling-prize",
+  "tracks": [
+    {
+      "name": "bn254-g1-hidden-affine-map",
+      "description": "Minimize the universally bounded serialized artifact for a Lean-verified one-shot garbling of Q + [r]A on BN254 G1, with a protected seeded internal oracle and independently supplied labels.",
+      "category": "lean",
+      "direction": "-",
+      "editablePaths": ["GarblingPrize/Submission"],
+      "setupCommand": ["bash", "-lc", "./setup.sh"],
+      "benchmarkCommand": ["bash", "-lc", "./benchmark.sh"],
+      "scorePath": ".yukon/bn254-g1-hidden-affine-map-score.json"
+    }
+  ]
+}

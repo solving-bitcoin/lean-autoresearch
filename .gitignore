@@ -1,0 +1,40 @@
+# Lake / Lean
+.lake/
+/build
+/lake-packages
+*.olean
+*.ilean
+*.trace
+*.ir
+*.hash
+*.o
+*.a
+*.c
+!native/sha256.c
+
+# Generated ranked-claim binding (rendered from score.txt)
+GarblingPrize/Benchmark/Challenge.lean
+
+# Yukon local state and verifier result JSON
+.yukon/
+
+# Local audit notes
+audit-context/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+*.swp
+*~
