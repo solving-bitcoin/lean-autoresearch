@@ -40,6 +40,25 @@ This repository follows the challenge structure used by
 a protected target, an editable submission area, machine-checked score claims,
 benchmark metadata, and an isolated verifier.
 
+## BLAKE3 labeled hashing challenge
+
+A separate [BLAKE3 challenge](blake3/README.md) minimizes the complete artifact
+for **64-byte input → 32-byte digest**, with two independently supplied
+32-byte labels per input and output bit. Evaluation receives 512 active input
+labels and returns 256 active output labels. It uses zk.golf's pinned Lean
+specification and begins with a certified circuit / protected half-gates track.
+The score includes every input adapter and output translation table.
+The initial artifact is **707,680 bytes** from 10,281 AND gates;
+including active input/output label traffic, it transfers **732,256 bytes**.
+
+```bash
+./blake3/setup.sh
+./blake3/benchmark.sh
+```
+
+These commands enforce 4 GiB build and 1 GiB native RAM caps. The BLAKE3
+challenge has its own Lean project, frozen boundary, verifier, and CI score.
+
 ## Current challenge: BN254 G1 hidden affine map
 
 Minimize the universally proved serialized artifact size for the ideal
