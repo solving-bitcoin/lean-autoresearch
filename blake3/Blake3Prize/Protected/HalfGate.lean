@@ -29,7 +29,7 @@ theorem correct (a0 delta ha0 ha1 hb0 hb1 : Bit) (sa0 sb0 x y : Bool) :
     simp [evaluate, outputZero, garblerHalf, evaluatorHalf, select] <;>
     ring_nf <;> simp [show (2 : Bit) = 0 from rfl]
 
-/-- The characteristic-two carry used by zk.golf is a Boolean majority. -/
+/-- The lowerer's characteristic-two carry is a Boolean majority. -/
 theorem carry_truth (a b c : Bool) :
     ((a ^^ c) && (b ^^ c)) ^^ c = ((a && b) || (a && c) || (b && c)) := by
   cases a <;> cases b <;> cases c <;> rfl

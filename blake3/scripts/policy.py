@@ -17,7 +17,7 @@ CONFIG_SNAPSHOT=ROOT/'.lake/trusted-dependency-configs.sha256'
 
 
 def prepare_generated_cache_excludes():
-    # The pinned zk.golf checkout does not ignore Lake's generated files.
+    # Dependencies can differ in whether they ignore Lake's generated files.
     # Keep source files unchanged and exclude only the two authenticated caches.
     for package in json.loads((ROOT/'lake-manifest.json').read_text())['packages']:
         exclude=ROOT/'.lake/packages'/package['name']/'.git/info/exclude'

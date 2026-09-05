@@ -22,11 +22,12 @@ multiple messages under the same artifact.
 
 ## Reference and proof
 
-The challenge imports, without copying or changing, zk.golf's generic GF(2)
-BLAKE3 compression specification from
-[`zksecurity/zk-golf-challenges` at `fb9e89a`](https://github.com/zksecurity/zk-golf-challenges/blob/fb9e89a5de99022a53089f0d11a18331c4c321a3/Challenge/Instances/Blake3CompressGF2Canonical/Spec.lean).
-Its independent [natural-number specification](https://github.com/zksecurity/zk-golf-challenges/blob/fb9e89a5de99022a53089f0d11a18331c4c321a3/Challenge/Specs/Blake3.lean)
-is also available as `referenceBytes`.
+The challenge imports `Clean.Specs.BLAKE3` from
+[`Verified-zkEVM/clean` at `041c6e7`](https://github.com/Verified-zkEVM/clean/blob/041c6e7ebc06f5cbfd534c2a19c4120f3de62435/Clean/Specs/BLAKE3.lean).
+The pinned repository carries an [MIT license](https://github.com/Verified-zkEVM/clean/blob/041c6e7ebc06f5cbfd534c2a19c4120f3de62435/LICENSE).
+The relevant attribution is retained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The protected target calls Clean's actual `Specs.BLAKE3.compress`; it does not
+substitute a separately asserted hash definition.
 
 The specialization uses the standard IV as chaining value, counter zero,
 block length 64, and flags `CHUNK_START | CHUNK_END | ROOT = 11`. It takes the
@@ -36,7 +37,7 @@ The immutable official BLAKE3 64-byte test vector cross-checks byte order,
 message permutation, seven rounds, and finalization.
 
 The initial ranked track is **circuit optimization under a protected garbler**.
-A submission provides 256 symbolic Boolean expressions and proves:
+A submission provides 256 symbolic output-bit expressions and proves:
 
 ```lean
 Blake3Prize.Protected.ValidCandidate candidate claimedBytes
@@ -44,17 +45,26 @@ Blake3Prize.Protected.ValidCandidate candidate claimedBytes
 
 The certificate requires equality to the protected reference for **all 512-bit
 inputs**, plus a universal bound on the protected artifact-size function.
-The baseline correctness theorem is compositional: a map preserving zero,
-one, XOR, and AND commutes with zk.golf's carry recurrence, word operations,
-quarter rounds, rounds, and finalization. The accepted axiom closure is limited
-to `propext`, `Classical.choice`, and `Quot.sound`.
+The baseline correctness theorem is compositional: evaluation preserves
+Clean's addition modulo 2^32, XOR, and right rotation, hence commutes with
+mixing, rounds, and finalization. Addition modulo 2^32 is associative; a checked
+reassociation retains constant folding when specializing the initial state.
+A separate theorem proves the word program's Nat specialization equals the
+imported Clean compression. Bit packing maps
+512 little-endian input bits to sixteen 32-bit words, and digest projection
+returns the first eight words as 256 little-endian output bits.
+The accepted axiom closure is limited to `propext`, `Classical.choice`, and
+`Quot.sound`.
 
-The protected lowerer shares structurally equal expressions, propagates
-constants, and emits an acyclic XOR/AND circuit with complemented wires.
-Structural comparison resolves hash collisions. Expressions are data; they
-are never elaborated or executed as Lean metaprograms. Submissions can change
-addition circuits, Boolean identities, factoring, and sharing. A different
-garbling backend requires a separately reviewed challenge version.
+Expressions support Boolean XOR/AND and bit projections from word expressions.
+The protected lowerer expands word addition into a ripple-carry circuit,
+expands word XOR bitwise, and rewires rotations. It then shares structurally
+equal expressions and gates, propagates constants, and emits an acyclic
+XOR/AND circuit with complemented wires. Structural comparison resolves hash
+collisions. Expressions are data; they are never elaborated or executed as
+Lean metaprograms. Submissions can optimize bit expressions, word identities,
+factoring, and sharing. A different garbling backend requires a separately
+reviewed challenge version.
 
 ## Artifact accounting
 
@@ -71,7 +81,7 @@ no such correlation and need not have different low bits.
 | 256 output adapters: two 32-byte ciphertexts each | 16,384 |
 | **Complete scored artifact** | **`49,696 + 64 × AND-count`** |
 
-The initial submission has **10,281 AND gates** and **57,344 XOR gates**. Its
+The initial submission has **10,281 AND gates** and **47,951 XOR gates**. Its
 measured artifact is **707,680 bytes** (about 0.708 MB):
 `49,696 + 64 × 10,281 = 707,680`. Including the fixed active input/output label
 channels, total transferred bytes are **732,256**. This is the starting score
@@ -105,9 +115,11 @@ Lean proves the reference-expression semantics, byte formula, and the
 per-coordinate half-gates correctness identity for arbitrary hash outputs.
 It does **not** prove the cryptographic security reduction, SHA-256 security,
 the full native implementation, or the expression lowerer's semantic
-preservation. Those last two are protected, tested components of this track's
-trusted computing base, alongside Lean's compiler/runtime. The isolated
-verifier checks all 512 single-bit messages, random and fixed messages, exact
+preservation, including expansion of word operations. Those last two are
+protected, tested components of this track's trusted computing base, alongside
+Lean's compiler/runtime. The isolated
+verifier compares 516 messages directly against both Clean reference interfaces,
+checks 1,032 word-lowering cases, and tests random and fixed messages, exact
 output labels, and a separate evaluator process. These tests complement the
 semantic theorem; they are not a security proof.
 
@@ -118,7 +130,7 @@ labels. The baseline is research software, not a production protocol.
 
 ## Run it safely
 
-Lean 4.28.0, Clean, Mathlib, and zk.golf are pinned independently of the G1
+Lean 4.28.0, Clean, and Mathlib are pinned independently of the G1
 challenge's toolchain. With `elan`, Python 3, Git, and a C compiler available:
 
 ```bash

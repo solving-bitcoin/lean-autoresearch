@@ -4,12 +4,12 @@ This is a separate challenge from `GarblingPrize`. Only
 `Blake3Prize/Submission/*.lean` and its `score.txt` are contestant-editable.
 Changes to the challenge itself require a separate authoring PR.
 
-The target is the zk.golf BLAKE3 GF(2) specification specialized to standard
+The target is Clean's MIT-licensed BLAKE3 specification specialized to standard
 unkeyed hashing of exactly 64 bytes to 32 bytes. Input and output wires have
 two independently supplied, distinct 32-byte labels per bit. Evaluation gets
 only 512 active labels and must return the 256 selected output labels.
 
-The current ranked track submits symbolic Boolean expressions plus a Lean
+The current ranked track submits symbolic bit/word expressions plus a Lean
 semantic certificate. The protected compiler and half-gates backend fix the
 cryptographic implementation and count every artifact byte, including both
 boundary adapters. Candidates may alter expressions, addition circuits,

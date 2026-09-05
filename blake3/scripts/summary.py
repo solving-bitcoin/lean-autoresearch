@@ -19,6 +19,9 @@ text=f'''## BLAKE3 64-byte labeled hash
 | Fixed active input/output label traffic | 24,576 |
 | Total artifact and active-label traffic | {r['totalTransferredBytes']:,} |
 
+Reference: `{r['referenceModule']}` (MIT, Clean `{r['cleanRevision'][:7]}`).
+Direct Clean reference cases: {r['cleanReferenceCases']}; word-lowering cases: {r['wordLoweringCases']}.
+
 Lean semantic certificate and axiom audit passed. Native output labels matched
 BLAKE3; isolated evaluation and malformed-framing checks passed.
 

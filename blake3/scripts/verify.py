@@ -31,13 +31,17 @@ def main():
         (project/'.lake/packages').symlink_to(ROOT/'.lake/packages',target_is_directory=True)
         measurements=[]
         # Build the protected bridge first, before importing the submission.
-        for target in ('Blake3Prize.Protected.Runner','blake3-circuit'):
+        for target in ('blake3-trusted','blake3-circuit'):
             r=guarded(['lake','build',target],project)
             measurements.append(r['peakMemoryBytes'])
             print(f"PASS: build {target}; peak {r['peakMemoryBytes']} bytes",flush=True)
         shutil.copy2(ROOT/'scripts/Audit.lean',project/'Audit.lean')
         r=guarded(['lake','env','lean','-j1','Audit.lean'],project)
         print(r['stdout'],end='',flush=True);measurements.append(r['peakMemoryBytes'])
+        r=guarded([project/'.lake/build/bin/blake3-trusted'],project,native=True)
+        reference_peak=r['peakMemoryBytes']
+        clean_path=project/'clean-checks.json'
+        clean_path.write_text(r['stdout'])
         r=guarded([project/'.lake/build/bin/blake3-circuit'],project,native=True)
         export_peak=r['peakMemoryBytes']
         circuit=json.loads(r['stdout'])
@@ -46,13 +50,15 @@ def main():
         circuit_path=project/'circuit.json'
         circuit_path.write_text(json.dumps(circuit))
         r=guarded([sys.executable,ROOT/'scripts/check_runtime.py',circuit_path,
+                   '--clean-checks',clean_path,
                    '--result',project/'result.json'],project,native=True)
         print(r['stdout'],end='',flush=True)
         report=json.loads((project/'result.json').read_text())
         report['compilerPeakMemoryBytes']=max(measurements)
         report['exportPeakMemoryBytes']=export_peak
+        report['referencePeakMemoryBytes']=reference_peak
         report['runtimePeakMemoryBytes']=r['peakMemoryBytes']
-        report['nativePeakMemoryBytes']=max(export_peak,r['peakMemoryBytes'])
+        report['nativePeakMemoryBytes']=max(export_peak,reference_peak,r['peakMemoryBytes'])
         report['score']=score
         report['direction']='minimize'
         report['unit']='bytes'

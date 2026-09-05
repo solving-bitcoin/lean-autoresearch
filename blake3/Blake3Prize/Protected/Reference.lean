@@ -1,4 +1,5 @@
-import Challenge.Instances.Blake3CompressGF2Canonical.Spec
+import Clean.Specs.BLAKE3
+import Mathlib.Data.ZMod.Basic
 
 namespace Blake3Prize.Protected
 
@@ -13,28 +14,33 @@ abbrev OutputLabelPairs := OutputIndex → Bool → Label
 abbrev ActiveInputLabels := Vector Label 512
 abbrev ActiveOutputLabels := Vector Label 256
 
-open Challenge.Instances.Blake3CompressGF2Canonical.Interface
-
-/-- Full 64-byte unkeyed hash: CV=IV, counter=0, blockLen=64,
-CHUNK_START|CHUNK_END|ROOT=11. Bit 8*i+j is bit j of byte i. -/
-def hashWords {α : Type} [Zero α] [One α] (input : Vector α 512) :
-    Vector (Blake3Bits.Word α) 28 :=
-  Vector.ofFn fun i =>
-    if h : i.val < 8 then Blake3Bits.constWord (Specs.Blake3.iv[i.val])
-    else if h : i.val < 24 then
-      (Blake3Bits.splitWords 16 input)[i.val - 8]'(by omega)
-    else Blake3Bits.constWord (if i.val = 26 then 64 else if i.val = 27 then 11 else 0)
-
-/-- Specialization of the frozen zk.golf GF(2) compression specification. -/
-def reference (input : Input) : Output :=
-  let all := Blake3Bits.compressState (hashWords input)
-  Vector.ofFn fun i => all[i.val]'(by omega)
-
-/-- The upstream natural-number specification is also available to proofs. -/
-def referenceBytes (input : Vector UInt8 64) : Vector Nat 32 :=
-  Specs.Blake3.blake3 (input.map UInt8.toNat)
+def bitOfBool (b : Bool) : Bit := if b then 1 else 0
 
 def inputBit (input : Input) (i : InputIndex) : Bool := input[i].val = 1
+
+/-- Pack the label interface's little-endian bits into Clean's 16 words.
+BitVec provides a bounded 32-bit representation before conversion to Nat. -/
+def inputWords (input : Input) : Vector Nat 16 :=
+  Vector.ofFn fun i =>
+    (BitVec.ofBoolListLE ((Vector.ofFn fun j : Fin 32 =>
+      inputBit input ⟨32*i.val+j.val, by omega⟩).toList)).toNat
+
+def outputBits (words : Vector Nat 8) : Output :=
+  Vector.ofFn fun i => bitOfBool (words[i.val / 32].testBit (i.val % 32))
+
+def chainingValue : Vector Nat 8 := Specs.BLAKE3.iv.map UInt32.toNat
+
+/-- Clean's MIT-licensed compression, specialized to the ordinary 64-byte
+unkeyed hash. CHUNK_START | CHUNK_END | ROOT = 11; this is a single root block. -/
+def referenceWords (message : Vector Nat 16) : Vector Nat 8 :=
+  (Specs.BLAKE3.compress chainingValue message 0 64 11).take 8
+
+def reference (input : Input) : Output := outputBits (referenceWords (inputWords input))
+
+/-- Byte-oriented specialization using Clean's own little-endian packing. -/
+def referenceBytes (input : Vector UInt8 64) : Vector Nat 32 :=
+  let words := referenceWords (Specs.BLAKE3.bytesToWords (input.toList.map UInt8.toNat))
+  Vector.ofFn fun i => (words[i.val / 4] / 2^(8*(i.val % 4))) % 256
 
 def activeInput (pairs : InputLabelPairs) (input : Input) : ActiveInputLabels :=
   Vector.ofFn fun i => pairs i (inputBit input i)
@@ -42,8 +48,7 @@ def activeInput (pairs : InputLabelPairs) (input : Input) : ActiveInputLabels :=
 def activeOutput (pairs : OutputLabelPairs) (output : Output) : ActiveOutputLabels :=
   Vector.ofFn fun i => pairs i (output[i].val = 1)
 
-/-- Distinct external labels are necessary for universal correctness. No
-correlation or selector-bit convention is imposed on caller-supplied pairs. -/
+/-- No correlation or selector-bit convention is imposed on external pairs. -/
 def DistinctPairs {n : Nat} (pairs : Fin n → Bool → Label) : Prop :=
   ∀ i, pairs i false ≠ pairs i true
 

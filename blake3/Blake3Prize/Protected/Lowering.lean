@@ -17,6 +17,7 @@ structure Circuit where
 structure LowerState where
   gates : Array Gate := #[]
   terms : Std.HashMap Lean.ExprStructEq Nat := {}
+  words : Std.HashMap Lean.ExprStructEq (Vector Nat 32) := {}
   nodes : Std.HashMap (Bool × Nat × Nat) Nat := {}
 
 namespace Lowering
@@ -42,6 +43,44 @@ def emit (isAnd : Bool) (a b : Nat) : StateM LowerState Nat := do
     nodes := state.nodes.insert key wire }
   return wire
 
+/-- The characteristic-two majority carry uses one AND per bit:
+c' = ((x XOR c) AND (y XOR c)) XOR c. The final carry is discarded. -/
+def addWords (a b : Vector Nat 32) : StateM LowerState (Vector Nat 32) := do
+  let mut carry := 0
+  let mut result := Vector.replicate 32 0
+  for i in (Vector.finRange 32).toList do
+    let ac ← emit false a[i] carry
+    let bc ← emit false b[i] carry
+    result := result.set i (← emit false ac b[i])
+    if i.val < 31 then carry ← emit false (← emit true ac bc) carry
+  return result
+
+def wordTerm (e : Lean.Expr) : StateM LowerState (Vector Nat 32) := do
+  if let some value := (← get).words[Lean.ExprStructEq.mk e]? then return value
+  let value ← match e with
+    | .lit (.natVal n) => pure <| Vector.ofFn fun i => if n.testBit i.val then 1 else 0
+    | .app (.const name _) (.lit (.natVal i)) =>
+        pure <| if name = `Blake3Prize.inputWord then
+          Vector.ofFn fun j => 2 * (32*(i % 16) + j.val + 1)
+        else Vector.replicate 32 0
+    | .app (.app (.const name _) a) b => do
+        if name = `Blake3Prize.addWord then addWords (← wordTerm a) (← wordTerm b)
+        else if name = `Blake3Prize.xorWord then
+          let av ← wordTerm a
+          let bv ← wordTerm b
+          (Vector.finRange 32).mapM fun i => emit false av[i] bv[i]
+        else if name = `Blake3Prize.rotateWord then
+          match b with
+          | .lit (.natVal n) =>
+              let av ← wordTerm a
+              pure <| Vector.ofFn fun i => av[(i.val + n % 32) % 32]
+          | _ => pure (Vector.replicate 32 0)
+        else pure (Vector.replicate 32 0)
+    | _ => pure (Vector.replicate 32 0)
+  modify fun state => { state with words := state.words.insert (Lean.ExprStructEq.mk e) value }
+  return value
+termination_by e
+
 /-- Structural hash-consing uses exact Lean.Expr equality after hashing.
 Hash collisions cannot identify unequal terms. Unsupported syntax denotes 0,
 matching BitExpr.evalTerm; it is never executed as metaprogram code. -/
@@ -53,6 +92,12 @@ def term (e : Lean.Expr) : StateM LowerState Nat := do
     | .app (.app (.const name _) a) b => do
         if name = `Blake3Prize.xorBit then emit false (← term a) (← term b)
         else if name = `Blake3Prize.andBit then emit true (← term a) (← term b)
+        else if name = `Blake3Prize.wordBit then
+          match b with
+          | .lit (.natVal i) =>
+              let av ← wordTerm a
+              pure av[i % 32]
+          | _ => pure 0
         else pure 0
     | _ => pure 0
   modify fun state => {state with terms := state.terms.insert (Lean.ExprStructEq.mk e) wire}

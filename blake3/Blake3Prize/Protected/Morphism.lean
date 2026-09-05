@@ -1,192 +1,102 @@
 import Blake3Prize.Protected.Expression
+import Blake3Prize.Protected.WordProgram
 
 namespace Blake3Prize.Protected
-open Challenge.Instances.Blake3CompressGF2Canonical.Interface
 
-/-- Naturality of zk.golf's generic bit semantics. This proves a symbolic
-circuit correct compositionally, without expanding the seven-round tree. -/
-structure BitHom (α β : Type) [Zero α] [One α] [Add α] [Mul α]
-    [Zero β] [One β] [Add β] [Mul β] where
+/-- Evaluation preserves the three word operations in Clean's BLAKE3 spec. -/
+structure WordHom (a : WordProgram.Ops α) (b : WordProgram.Ops β) where
   apply : α → β
-  zero : apply 0 = 0
-  one : apply 1 = 1
-  add : ∀ a b, apply (a + b) = apply a + apply b
-  mul : ∀ a b, apply (a * b) = apply a * apply b
+  add : ∀ x y, apply (a.add x y) = b.add (apply x) (apply y)
+  xor : ∀ x y, apply (a.xor x y) = b.xor (apply x) (apply y)
+  rotate : ∀ x n, apply (a.rotate x n) = b.rotate (apply x) n
 
-namespace BitHom
-variable {α β : Type} [Zero α] [One α] [Add α] [Mul α]
-  [Zero β] [One β] [Add β] [Mul β] (f : BitHom α β)
+namespace WordHom
+variable {a : WordProgram.Ops α} {b : WordProgram.Ops β} (f : WordHom a b)
 
-@[simp] theorem atWord (x : Blake3Bits.Word α) (i : Nat) :
-    Blake3Bits.atWord (x.map f.apply) i = f.apply (Blake3Bits.atWord x i) := by
-  simp [Blake3Bits.atWord]
+theorem mix (v : Vector α 16) (i j k l : Fin 16) (x y : α) :
+    (WordProgram.mix a v i j k l x y).map f.apply =
+      WordProgram.mix b (v.map f.apply) i j k l (f.apply x) (f.apply y) := by
+  simp only [WordProgram.mix, Vector.map_set, Fin.getElem_fin, Vector.getElem_map,
+    f.add, f.xor, f.rotate]
 
-theorem carry (x y : Blake3Bits.Word α) (i : Nat) :
-    f.apply (Blake3Bits.carry x y i) = Blake3Bits.carry (x.map f.apply) (y.map f.apply) i := by
-  induction i with
-  | zero => exact f.zero
-  | succ i ih => simp only [Blake3Bits.carry, f.add, f.mul, ih, atWord]
+theorem round (v m : Vector α 16) :
+    (WordProgram.round a v m).map f.apply =
+      WordProgram.round b (v.map f.apply) (m.map f.apply) := by
+  unfold WordProgram.round Vector.foldl
+  symm
+  apply Array.foldl_hom (Vector.map f.apply)
+  intro state indices
+  rcases indices with ⟨i,j,k,l,x,y⟩
+  simpa only [Fin.getElem_fin, Vector.getElem_map] using (f.mix state i j k l m[x] m[y]).symm
 
-theorem addWord (x y : Blake3Bits.Word α) :
-    (Blake3Bits.addWord x y).map f.apply = Blake3Bits.addWord (x.map f.apply) (y.map f.apply) := by
+theorem permute (m : Vector α 16) :
+    (WordProgram.permute m).map f.apply = WordProgram.permute (m.map f.apply) := by
   ext i hi
-  simp [Blake3Bits.addWord, f.add, carry]
+  simp [WordProgram.permute]
 
-theorem xorWord (x y : Blake3Bits.Word α) :
-    (Blake3Bits.xorWord x y).map f.apply = Blake3Bits.xorWord (x.map f.apply) (y.map f.apply) := by
+theorem rounds (v m : Vector α 16) :
+    (WordProgram.rounds a v m).map f.apply =
+      WordProgram.rounds b (v.map f.apply) (m.map f.apply) := by
+  simp only [WordProgram.rounds, round, permute]
+
+theorem finish (v : Vector α 16) :
+    (WordProgram.finish a v).map f.apply = WordProgram.finish b (v.map f.apply) := by
   ext i hi
-  simp [Blake3Bits.xorWord, f.add]
+  simp [WordProgram.finish, f.xor]
 
-theorem rotRight (x : Blake3Bits.Word α) (n : Nat) :
-    (Blake3Bits.rotRight x n).map f.apply = Blake3Bits.rotRight (x.map f.apply) n := by
-  ext i hi
-  simp [Blake3Bits.rotRight]
+theorem digest (v m : Vector α 16) :
+    (WordProgram.digest a v m).map f.apply =
+      WordProgram.digest b (v.map f.apply) (m.map f.apply) := by
+  simp only [WordProgram.digest, finish, rounds]
 
-theorem stateWord (v : Blake3Bits.State α) (i : Fin 16) :
-    (Blake3Bits.stateWord v i).map f.apply = Blake3Bits.stateWord (v.map f.apply) i := by
-  ext j hj
-  simp [Blake3Bits.stateWord]
+end WordHom
 
-theorem setWord (v : Blake3Bits.State α) (i : Fin 16) (x : Blake3Bits.Word α) :
-    (Blake3Bits.setWord v i x).map f.apply = Blake3Bits.setWord (v.map f.apply) i (x.map f.apply) := by
-  apply Vector.ext
-  intro j hj
-  by_cases h : j / 32 = i.val <;> simp [Blake3Bits.setWord, h]
+def evalHom (input : Input) : WordHom WordProgram.symbolicOps WordProgram.natOps where
+  apply := WordExpr.eval input
+  add := WordExpr.eval_add input
+  xor := WordExpr.eval_xor input
+  rotate := WordExpr.eval_rotate input
 
-def quad (q : Blake3Bits.Quad α) : Blake3Bits.Quad β :=
-  ⟨q.a.map f.apply, q.b.map f.apply, q.c.map f.apply, q.d.map f.apply⟩
+def initialExpressions : Vector WordExpr 16 := WordProgram.initialWords.map WordExpr.literal
 
-theorem gFirstValues (q : Blake3Bits.Quad α) (mx : Blake3Bits.Word α) :
-    f.quad (Blake3Bits.gFirstValues q mx) =
-      Blake3Bits.gFirstValues (f.quad q) (mx.map f.apply) := by
-  simp only [Blake3Bits.gFirstValues, quad, addWord, xorWord, rotRight]
-
-theorem gSecondValues (q : Blake3Bits.Quad α) (my : Blake3Bits.Word α) :
-    f.quad (Blake3Bits.gSecondValues q my) =
-      Blake3Bits.gSecondValues (f.quad q) (my.map f.apply) := by
-  simp only [Blake3Bits.gSecondValues, quad, addWord, xorWord, rotRight]
-
-theorem gValues (q : Blake3Bits.Quad α) (mx my : Blake3Bits.Word α) :
-    f.quad (Blake3Bits.gValues q mx my) =
-      Blake3Bits.gValues (f.quad q) (mx.map f.apply) (my.map f.apply) := by
-  simp only [Blake3Bits.gValues, gSecondValues, gFirstValues]
-
-theorem readQuad (v : Blake3Bits.State α) (a b c d : Fin 16) :
-    f.quad (Blake3Bits.readQuad v a b c d) =
-      Blake3Bits.readQuad (v.map f.apply) a b c d := by
-  simp only [quad, Blake3Bits.readQuad, stateWord]
-
-theorem g (v : Blake3Bits.State α) (a b c d : Fin 16) (mx my : Blake3Bits.Word α) :
-    (Blake3Bits.g v a b c d mx my).map f.apply =
-      Blake3Bits.g (v.map f.apply) a b c d (mx.map f.apply) (my.map f.apply) := by
-  have h := f.gValues (Blake3Bits.readQuad v a b c d) mx my
-  rw [readQuad] at h
-  unfold Blake3Bits.g Blake3Bits.writeQuad
-  simp only [setWord]
-  have ha := congrArg Blake3Bits.Quad.a h
-  have hb := congrArg Blake3Bits.Quad.b h
-  have hc := congrArg Blake3Bits.Quad.c h
-  have hd := congrArg Blake3Bits.Quad.d h
-  simp only [quad] at ha hb hc hd
-  rw [ha, hb, hc, hd]
-
-theorem roundState (v m : Blake3Bits.State α) :
-    (Blake3Bits.roundState v m).map f.apply = Blake3Bits.roundState (v.map f.apply) (m.map f.apply) := by
-  simp only [Blake3Bits.roundState, Blake3Bits.gPairState, g, stateWord]
-
-theorem permuteState (m : Blake3Bits.State α) :
-    (Blake3Bits.permuteState m).map f.apply = Blake3Bits.permuteState (m.map f.apply) := by
-  ext i hi
-  simp [Blake3Bits.permuteState, Blake3Bits.flattenWords, Blake3Bits.permute, Blake3Bits.splitWords]
-
-theorem constWord (n : Nat) :
-    (Blake3Bits.constWord n : Blake3Bits.Word α).map f.apply = Blake3Bits.constWord n := by
+theorem initialExpressions_eval (input : Input) :
+    initialExpressions.map (WordExpr.eval input) = WordProgram.initialWords := by
   apply Vector.ext
   intro i hi
-  cases h : n.testBit i <;> simp [Blake3Bits.constWord, h, f.zero, f.one]
+  have h : WordProgram.initialWords[i] < 2^32 := by
+    interval_cases i <;> norm_num [WordProgram.initialWords, chainingValue, Specs.BLAKE3.iv]
+    all_goals exact UInt32.toNat_lt _
+  simpa only [initialExpressions, Vector.getElem_map, WordExpr.eval_literal]
+    using Nat.mod_eq_of_lt h
 
-@[simp] theorem constAt (n i : Nat) :
-    f.apply (Blake3Bits.atWord (Blake3Bits.constWord n) i) =
-      Blake3Bits.atWord (Blake3Bits.constWord n) i := by
-  rw [← atWord, constWord]
+def referenceWordExpressions : Vector WordExpr 8 :=
+  WordProgram.digest WordProgram.symbolicOps initialExpressions WordExpr.inputs
 
-theorem initialState (w : Vector (Blake3Bits.Word α) 28) :
-    (Blake3Bits.initialState w).map f.apply = Blake3Bits.initialState (w.map (Vector.map f.apply)) := by
-  apply Vector.ext
-  intro i hi
-  by_cases hcv : i / 32 < 8
-  · simp [Blake3Bits.initialState, hcv]
-  · by_cases hiv : i / 32 < 12
-    · simp [Blake3Bits.initialState, hcv, hiv]
-    · simp [Blake3Bits.initialState, hcv, hiv]
+theorem referenceWordExpressions_correct (input : Input) :
+    referenceWordExpressions.map (WordExpr.eval input) = referenceWords (inputWords input) := by
+  have h := (evalHom input).digest initialExpressions WordExpr.inputs
+  change referenceWordExpressions.map (WordExpr.eval input) =
+    WordProgram.digest WordProgram.natOps
+      (initialExpressions.map (WordExpr.eval input))
+      (WordExpr.inputs.map (WordExpr.eval input)) at h
+  rw [initialExpressions_eval] at h
+  have hi : WordExpr.inputs.map (WordExpr.eval input) = inputWords input := by
+    ext i hi
+    simp [WordExpr.inputs]
+  rw [hi, WordProgram.digest_nat] at h
+  exact h
 
-theorem initialBlock (w : Vector (Blake3Bits.Word α) 28) :
-    (Blake3Bits.initialBlock w).map f.apply = Blake3Bits.initialBlock (w.map (Vector.map f.apply)) := by
-  ext i hi
-  simp [Blake3Bits.initialBlock]
-
-def config (x : Blake3Bits.Config α) : Blake3Bits.Config β := ⟨x.state.map f.apply, x.block.map f.apply⟩
-
-theorem stepConfig (x : Blake3Bits.Config α) :
-    f.config (Blake3Bits.stepConfig x) = Blake3Bits.stepConfig (f.config x) := by
-  simp only [config, Blake3Bits.stepConfig, roundState, permuteState]
-
-theorem steps7 (x : Blake3Bits.Config α) : f.config (Blake3Bits.steps7 x) = Blake3Bits.steps7 (f.config x) := by
-  simp only [Blake3Bits.steps7, Blake3Bits.steps2, Blake3Bits.steps4, stepConfig]
-
-theorem finalizeState (v initial : Blake3Bits.State α) :
-    (Blake3Bits.finalizeState v initial).map f.apply =
-      Blake3Bits.finalizeState (v.map f.apply) (initial.map f.apply) := by
-  apply Vector.ext
-  intro i hi
-  by_cases h : i < 256 <;> simp [Blake3Bits.finalizeState, h, f.add]
-
-theorem compressState (w : Vector (Blake3Bits.Word α) 28) :
-    (Blake3Bits.compressState w).map f.apply = Blake3Bits.compressState (w.map (Vector.map f.apply)) := by
-  have h := congrArg Blake3Bits.Config.state (f.steps7 ⟨Blake3Bits.initialState w, Blake3Bits.initialBlock w⟩)
-  simp only [config, initialState, initialBlock] at h
-  simp only [Blake3Bits.compressState, finalizeState, initialState, h]
-
-theorem hashWords (input : Vector α 512) :
-    (Protected.hashWords input).map (Vector.map f.apply) =
-      Protected.hashWords (input.map f.apply) := by
-  apply Vector.ext
-  intro i hi
-  by_cases hcv : i < 8
-  · simpa [Protected.hashWords, hcv] using f.constWord (Specs.Blake3.iv[i])
-  · by_cases hm : i < 24
-    · apply Vector.ext
-      intro j hj
-      simp [Protected.hashWords, hcv, hm, Blake3Bits.splitWords]
-    · simpa [Protected.hashWords, hcv, hm] using
-        f.constWord (if i = 26 then 64 else if i = 27 then 11 else 0)
-
-end BitHom
-
-def evalHom (input : Input) : BitHom BitExpr Bit where
-  apply := BitExpr.eval input
-  zero := BitExpr.eval_zero input
-  one := BitExpr.eval_one input
-  add := BitExpr.eval_add input
-  mul := BitExpr.eval_mul input
-
-/-- Symbolic specialization of the upstream specification. -/
 def referenceExpressions : Vector BitExpr 256 :=
-  let all := Blake3Bits.compressState (hashWords BitExpr.inputs)
-  Vector.ofFn fun i => all[i.val]'(by omega)
+  Vector.ofFn fun i => BitExpr.wordBit referenceWordExpressions[i.val / 32]
+    ⟨i.val % 32, Nat.mod_lt _ (by decide)⟩
 
 theorem referenceExpressions_correct (input : Input) :
     referenceExpressions.map (BitExpr.eval input) = reference input := by
-  have h := (evalHom input).compressState (hashWords BitExpr.inputs)
-  rw [(evalHom input).hashWords] at h
-  have hi : BitExpr.inputs.map (BitExpr.eval input) = input := by
-    ext i hi
-    simp [BitExpr.inputs]
-  change (Blake3Bits.compressState (hashWords BitExpr.inputs)).map (BitExpr.eval input) =
-    Blake3Bits.compressState (hashWords (BitExpr.inputs.map (BitExpr.eval input))) at h
-  rw [hi] at h
-  ext i hi
-  have hv := congrArg (fun v => v[i]'(by omega)) h
-  simpa [referenceExpressions, reference] using hv
+  have h := referenceWordExpressions_correct input
+  apply Vector.ext
+  intro i hi
+  have hv := congrArg (fun v : Vector Nat 8 => v[i / 32]'(by omega)) h
+  simp only [Vector.getElem_map] at hv
+  simp [referenceExpressions, reference, outputBits, hv]
 
 end Blake3Prize.Protected

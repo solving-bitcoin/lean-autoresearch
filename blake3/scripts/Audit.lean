@@ -9,6 +9,9 @@ open Lean Elab Command in
 run_cmd liftTermElabM do
   let env ← getEnv
   let modules := env.header.moduleNames
+  for mod in modules do
+    if (`Challenge).isPrefixOf mod then
+      throwError "unexpected former specification dependency: {mod}"
   for (name,info) in env.constants.toList do
     if let some index := env.getModuleIdxFor? name then
       let mod := modules[index.toNat]!
@@ -18,6 +21,8 @@ run_cmd liftTermElabM do
           throwError "submission declares outside its namespace: {name}"
   for decl in [``Blake3Prize.Submission.validClaimed,
     ``Blake3Prize.Protected.referenceExpressions_correct,
+    ``Blake3Prize.Protected.referenceWordExpressions_correct,
+    ``Blake3Prize.Protected.WordProgram.digest_nat,
     ``Blake3Prize.Protected.HalfGate.correct,
     ``Blake3Prize.Protected.artifactBytes_eq,
     ``Blake3Prize.Protected.Framing.decode_encode,

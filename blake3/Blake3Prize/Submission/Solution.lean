@@ -3,7 +3,7 @@ import Blake3Prize.Protected.Target
 namespace Blake3Prize.Submission
 open Protected
 
-/-- zk.golf's bit-level compression specialized to one unkeyed 64-byte root.
+/-- Clean's word-level compression specialized to one unkeyed 64-byte root.
 The protected lowerer shares identical expressions and propagates constants. -/
 def candidate : Candidate := referenceExpressions
 

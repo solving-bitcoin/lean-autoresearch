@@ -8,8 +8,6 @@ require mathlib from git "https://github.com/leanprover-community/mathlib4" @
   "8f9d9cff6bd728b17a24e163c9402775d9e6a365"
 require clean from git "https://github.com/Verified-zkEVM/clean" @
   "041c6e7ebc06f5cbfd534c2a19c4120f3de62435"
-require Circuits from git "https://github.com/zksecurity/zk-golf-challenges" @
-  "fb9e89a5de99022a53089f0d11a18331c4c321a3"
 
 @[default_target]
 lean_lib Blake3Prize

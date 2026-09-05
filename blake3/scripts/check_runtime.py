@@ -61,11 +61,27 @@ def main():
         return
     p=argparse.ArgumentParser()
     p.add_argument('circuit',type=Path)
+    p.add_argument('--clean-checks',type=Path,required=True)
     p.add_argument('--result',type=Path,required=True)
     args=p.parse_args()
     check_kernel()
     raw = json.loads(args.circuit.read_text())
     circuit = Circuit.from_json(raw)
+    clean = json.loads(args.clean_checks.read_text())
+    references = clean['references']
+    assert len(references) == 516
+    for sample in references:
+        message, digest = bytes(sample['input']), bytes(sample['digest'])
+        assert len(message) == 64 and len(digest) == 32
+        assert hash64(message) == digest, 'Clean/independent BLAKE3 mismatch'
+        assert circuit.plain(message) == digest, 'lowered circuit/Clean mismatch'
+    for fixture in clean['wordFixtures']:
+        word_circuit = Circuit.from_json(fixture['circuit'])
+        assert len(fixture['expected']) == len(references)
+        for sample, expected in zip(references, fixture['expected']):
+            assert word_circuit.plain(bytes(sample['input'])) == bytes(expected), 'word lowering mismatch'
+    assert len(clean['wordFixtures']) == 2
+    print('PASS: 516 direct Clean byte/bit reference checks and 1,032 word-lowering checks')
     vector = json.loads((Path(__file__).resolve().parents[1]/'tests/official-vector.json').read_text())
     assert hash64(bytes.fromhex(vector['inputHex'])).hex() == vector['digestHex']
     fixed = [bytes(64),bytes([255])*64,bytes(range(64)),bytes([0x55,0xaa])*32]
@@ -109,6 +125,9 @@ def main():
             'andTableBytes':circuit.and_count*64,'activeInputLabelBytes':512*32,
             'activeOutputLabelBytes':256*32,'totalTransferredBytes':len(artifact)+768*32,
             'garbleMilliseconds':round(garble_ms,2),'meanEvaluateMilliseconds':round(sum(eval_ms)/len(eval_ms),2),
+            'referenceModule':'Clean.Specs.BLAKE3','referenceLicense':'MIT',
+            'cleanRevision':'041c6e7ebc06f5cbfd534c2a19c4120f3de62435',
+            'cleanReferenceCases':len(references),'wordLoweringCases':2*len(references),
             'artifactDigest':hashlib.sha256(artifact).hexdigest()}
     args.result.parent.mkdir(parents=True,exist_ok=True)
     args.result.write_text(json.dumps(report,indent=2)+'\n')
