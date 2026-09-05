@@ -81,9 +81,24 @@ def check_resource_wrapper() -> None:
             Path(temporary),
             memory=48 * 1024 * 1024,
         )
-        # Darwin exercises the final ru_maxrss check after a fast successful
-        # spike. Linux may reject allocation first through inherited RLIMIT_AS.
+        # Fast successful spikes exercise the final ru_maxrss check; slower
+        # allocations are stopped by the live aggregate RSS monitor.
         assert result["memoryLimitExceeded"] is True or result["returnCode"] != 0
+
+    with tempfile.TemporaryDirectory(prefix="g1-resource-virtual-memory-") as temporary:
+        code = (
+            "import mmap,threading; "
+            "reservation=mmap.mmap(-1,512*1024*1024); "
+            "worker=threading.Thread(target=lambda:None); "
+            "worker.start(); worker.join()"
+        )
+        result = run_helper(
+            [PYTHON, "-c", code],
+            Path(temporary),
+            memory=64 * 1024 * 1024,
+        )
+        assert result["returnCode"] == 0
+        assert result["memoryLimitExceeded"] is False
 
     with tempfile.TemporaryDirectory(prefix="g1-resource-process-") as temporary:
         code = (

@@ -24,7 +24,7 @@
   "compilerFileSizeLimitBytes": 1073741824,
   "compilerProcessLimit": 128,
   "compilerWorkingDirectoryLimitBytes": 2147483648,
-  "nativeRuntimeTimeoutSeconds": 120,
+  "nativeRuntimeTimeoutSeconds": 300,
   "nativeMemoryLimitBytes": 4294967296,
   "nativeOutputLimitBytes": 1048576,
   "nativeFileSizeLimitBytes": 16777216,
