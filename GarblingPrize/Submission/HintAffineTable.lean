@@ -85,10 +85,10 @@ def row (purpose : Purpose) (pairs : RowIndex → Bool → Label)
 /-- The leading word makes the independently sampled row masks sum to the
 desired constant.  It is the only additional field element in a table. -/
 def garble (purpose : Purpose) (pairs : RowIndex → Bool → Label)
-    (params : Params) (coins : RowIndex → Coin) : Table where
-  words := Fin.cases
-    (IdealAffineTable.encodeWord (params.constant - ∑ i, rowMask purpose pairs coins i))
-    (row purpose pairs params coins)
+    (params : Params) (coins : RowIndex → Coin) : Table :=
+  let constant := IdealAffineTable.encodeWord
+    (params.constant - ∑ i, rowMask purpose pairs coins i)
+  { words := Fin.cases constant (row purpose pairs params coins) }
 
 @[simp] theorem garble_first (purpose : Purpose) (pairs : RowIndex → Bool → Label)
     (params : Params) (coins : RowIndex → Coin) :
