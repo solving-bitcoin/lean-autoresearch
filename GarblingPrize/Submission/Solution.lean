@@ -1,4 +1,5 @@
 import GarblingPrize.Submission.GLVHintPrivacy
+import GarblingPrize.Submission.CosetAffineMap
 
 namespace GarblingPrize.Submission
 
