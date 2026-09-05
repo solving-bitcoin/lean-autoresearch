@@ -1,26 +1,26 @@
-import GarblingPrize.Submission.GLVProjectiveMap
+import GarblingPrize.Submission.CosetHintMap
 
-namespace GarblingPrize.Submission.GLVFamilyArtifact
+namespace GarblingPrize.Submission.CosetFamilyArtifact
 
 open GarblingPrize.Protected
 
 @[ext] structure Artifact (count : Nat) where
-  maps : Fin count → GLVProjectiveMap.Artifact
+  maps : Fin count → CosetHintMap.Artifact
 
 def byteCount (count : Nat) : Nat :=
-  count * GLVProjectiveMap.mapByteCount
+  count * CosetHintMap.byteCount
 
 set_option maxRecDepth 4096 in
-private def mapCodec : FixedCodec GLVProjectiveMap.Artifact
-    GLVProjectiveMap.mapByteCount where
+private def mapCodec : FixedCodec CosetHintMap.Artifact
+    CosetHintMap.byteCount where
   encode := fun map =>
-    ⟨(GLVProjectiveMap.encode map).data, GLVProjectiveMap.encode_size map⟩
-  decode := fun bytes => GLVProjectiveMap.decode bytes.toByteArray
-  decode_encode := GLVProjectiveMap.decode_encode
+    ⟨(CosetHintMap.encode map).data, CosetHintMap.encode_size map⟩
+  decode := fun bytes => CosetHintMap.decode bytes.toByteArray
+  decode_encode := CosetHintMap.decode_encode
   encode_decode := by
     intro bytes map h
     apply Bytes.toByteArray_injective
-    exact GLVProjectiveMap.encode_decode h
+    exact CosetHintMap.encode_decode h
 
 def encode (artifact : Artifact count) : ByteArray :=
   FixedCodec.encodeFin mapCodec count artifact.maps
@@ -69,6 +69,6 @@ theorem encode_decode {bytes : ByteArray} {artifact : Artifact count}
       rw [← hartifact]
       exact FixedCodec.encodeFin_decode mapCodec hmaps
 
-theorem ninetyOne_byteCount : byteCount 91 = 16145129 := by decide
+theorem ninetyOne_byteCount : byteCount 91 = 5940480 := by decide
 
-end GarblingPrize.Submission.GLVFamilyArtifact
+end GarblingPrize.Submission.CosetFamilyArtifact

@@ -1,26 +1,26 @@
-import GarblingPrize.Submission.GLVProjectiveMap
+import GarblingPrize.Submission.GLVHintProjectiveMap
 
-namespace GarblingPrize.Submission.GLVFamilyArtifact
+namespace GarblingPrize.Submission.GLVHintFamilyArtifact
 
 open GarblingPrize.Protected
 
 @[ext] structure Artifact (count : Nat) where
-  maps : Fin count → GLVProjectiveMap.Artifact
+  maps : Fin count → GLVHintProjectiveMap.Artifact
 
 def byteCount (count : Nat) : Nat :=
-  count * GLVProjectiveMap.mapByteCount
+  count * GLVHintProjectiveMap.mapByteCount
 
 set_option maxRecDepth 4096 in
-private def mapCodec : FixedCodec GLVProjectiveMap.Artifact
-    GLVProjectiveMap.mapByteCount where
+private def mapCodec : FixedCodec GLVHintProjectiveMap.Artifact
+    GLVHintProjectiveMap.mapByteCount where
   encode := fun map =>
-    ⟨(GLVProjectiveMap.encode map).data, GLVProjectiveMap.encode_size map⟩
-  decode := fun bytes => GLVProjectiveMap.decode bytes.toByteArray
-  decode_encode := GLVProjectiveMap.decode_encode
+    ⟨(GLVHintProjectiveMap.encode map).data, GLVHintProjectiveMap.encode_size map⟩
+  decode := fun bytes => GLVHintProjectiveMap.decode bytes.toByteArray
+  decode_encode := GLVHintProjectiveMap.decode_encode
   encode_decode := by
     intro bytes map h
     apply Bytes.toByteArray_injective
-    exact GLVProjectiveMap.encode_decode h
+    exact GLVHintProjectiveMap.encode_decode h
 
 def encode (artifact : Artifact count) : ByteArray :=
   FixedCodec.encodeFin mapCodec count artifact.maps
@@ -69,6 +69,6 @@ theorem encode_decode {bytes : ByteArray} {artifact : Artifact count}
       rw [← hartifact]
       exact FixedCodec.encodeFin_decode mapCodec hmaps
 
-theorem ninetyOne_byteCount : byteCount 91 = 16145129 := by decide
+theorem ninetyOne_byteCount : byteCount 91 = 8168160 := by decide
 
-end GarblingPrize.Submission.GLVFamilyArtifact
+end GarblingPrize.Submission.GLVHintFamilyArtifact

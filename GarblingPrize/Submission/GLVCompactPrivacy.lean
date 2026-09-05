@@ -1,4 +1,4 @@
-import GarblingPrize.Submission.GLVCompactScheme
+import GarblingPrize.Submission.GLVCompactOracleLaw
 import GarblingPrize.Submission.IdealAffineTablePrivacy
 
 namespace GarblingPrize.Submission.GLVCompactPrivacy
@@ -6,6 +6,7 @@ namespace GarblingPrize.Submission.GLVCompactPrivacy
 open GarblingPrize.Protected
 open GarblingPrize.Submission.EisensteinRadix
 open GarblingPrize.Submission.GLVCompactScheme
+open GarblingPrize.Submission.GLVCompactOracleLaw
 open MeasureTheory ProbabilityTheory
 
 local instance concreteGroup : AddCommGroup BN254.G1 :=
@@ -65,37 +66,6 @@ private theorem offsetCode_injective (hidden : Hidden) :
 
 instance (hidden : Hidden) : Finite (GLVOffsetFamily.Fiber hidden) :=
   Finite.of_injective (offsetCode hidden) (offsetCode_injective hidden)
-
-private def randomnessCode (hidden : Hidden) (randomness : Randomness hidden) :=
-  (randomness.offsets, randomness.randomizers, randomness.chainMasks,
-    randomness.tableMasks)
-
-private theorem randomnessCode_injective (hidden : Hidden) :
-    Function.Injective (randomnessCode hidden) := by
-  intro left right hequal
-  apply Randomness.ext left right
-  · exact congrArg (fun value => value.1) hequal
-  · exact congrArg (fun value => value.2.1) hequal
-  · exact congrArg (fun value => value.2.2.1) hequal
-  · exact congrArg (fun value => value.2.2.2) hequal
-
-instance (hidden : Hidden) : Finite (Randomness hidden) :=
-  Finite.of_injective (randomnessCode hidden)
-    (randomnessCode_injective hidden)
-
-noncomputable instance (hidden : Hidden) :
-    MeasurableSpace (Randomness hidden) :=
-  Scheme.randomnessMeasurableSpace scheme hidden
-
-noncomputable instance (hidden : Hidden) :
-    DiscreteMeasurableSpace (Randomness hidden) where
-  forall_measurableSet := fun _ => MeasurableSpace.measurableSet_top
-
-noncomputable instance (hidden : Hidden) :
-    IsProbabilityMeasure (randomnessLaw scheme hidden) := by
-  change IsProbabilityMeasure
-    (uniformOn Set.univ : Measure (Randomness hidden))
-  exact isProbabilityMeasure_uniformOn Set.finite_univ Set.univ_nonempty
 
 def targetOffsets (input : Input) (source target : Hidden)
     (hequal : reference Profile source input = reference Profile target input)
@@ -451,7 +421,7 @@ theorem randomnessEquiv_measurePreserving (input : Input)
     (hequal : reference Profile source input = reference Profile target input) :
     MeasureTheory.MeasurePreserving
       (randomnessEquiv input source target hequal)
-      (randomnessLaw scheme source) (randomnessLaw scheme target) := by
+      (randomnessLaw source) (randomnessLaw target) := by
   unfold randomnessLaw
   exact measurePreserving_uniformOfFiniteEquiv
     (randomnessEquiv input source target hequal)
@@ -779,9 +749,9 @@ theorem productChange_measurePreserving (input : Input)
         (targetRandomness input source target hequal state.1,
           transformPairs input source target state.1
             (targetRandomness input source target hequal state.1) state.2))
-      ((randomnessLaw scheme source).prod labelPairsLaw)
-      ((randomnessLaw scheme target).prod labelPairsLaw) := by
-  let hsSource : SFinite (randomnessLaw scheme source) := by
+      ((randomnessLaw source).prod labelPairsLaw)
+      ((randomnessLaw target).prod labelPairsLaw) := by
+  let hsSource : SFinite (randomnessLaw source) := by
     change SFinite (uniformOn Set.univ : Measure (Randomness source))
     infer_instance
   exact @MeasurePreserving.skew_product
@@ -790,7 +760,7 @@ theorem productChange_measurePreserving (input : Input)
     (inferInstance : MeasurableSpace (Randomness target))
     (inferInstance : MeasurableSpace LabelPairs)
     LabelPairs (inferInstance : MeasurableSpace LabelPairs)
-    (randomnessLaw scheme source) (randomnessLaw scheme target)
+    (randomnessLaw source) (randomnessLaw target)
     labelPairsLaw labelPairsLaw hsSource (by infer_instance)
     (randomnessEquiv input source target hequal)
     (randomnessEquiv_measurePreserving input source target hequal)
@@ -1006,230 +976,185 @@ theorem garble_preserved (input : Input) (source target : Hidden)
   funext index
   exact mapGarble_preserved input source target hequal randomness pairs index
 
-def changeState (input : Input) (source target : Hidden)
+def productChange (input : Input) (source target : Hidden)
     (hequal : reference Profile source input = reference Profile target input)
-    (state : HiddenState scheme source) : HiddenState scheme target :=
-  let transformed := targetRandomness input source target hequal state.randomness
-  { randomness := transformed
-    pairs := transformPairs input source target state.randomness transformed
-      state.pairs }
+    (state : Randomness source × LabelPairs) :
+    Randomness target × LabelPairs :=
+  (targetRandomness input source target hequal state.1,
+    transformPairs input source target state.1
+      (targetRandomness input source target hequal state.1) state.2)
 
-theorem changeState_swapped (input : Input) (source target : Hidden)
-    (hequal : reference Profile source input = reference Profile target input)
-    (state : HiddenState scheme source) :
-    changeState input target source hequal.symm
-        (changeState input source target hequal state) = state := by
-  let transformed := targetRandomness input source target hequal state.randomness
-  let round := targetRandomness input target source hequal.symm transformed
-  have hrandomness : round = state.randomness :=
-    targetRandomness_swapped input source target hequal state.randomness
-  apply HiddenState.ext
-  · exact hrandomness
-  · change transformPairs input target source transformed round
-        (transformPairs input source target state.randomness transformed
-          state.pairs) = state.pairs
-    rw [hrandomness]
-    exact transformPairs_swapped input source target state.randomness
-      transformed state.pairs
+def derivedState (hidden : Hidden) (state : HiddenState) :
+    Randomness hidden × LabelPairs :=
+  (randomnessFromOracle hidden state.internalOracle, state.pairs)
 
-def stateEquiv (input : Input) (source target : Hidden)
-    (hequal : reference Profile source input = reference Profile target input) :
-    HiddenState scheme source ≃ HiddenState scheme target where
-  toFun := changeState input source target hequal
-  invFun := changeState input target source hequal.symm
-  left_inv := changeState_swapped input source target hequal
-  right_inv := changeState_swapped input target source hequal.symm
+set_option maxRecDepth 4096 in
+theorem derivedState_measurable (hidden : Hidden) :
+    Measurable (derivedState hidden) := by
+  have hstate := HiddenState.measurableEquiv.measurable
+  have horacle : Measurable (fun state : HiddenState =>
+      randomnessFromOracle hidden state.internalOracle) :=
+    (randomnessFromOracle_measurable hidden).comp
+      (measurable_fst.comp hstate)
+  have hpairs : Measurable (fun state : HiddenState => state.pairs) :=
+    measurable_snd.comp hstate
+  exact horacle.prodMk hpairs
 
-noncomputable def stateMeasurableEquiv (input : Input)
-    (source target : Hidden)
-    (hequal : reference Profile source input = reference Profile target input) :
-    HiddenState scheme source ≃ᵐ HiddenState scheme target where
-  toEquiv := stateEquiv input source target hequal
-  measurable_toFun := by
-    change Measurable (changeState input source target hequal)
-    have h := (HiddenState.measurableEquiv scheme target).symm.measurable.comp
-      ((productChange_measurePreserving input source target hequal).measurable.comp
-        (HiddenState.measurableEquiv scheme source).measurable)
-    rw [show changeState input source target hequal =
-      (fun state : Randomness target × LabelPairs =>
-        (⟨state.1, state.2⟩ : HiddenState scheme target)) ∘
-      (fun state : Randomness source × LabelPairs =>
-        (targetRandomness input source target hequal state.1,
-          transformPairs input source target state.1
-            (targetRandomness input source target hequal state.1) state.2)) ∘
-      (fun state : HiddenState scheme source =>
-        (state.randomness, state.pairs)) by
-      funext state
-      rfl]
-    exact h
-  measurable_invFun := by
-    change Measurable (changeState input target source hequal.symm)
-    have h := (HiddenState.measurableEquiv scheme source).symm.measurable.comp
-      ((productChange_measurePreserving input target source hequal.symm).measurable.comp
-        (HiddenState.measurableEquiv scheme target).measurable)
-    rw [show changeState input target source hequal.symm =
-      (fun state : Randomness source × LabelPairs =>
-        (⟨state.1, state.2⟩ : HiddenState scheme source)) ∘
-      (fun state : Randomness target × LabelPairs =>
-        (targetRandomness input target source hequal.symm state.1,
-          transformPairs input target source state.1
-            (targetRandomness input target source hequal.symm state.1) state.2)) ∘
-      (fun state : HiddenState scheme target =>
-        (state.randomness, state.pairs)) by
-      funext state
-      rfl]
-    exact h
-
-theorem stateMeasurableEquiv_measurePreserving (input : Input)
-    (source target : Hidden)
-    (hequal : reference Profile source input = reference Profile target input) :
-    MeasurePreserving (stateMeasurableEquiv input source target hequal)
-      (hiddenStateLaw scheme source) (hiddenStateLaw scheme target) := by
-  let sourceProduct := (randomnessLaw scheme source).prod labelPairsLaw
-  let targetProduct := (randomnessLaw scheme target).prod labelPairsLaw
-  have hsource : MeasurePreserving
-      (HiddenState.measurableEquiv scheme source)
-      (hiddenStateLaw scheme source) sourceProduct := by
+set_option maxRecDepth 4096 in
+theorem derivedState_measurePreserving (hidden : Hidden) :
+    MeasurePreserving (derivedState hidden) hiddenStateLaw
+      ((randomnessLaw hidden).prod labelPairsLaw) := by
+  have horacle : MeasurePreserving (randomnessFromOracle hidden)
+      internalOracleLaw (randomnessLaw hidden) :=
+    ⟨randomnessFromOracle_measurable hidden,
+      randomnessFromOracle_law hidden⟩
+  have hproduct := horacle.prod (MeasurePreserving.id labelPairsLaw)
+  have hstate : MeasurePreserving HiddenState.measurableEquiv hiddenStateLaw
+      (internalOracleLaw.prod labelPairsLaw) := by
     unfold hiddenStateLaw
-    exact ((HiddenState.measurableEquiv scheme source).symm.measurable
-      |>.measurePreserving sourceProduct).symm
-        (HiddenState.measurableEquiv scheme source).symm
-  have htarget : MeasurePreserving
-      (HiddenState.measurableEquiv scheme target).symm targetProduct
-      (hiddenStateLaw scheme target) := by
-    unfold hiddenStateLaw
-    exact (HiddenState.measurableEquiv scheme target).symm.measurable
-      |>.measurePreserving targetProduct
-  have hcomposed := htarget.comp
-    ((productChange_measurePreserving input source target hequal).comp hsource)
-  apply hcomposed.congr
-    (stateMeasurableEquiv input source target hequal).measurable
+    exact (HiddenState.measurableEquiv.symm.measurable
+      |>.measurePreserving (internalOracleLaw.prod labelPairsLaw)).symm
+        HiddenState.measurableEquiv.symm
+  have hcomposed := hproduct.comp hstate
+  apply hcomposed.congr (derivedState_measurable hidden)
   filter_upwards [] with state
   rfl
 
 set_option maxRecDepth 4096 in
-theorem stateView_stateEquiv (input : Input) (source target : Hidden)
-    (hequal : reference Profile source input = reference Profile target input)
-    (state : HiddenState scheme source) :
-    stateView scheme target (stateEquiv input source target hequal state) input =
-      stateView scheme source state input := by
-  let transformed := targetRandomness input source target hequal state.randomness
-  let transformedPairs := transformPairs input source target state.randomness
-    transformed state.pairs
-  have hartifact : garble target transformed transformedPairs =
-      garble source state.randomness state.pairs :=
-    garble_preserved input source target hequal state.randomness state.pairs
-  have hlabels : activeLabels transformedPairs input =
-      activeLabels state.pairs input :=
-    transformPairs_activeLabels input source target state.randomness transformed
-      state.pairs
-  change publicView scheme target transformed transformedPairs input =
-    publicView scheme source state.randomness state.pairs input
-  have hbytes : scheme.garbleBytes target transformed transformedPairs =
-      scheme.garbleBytes source state.randomness state.pairs := by
-    unfold Scheme.garbleBytes
-    change GLVFamilyArtifact.encode (garble target transformed transformedPairs) =
-      GLVFamilyArtifact.encode (garble source state.randomness state.pairs)
-    rw [hartifact]
-  unfold publicView
-  dsimp only
-  rw [hbytes, hlabels]
-
-set_option maxRecDepth 4096 in
-theorem artifactBytes_measurable (hidden : Hidden) :
-    Measurable (fun state : HiddenState scheme hidden =>
-      scheme.garbleBytes hidden state.randomness state.pairs) := by
-  have hstate := (HiddenState.measurableEquiv scheme hidden).measurable
-  have hrandomness : Measurable (fun state : HiddenState scheme hidden =>
-      state.randomness) := measurable_fst.comp hstate
-  have hpads : Measurable (fun state : HiddenState scheme hidden =>
-      artifactPads state.pairs) :=
-    artifactPads_measurable.comp (measurable_snd.comp hstate)
-  have hobservation : Measurable (fun state : HiddenState scheme hidden =>
-      (state.randomness, artifactPads state.pairs)) :=
-    hrandomness.prodMk hpads
-  have hgarble : Measurable (fun observation : Randomness hidden × ArtifactPads =>
-      scheme.garbleBytes hidden observation.1
-        (expandArtifactPads observation.2)) :=
+theorem productArtifactBytes_measurable (hidden : Hidden) :
+    Measurable (fun state : Randomness hidden × LabelPairs =>
+      GLVFamilyArtifact.encode (garble hidden state.1 state.2)) := by
+  have hpads : Measurable (fun state : Randomness hidden × LabelPairs =>
+      artifactPads state.2) := artifactPads_measurable.comp measurable_snd
+  have hobservation : Measurable
+      (fun state : Randomness hidden × LabelPairs =>
+        (state.1, artifactPads state.2)) := measurable_fst.prodMk hpads
+  have hgarble : Measurable
+      (fun observation : Randomness hidden × ArtifactPads =>
+        GLVFamilyArtifact.encode
+          (garble hidden observation.1 (expandArtifactPads observation.2))) :=
     measurable_of_finite _
   have hcomposed := hgarble.comp hobservation
   convert hcomposed using 1
   funext state
-  unfold Scheme.garbleBytes
-  change GLVFamilyArtifact.encode (garble hidden state.randomness state.pairs) =
-    GLVFamilyArtifact.encode
-      (garble hidden state.randomness
-        (expandArtifactPads (artifactPads state.pairs)))
   exact congrArg GLVFamilyArtifact.encode
-    (garble_expandArtifactPads_artifactPads hidden
-      (show Randomness hidden from state.randomness) state.pairs).symm
+    (garble_expandArtifactPads_artifactPads hidden state.1 state.2).symm
 
-theorem stateView_result (hidden : Hidden) (input : Input)
-    (state : HiddenState scheme hidden) :
-    (stateView scheme hidden state input).result =
-      .ok (Profile.outputEquiv.symm (reference Profile hidden input)) := by
+noncomputable def productView (hidden : Hidden) (input : Input)
+    (state : Randomness hidden × LabelPairs) : PublicView Profile :=
+  (PublicView.measurableEquiv Profile).symm
+    ((GLVFamilyArtifact.encode (garble hidden state.1 state.2),
+      activeLabels state.2 input),
+      .ok (Profile.outputEquiv.symm (reference Profile hidden input)))
+
+theorem productView_measurable (hidden : Hidden) (input : Input) :
+    Measurable (productView hidden input) := by
+  have hartifact := productArtifactBytes_measurable hidden
+  have hlabels : Measurable
+      (fun state : Randomness hidden × LabelPairs =>
+        activeLabels state.2 input) :=
+    (activeLabels_measurable input).comp measurable_snd
+  exact (PublicView.measurableEquiv Profile).symm.measurable.comp
+    ((hartifact.prodMk hlabels).prodMk measurable_const)
+
+set_option maxRecDepth 4096 in
+theorem productView_productChange (input : Input) (source target : Hidden)
+    (hequal : reference Profile source input = reference Profile target input)
+    (state : Randomness source × LabelPairs) :
+    productView target input (productChange input source target hequal state) =
+      productView source input state := by
+  let transformed := targetRandomness input source target hequal state.1
+  let transformedPairs := transformPairs input source target state.1
+    transformed state.2
+  have hartifact : garble target transformed transformedPairs =
+      garble source state.1 state.2 :=
+    garble_preserved input source target hequal state.1 state.2
+  have hlabels : activeLabels transformedPairs input =
+      activeLabels state.2 input :=
+    transformPairs_activeLabels input source target state.1 transformed state.2
+  apply PublicView.ext
+  · exact congrArg
+      (fun artifact : GLVFamilyArtifact.Artifact 91 =>
+        GLVFamilyArtifact.encode artifact)
+      hartifact
+  · exact hlabels
+  · exact congrArg (fun point => Except.ok (Profile.outputEquiv.symm point))
+      hequal.symm
+
+set_option maxRecDepth 4096 in
+set_option maxHeartbeats 1000000 in
+theorem stateView_eq_productView (hidden : Hidden) (input : Input)
+    (state : HiddenState) :
+    stateView scheme hidden state input =
+      productView hidden input (derivedState hidden state) := by
   obtain ⟨output, hresult, hreference⟩ :=
-    correct hidden state.randomness state.pairs input
+    correct hidden state.internalOracle state.pairs input
   have houtput : output =
       Profile.outputEquiv.symm (reference Profile hidden input) := by
     apply Profile.outputEquiv.injective
     simpa using hreference
-  unfold stateView publicView
-  dsimp only
-  rw [hresult, houtput]
-
-noncomputable def modeledStateView (hidden : Hidden) (input : Input)
-    (state : HiddenState scheme hidden) : PublicView Profile :=
-  (PublicView.measurableEquiv Profile).symm
-    ((scheme.garbleBytes hidden state.randomness state.pairs,
-      activeLabels state.pairs input),
-      .ok (Profile.outputEquiv.symm (reference Profile hidden input)))
-
-theorem stateView_eq_modeledStateView (hidden : Hidden) (input : Input) :
-    (fun state : HiddenState scheme hidden =>
-      stateView scheme hidden state input) = modeledStateView hidden input := by
-  funext state
   apply PublicView.ext
+  · exact congrArg
+      (fun artifact : GLVFamilyArtifact.Artifact 91 =>
+        GLVFamilyArtifact.encode artifact)
+      (garbleWithOracle_eq hidden state.internalOracle state.pairs)
   · rfl
-  · rfl
-  · exact stateView_result hidden input state
+  · unfold stateView publicView productView derivedState
+    dsimp only
+    rw [hresult, houtput]
+    rfl
 
-theorem modeledStateView_measurable (hidden : Hidden) (input : Input) :
-    Measurable (modeledStateView hidden input) := by
-  have hstate := (HiddenState.measurableEquiv scheme hidden).measurable
-  have hartifact : Measurable (fun state : HiddenState scheme hidden =>
-      scheme.garbleBytes hidden state.randomness state.pairs) :=
-    artifactBytes_measurable hidden
-  have hlabels : Measurable (fun state : HiddenState scheme hidden =>
-      activeLabels state.pairs input) := by
-    exact activeLabels_measurable input |>.comp (measurable_snd.comp hstate)
-  exact (PublicView.measurableEquiv Profile).symm.measurable.comp
-    ((hartifact.prodMk hlabels).prodMk measurable_const)
-
+set_option maxRecDepth 4096 in
 theorem stateView_measurable (hidden : Hidden) (input : Input) :
-    Measurable (fun state : HiddenState scheme hidden =>
+    Measurable (fun state : HiddenState =>
       stateView scheme hidden state input) := by
-  rw [stateView_eq_modeledStateView hidden input]
-  exact modeledStateView_measurable hidden input
+  rw [show (fun state : HiddenState => stateView scheme hidden state input) =
+      productView hidden input ∘ derivedState hidden by
+    funext state
+    exact stateView_eq_productView hidden input state]
+  exact (productView_measurable hidden input).comp
+    (derivedState_measurable hidden)
 
-theorem functionPrivate : FunctionPrivate scheme := by
-  refine
-    { randomness_finite := fun hidden => by
-        change Finite (Randomness hidden)
-        infer_instance
-      randomness_nonempty := fun hidden => ⟨canonicalRandomness hidden⟩
-      stateView_measurable := stateView_measurable
-      change := ?_ }
-  intro input source target hequal
-  exact ⟨stateMeasurableEquiv input source target hequal,
-    stateMeasurableEquiv_measurePreserving input source target hequal,
-    stateView_stateEquiv input source target hequal⟩
+set_option maxRecDepth 4096 in
+theorem publicView_identDistrib (input : Input) (source target : Hidden)
+    (hequal : reference Profile source input = reference Profile target input) :
+    IdentDistrib
+      (fun state => stateView scheme source state input)
+      (fun state => stateView scheme target state input)
+      hiddenStateLaw hiddenStateLaw := by
+  refine ⟨(stateView_measurable source input).aemeasurable,
+    (stateView_measurable target input).aemeasurable, ?_⟩
+  rw [show (fun state : HiddenState => stateView scheme source state input) =
+      productView source input ∘ derivedState source by
+    funext state
+    exact stateView_eq_productView source input state]
+  rw [show (fun state : HiddenState => stateView scheme target state input) =
+      productView target input ∘ derivedState target by
+    funext state
+    exact stateView_eq_productView target input state]
+  rw [← Measure.map_map (productView_measurable source input)
+    (derivedState_measurable source)]
+  rw [← Measure.map_map (productView_measurable target input)
+    (derivedState_measurable target)]
+  rw [(derivedState_measurePreserving source).map_eq,
+    (derivedState_measurePreserving target).map_eq]
+  rw [show productView source input =
+      productView target input ∘ productChange input source target hequal by
+    funext state
+    exact (productView_productChange input source target hequal state).symm]
+  unfold productChange
+  rw [← Measure.map_map (productView_measurable target input)
+    (productChange_measurePreserving input source target hequal).measurable]
+  rw [(productChange_measurePreserving input source target hequal).map_eq]
+
+theorem functionPrivate : FunctionPrivate scheme where
+  stateView_measurable := stateView_measurable
+  publicView_identDistrib := publicView_identDistrib
 
 theorem valid : ValidCandidate scheme claimedBytes where
-  seed_instantiation := ⟨seedInstantiation⟩
   correct := correct
   function_private := functionPrivate
   codec := codec
-  artifact_bound := artifactBound
+  artifact_bound := artifactBoundOracle
 
 end GarblingPrize.Submission.GLVCompactPrivacy

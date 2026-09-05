@@ -1,4 +1,6 @@
 import GarblingPrize.Submission.ProjectiveMap
+import GarblingPrize.Submission.RCBMatrixEncoding
+import GarblingPrize.Submission.HintAffineTable
 
 namespace GarblingPrize.Submission.GLVProjectiveMap
 

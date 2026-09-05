@@ -1,4 +1,5 @@
 import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
+import GarblingPrize.Submission.G1GeneratorCertificates
 import GarblingPrize.Submission.G1Cardinality
 import GarblingPrize.Submission.G1Endomorphism
 import GarblingPrize.Submission.EisensteinKernel
