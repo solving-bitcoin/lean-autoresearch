@@ -1,7 +1,8 @@
 import Blake3Prize.Protected.Reference
 import Lean
 
-namespace Blake3Prize.Protected
+namespace Blake3Prize.Baselines.HalfGates
+open Blake3Prize.Protected
 
 /-- Hash-cached syntax for bounded word expressions. It is interpreted as data,
 never elaborated as Lean code. Every literal is reduced modulo 2^32. -/
@@ -52,4 +53,4 @@ def eval (input : Input) (e : WordExpr) : Nat := evalTerm input e.term
 def inputs : Vector WordExpr 16 := Vector.ofFn inputWord
 
 end WordExpr
-end Blake3Prize.Protected
+end Blake3Prize.Baselines.HalfGates

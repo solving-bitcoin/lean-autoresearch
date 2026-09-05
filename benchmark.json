@@ -14,7 +14,7 @@
     },
     {
       "name": "blake3-64-labeled-hash",
-      "description": "Minimize the complete artifact for labeled 64-byte BLAKE3 hashing using Lean-certified bit/word expressions and a protected 256-bit half-gates backend, with independent 32-byte label pairs on input and output bits.",
+      "description": "Minimize the complete serialized artifact for known-input labeled BLAKE3 with independent 32-byte label pairs, submission-owned algorithms/codecs, and correctness, secrecy, and universal size proofs under a reviewed profile.",
       "category": "lean",
       "direction": "-",
       "editablePaths": [

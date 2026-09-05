@@ -52,4 +52,8 @@ def activeOutput (pairs : OutputLabelPairs) (output : Output) : ActiveOutputLabe
 def DistinctPairs {n : Nat} (pairs : Fin n → Bool → Label) : Prop :=
   ∀ i, pairs i false ≠ pairs i true
 
+/-- Public plaintext input supplied to evaluation, byte-major and LSB-first. -/
+def inputFromBytes (message : Vector UInt8 64) : Input :=
+  Vector.ofFn fun i => bitOfBool (message[i.val / 8].toNat.testBit (i.val % 8))
+
 end Blake3Prize.Protected

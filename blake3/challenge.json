@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "slug": "blake3-64-labeled-hash",
   "status": "active",
   "direction": "minimize",
-  "metric": "universal_artifact_byte_bound_under_protected_backend",
+  "metric": "universal_serialized_artifact_byte_bound",
   "unit": "bytes",
   "inputBytes": 64,
   "outputBytes": 32,
@@ -18,17 +18,13 @@
   "editablePaths": [
     "Blake3Prize/Submission"
   ],
-  "candidate": "Blake3Prize.Submission.validClaimed",
+  "candidate": "Blake3Prize.Submission.entry",
   "claim": "Blake3Prize.Protected.ValidCandidate",
   "allowedAxioms": [
     "propext",
     "Classical.choice",
     "Quot.sound"
   ],
-  "backend": "256-bit-free-xor-half-gates-sha256-rom-v1",
-  "fixedArtifactBytes": 49696,
-  "bytesPerAndGate": 64,
-  "bytesPerXorGate": 0,
   "scorePath": ".yukon/blake3-64-labeled-hash-score.json",
   "compilerMemoryLimitBytes": 4294967296,
   "nativeMemoryLimitBytes": 1073741824,
@@ -36,5 +32,33 @@
   "nativeTimeoutSeconds": 300,
   "referenceModule": "Clean.Specs.BLAKE3",
   "referenceLicense": "MIT",
-  "cleanRevision": "041c6e7ebc06f5cbfd534c2a19c4120f3de62435"
+  "cleanRevision": "93c9d1ef45be9f687214625d7857889cf2485504",
+  "evaluatorKnowsMessage": true,
+  "protectedOppositeLabels": 768,
+  "vcvioRevision": "ffd0ca198fe6e640c0dd7f0f9c599943caacbf64",
+  "vcvioLicense": "Apache-2.0",
+  "leanToolchain": "leanprover/lean4:v4.33.1",
+  "securityProfiles": [
+    {
+      "name": "ClassicalBoundedQueryROM",
+      "id": "classical-bounded-query-rom-v1",
+      "oracleDomain": "finite-byte-strings",
+      "oracleOutputBits": 256,
+      "maxQueries": 18446744073709551616,
+      "failureBound": "(q + 1) / 2^128 for every 0 <= q <= 2^64",
+      "labelDistribution": "independent uniform ordered distinct pairs",
+      "assumption": "shared ideal random oracle; arbitrary local computation; bounded classical queries",
+      "inputSelection": "known message fixed independently of sampled labels, coins, and oracle"
+    }
+  ],
+  "implementationProfile": {
+    "oracle": "SHA-256",
+    "source": "Clean.Specs.SHA256",
+    "bridgeStatus": "heuristic / unproved"
+  },
+  "currentSubmissionStatus": "unranked",
+  "optionalBaseline": {
+    "artifactBytes": 707680,
+    "status": "uncertified"
+  }
 }

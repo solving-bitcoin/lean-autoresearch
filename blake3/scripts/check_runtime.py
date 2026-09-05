@@ -1,136 +1,108 @@
-"""Native end-to-end and hostile framing tests for the protected backend."""
-import argparse
-import hashlib
+"""Exercise the submitted Lean scheme; no cryptographic backend is prescribed."""
 import json
 from pathlib import Path
 import secrets
-import subprocess
-import sys
 import tempfile
-import time
 
-from garble import Circuit, FIXED_BYTES, garble, evaluate, fresh_pairs, select_input, select_output
+from resources import ROOT,guarded
 from reference import hash64
 
 
-def expect_error(action):
-    try:
-        action()
-    except (ValueError, TypeError, KeyError):
-        return
-    raise AssertionError('malformed input was accepted')
+def check_reference(clean_path):
+    data=json.loads(Path(clean_path).read_text())
+    vector=json.loads((ROOT/'tests/official-vector.json').read_text())
+    # The stored official vector has a provenance record and fixed input/digest.
+    message=bytes(range(64))
+    expected=bytes.fromhex('4eed7141ea4a5cd4b788606bd23f46e212af9cacebacdc7d1f4c6dc7f2511b98')
+    assert hash64(message)==expected
+    assert expected.hex() in json.dumps(vector)
+    for case in data['references']:
+        assert hash64(bytes(case['input']))==bytes(case['digest']), 'Clean reference mismatch'
+    if 'hashes' in data:
+        import hashlib
+        for case in data['hashes']:
+            assert hashlib.sha256(bytes(case['input'])).digest()==bytes(case['digest']), 'native public hash mismatch'
+    return {'cleanReferenceCases':len(data['references']),
+            'nativeHashCases':len(data.get('hashes',[])),
+            'referenceModule':'Clean.Specs.BLAKE3',
+            'cleanRevision':'93c9d1ef45be9f687214625d7857889cf2485504',
+            'referenceLicense':'MIT'}
 
 
-def check_kernel():
-    # XOR, AND, complemented wires, constants, and duplicate inputs.
-    gates = ((False,2,4), (True,2,4), (True,3,4), (False,3,5),
-             (True,1,2), (True,0,4), (True,2,2), (True,2,3))
-    pattern = tuple(2*(513+i) for i in range(8)) + (0,1,2,3)
-    outputs = (pattern*22)[:256]
-    c = Circuit(gates, outputs, FIXED_BYTES + 6*64)
-    ip, op = fresh_pairs(512), fresh_pairs(256)
-    # Includes boundary selector indices 0 and 255, and pairs whose low bits agree.
-    ip[0] = (bytes(32), (1 << 255).to_bytes(32,'little'))
-    ip[1] = (bytes(32), (1).to_bytes(32,'little'))
-    artifact = garble(c,ip,op)
-    for a in range(2):
-        for b in range(2):
-            message = bytes([a+2*b])+bytes(63)
-            assert evaluate(c,artifact,select_input(ip,message)) == select_output(op,c.plain(message))
-    expect_error(lambda: evaluate(c, artifact[:-1], select_input(ip, bytes(64))))
-    expect_error(lambda: evaluate(c, artifact+b'\0', select_input(ip, bytes(64))))
-    expect_error(lambda: evaluate(c, artifact, [bytes(31)]*512))
-    expect_error(lambda: evaluate(c, artifact, [bytes(32)]*511))
-    bad = list(ip); bad[0] = (bytes(32),bytes(32))
-    expect_error(lambda: garble(c,bad,op))
-    print('PASS: half-gate truth tables, XOR/complements, constants, arbitrary selectors, framing')
+def fresh_pairs(n):
+    result=[]
+    for _ in range(n):
+        a=secrets.token_bytes(32)
+        b=secrets.token_bytes(32)
+        while a==b:b=secrets.token_bytes(32)
+        result.append((a,b))
+    return result
 
 
-def worker(circuit_path: Path, artifact_path: Path, labels_path: Path, output_path: Path):
-    circuit = Circuit.from_json(json.loads(circuit_path.read_text()))
-    labels = labels_path.read_bytes()
-    if len(labels) != 512*32:
-        raise ValueError('wrong active-label channel length')
-    result = evaluate(circuit,artifact_path.read_bytes(),tuple(labels[i:i+32] for i in range(0,len(labels),32)))
-    output_path.write_bytes(b''.join(result))
+def select(pairs,message):
+    return b''.join(pair[(message[i//8]>>(i%8))&1] for i,pair in enumerate(pairs))
 
 
-def main():
-    if len(sys.argv)>1 and sys.argv[1]=='worker':
-        worker(*(Path(p) for p in sys.argv[2:]))
-        return
-    p=argparse.ArgumentParser()
-    p.add_argument('circuit',type=Path)
-    p.add_argument('--clean-checks',type=Path,required=True)
-    p.add_argument('--result',type=Path,required=True)
-    args=p.parse_args()
-    check_kernel()
-    raw = json.loads(args.circuit.read_text())
-    circuit = Circuit.from_json(raw)
-    clean = json.loads(args.clean_checks.read_text())
-    references = clean['references']
-    assert len(references) == 516
-    for sample in references:
-        message, digest = bytes(sample['input']), bytes(sample['digest'])
-        assert len(message) == 64 and len(digest) == 32
-        assert hash64(message) == digest, 'Clean/independent BLAKE3 mismatch'
-        assert circuit.plain(message) == digest, 'lowered circuit/Clean mismatch'
-    for fixture in clean['wordFixtures']:
-        word_circuit = Circuit.from_json(fixture['circuit'])
-        assert len(fixture['expected']) == len(references)
-        for sample, expected in zip(references, fixture['expected']):
-            assert word_circuit.plain(bytes(sample['input'])) == bytes(expected), 'word lowering mismatch'
-    assert len(clean['wordFixtures']) == 2
-    print('PASS: 516 direct Clean byte/bit reference checks and 1,032 word-lowering checks')
-    vector = json.loads((Path(__file__).resolve().parents[1]/'tests/official-vector.json').read_text())
-    assert hash64(bytes.fromhex(vector['inputHex'])).hex() == vector['digestHex']
-    fixed = [bytes(64),bytes([255])*64,bytes(range(64)),bytes([0x55,0xaa])*32]
-    flips = [(1<<i).to_bytes(64,'little') for i in range(512)]
-    for msg in fixed+flips+[secrets.token_bytes(64) for _ in range(16)]:
-        assert circuit.plain(msg)==hash64(msg), 'circuit/reference mismatch'
-    print('PASS: official BLAKE3 vector, all 512 single-bit inputs, 16 random inputs, fixed patterns')
-    ip,op = fresh_pairs(512),fresh_pairs(256)
-    start=time.monotonic(); artifact=garble(circuit,ip,op); garble_ms=1000*(time.monotonic()-start)
-    assert len(artifact)==circuit.artifact_bytes <= circuit.claimed_bytes
-    eval_ms=[]
-    for msg in fixed+[secrets.token_bytes(64) for _ in range(4)]:
-        active=select_input(ip,msg)
-        start=time.monotonic();result=evaluate(circuit,artifact,active);eval_ms.append(1000*(time.monotonic()-start))
-        assert result==select_output(op,hash64(msg)), 'wrong output labels'
-    second=garble(circuit,ip,op)
-    assert second!=artifact, 'fresh garbling randomness did not change the artifact'
-    msg=secrets.token_bytes(64)
-    assert evaluate(circuit,second,select_input(ip,msg))==select_output(op,hash64(msg))
-    with tempfile.TemporaryDirectory(prefix='blake3-label-worker-') as td:
-        td=Path(td)
-        (td/'artifact').write_bytes(artifact)
-        (td/'labels').write_bytes(b''.join(select_input(ip,msg)))
-        subprocess.run([sys.executable,str(Path(__file__).resolve()),'worker',str(args.circuit.resolve()),
-                        str(td/'artifact'),str(td/'labels'),str(td/'output')],check=True,timeout=60)
-        assert (td/'output').read_bytes()==b''.join(select_output(op,hash64(msg)))
-    for length in (0,63,65):
-        expect_error(lambda length=length: hash64(bytes(length)))
-    for field in ('inputBits','outputBits','schemaVersion'):
-        invalid=dict(raw);invalid[field]=0
-        expect_error(lambda invalid=invalid: Circuit.from_json(invalid))
-    invalid=dict(raw);invalid['outputs']=[10**9]*256
-    expect_error(lambda: Circuit.from_json(invalid))
-    invalid=dict(raw);invalid['claimedBytes']=0
-    expect_error(lambda: Circuit.from_json(invalid))
-    print('PASS: reused artifact on eight inputs, fresh randomness, and separate-process evaluation')
-    report={'challenge':'blake3-64-labeled-hash','correct':True,
-            'artifactBytes':len(artifact),'claimedBytes':circuit.claimed_bytes,
-            'andGates':circuit.and_count,'xorGates':len(circuit.gates)-circuit.and_count,
-            'inputAdapterBytes':512*65,'outputAdapterBytes':256*64,'constantLabelBytes':32,
-            'andTableBytes':circuit.and_count*64,'activeInputLabelBytes':512*32,
-            'activeOutputLabelBytes':256*32,'totalTransferredBytes':len(artifact)+768*32,
-            'garbleMilliseconds':round(garble_ms,2),'meanEvaluateMilliseconds':round(sum(eval_ms)/len(eval_ms),2),
-            'referenceModule':'Clean.Specs.BLAKE3','referenceLicense':'MIT',
-            'cleanRevision':'041c6e7ebc06f5cbfd534c2a19c4120f3de62435',
-            'cleanReferenceCases':len(references),'wordLoweringCases':2*len(references),
-            'artifactDigest':hashlib.sha256(artifact).hexdigest()}
-    args.result.parent.mkdir(parents=True,exist_ok=True)
+def check_scheme(executable,description,directory):
+    """Binary protocol limits evaluator inputs to artifact and active labels.
+    Secret sampling and expected-output selection live outside the evaluator.
+    This is an implementation check; acceptance separately requires the proof.
+    """
+    executable=Path(executable).resolve()
+    directory=Path(directory)
+    artifact_sizes=[]
+    peaks=[]
+    cases=0
+    for iteration in range(2):
+        with tempfile.TemporaryDirectory(prefix='garbler-',dir=directory) as private:
+            private=Path(private)
+            inputs,outputs=fresh_pairs(512),fresh_pairs(256)
+            if description['randomnessBytes']>2*1024**3:
+                raise SystemExit('native randomness exceeds the common 2 GiB file limit')
+            with (private/'coins.bin').open('wb') as stream:
+                remaining=description['randomnessBytes']
+                while remaining:
+                    amount=min(remaining,256*1024)
+                    stream.write(secrets.token_bytes(amount))
+                    remaining-=amount
+            (private/'pairs.bin').write_bytes(b''.join(a+b for a,b in inputs+outputs))
+            artifact_path=directory/f'artifact-{iteration}.bin'
+            r=guarded([executable,'garble',private/'coins.bin',private/'pairs.bin',artifact_path],private,native=True)
+            peaks.append(r['peakMemoryBytes'])
+            assert not r['stderr'], 'unexpected constructor side output'
+            size=artifact_path.stat().st_size
+            assert size==json.loads(r['stdout'])['artifactBytes']
+            assert size<=description['claimedBytes'], 'actual serialized artifact exceeds proved bound'
+        # Pair and coin files have been deleted before evaluator processes start.
+        artifact_sizes.append(size)
+        messages=[bytes(64),bytes([255])*64,bytes(range(64)),bytes([0x55,0xaa])*32,
+                  secrets.token_bytes(64),secrets.token_bytes(64)]
+        for message in messages:
+            with tempfile.TemporaryDirectory(prefix='evaluator-',dir=directory) as public:
+                public=Path(public)
+                (public/'message.bin').write_bytes(message)
+                (public/'active.bin').write_bytes(select(inputs,message))
+                r=guarded([executable,'evaluate',artifact_path,public/'message.bin',public/'active.bin',public/'output.bin'],public,native=True)
+                peaks.append(r['peakMemoryBytes'])
+                assert not r['stdout'] and not r['stderr'], 'unexpected evaluator side output'
+                assert (public/'output.bin').read_bytes()==select(outputs,hash64(message)), 'wrong active output labels'
+                cases+=1
+        artifact_path.unlink()
+    return {'artifactBytes':max(artifact_sizes),'measuredArtifactBytes':artifact_sizes,
+            'activeLabelTrafficBytes':24576,'knownInputBytes':64,
+            'totalIOBytes':max(artifact_sizes)+24640,
+            'totalTransferredBytes':max(artifact_sizes)+24576,
+            'labelEvaluationCases':cases,'runtimePeakMemoryBytes':max(peaks)}
+
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('executable',type=Path)
+    parser.add_argument('description',type=Path)
+    parser.add_argument('directory',type=Path)
+    parser.add_argument('result',type=Path)
+    args=parser.parse_args()
+    report=check_scheme(args.executable,json.loads(args.description.read_text()),args.directory)
     args.result.write_text(json.dumps(report,indent=2)+'\n')
-    print(json.dumps(report))
-
-if __name__=='__main__':main()
+    print(f"PASS: {report['labelEvaluationCases']} isolated scheme evaluations; all serialized bytes measured")

@@ -32,9 +32,11 @@ jobs:
           lint: false
       - name: Prepare trusted dependencies with RAM cap
         run: ./blake3/setup.sh
-      - name: Isolated certificate and native labeled hashing
-        run: ./blake3/benchmark.sh
-      - name: Publish exact artifact size
+      - name: Check neutral contract and submitted scheme
+        run: ./blake3/benchmark.sh --allow-unranked
+      - name: Measure optional uncertified half-gates baseline
+        run: python3 blake3/scripts/baseline.py
+      - name: Publish certificate status and byte measurements
         run: python3 blake3/scripts/summary.py "$GITHUB_STEP_SUMMARY"
       - name: Check whitespace
         run: git diff --check

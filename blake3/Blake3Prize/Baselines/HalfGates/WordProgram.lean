@@ -1,10 +1,11 @@
-import Blake3Prize.Protected.WordExpression
+import Blake3Prize.Baselines.HalfGates.WordExpression
 import Mathlib.Tactic.IntervalCases
 
 /- The operation-parametric program below follows Clean/Specs/BLAKE3.lean
 at the pinned revision. See THIRD_PARTY_NOTICES.md for its MIT notice.
 The Nat specialization is proved equal to Clean's actual imported compress. -/
-namespace Blake3Prize.Protected.WordProgram
+namespace Blake3Prize.Baselines.HalfGates.WordProgram
+open Blake3Prize.Protected
 
 structure Ops (α : Type) where
   add : α → α → α
@@ -91,4 +92,4 @@ theorem digest_nat (m : Vector Nat 16) :
   rw [rounds_nat, finish_nat _ chainingValue]
   rfl
 
-end Blake3Prize.Protected.WordProgram
+end Blake3Prize.Baselines.HalfGates.WordProgram

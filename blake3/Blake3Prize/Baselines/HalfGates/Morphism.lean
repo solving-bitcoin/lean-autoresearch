@@ -1,7 +1,8 @@
-import Blake3Prize.Protected.Expression
-import Blake3Prize.Protected.WordProgram
+import Blake3Prize.Baselines.HalfGates.Expression
+import Blake3Prize.Baselines.HalfGates.WordProgram
 
-namespace Blake3Prize.Protected
+namespace Blake3Prize.Baselines.HalfGates
+open Blake3Prize.Protected
 
 /-- Evaluation preserves the three word operations in Clean's BLAKE3 spec. -/
 structure WordHom (a : WordProgram.Ops α) (b : WordProgram.Ops β) where
@@ -27,7 +28,7 @@ theorem round (v m : Vector α 16) :
   apply Array.foldl_hom (Vector.map f.apply)
   intro state indices
   rcases indices with ⟨i,j,k,l,x,y⟩
-  simpa only [Fin.getElem_fin, Vector.getElem_map] using (f.mix state i j k l m[x] m[y]).symm
+  simpa only [Fin.getElem_fin, Vector.getElem_map] using (f.mix state i j k l m[x.val] m[y.val]).symm
 
 theorem permute (m : Vector α 16) :
     (WordProgram.permute m).map f.apply = WordProgram.permute (m.map f.apply) := by
@@ -99,4 +100,4 @@ theorem referenceExpressions_correct (input : Input) :
   simp only [Vector.getElem_map] at hv
   simp [referenceExpressions, reference, outputBits, hv]
 
-end Blake3Prize.Protected
+end Blake3Prize.Baselines.HalfGates

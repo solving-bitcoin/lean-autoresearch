@@ -42,18 +42,22 @@ benchmark metadata, and an isolated verifier.
 
 ## BLAKE3 labeled hashing challenge
 
-A separate [BLAKE3 challenge](blake3/README.md) minimizes the complete artifact
-for **64-byte input → 32-byte digest**, with two independently supplied
-32-byte labels per input and output bit. Evaluation receives 512 active input
-labels and returns 256 active output labels. It uses Clean's pinned, MIT-licensed Lean
-specification and begins with a certified expression / protected half-gates track.
-The score includes every input adapter and output translation table.
-The initial artifact is **707,680 bytes** from 10,281 AND gates;
-including active input/output label traffic, it transfers **732,256 bytes**.
+A separate [BLAKE3 challenge](blake3/README.md) minimizes the complete serialized
+artifact for a 64-byte input and 32-byte digest, with independent 32-byte label
+pairs on every input and output bit. The evaluator knows its plaintext message;
+it must obtain the selected output labels while protecting all 768 opposite
+input/output labels. Submissions own their construction, evaluator, format,
+and proofs. The initial VCVio proof profile is ClassicalBoundedQueryROM on
+Lean 4.33.1; the SHA-256 instantiation is explicitly heuristic.
+
+The optional half-gates baseline measures **707,680 bytes**. It has no complete
+scheme-level secrecy/transport certificate, so there is **no ranked BLAKE3
+submission yet**. The baseline's measurement is displayed separately in CI.
 
 ```bash
 ./blake3/setup.sh
-./blake3/benchmark.sh
+./blake3/benchmark.sh --allow-unranked
+python3 blake3/scripts/baseline.py
 ```
 
 These commands enforce 4 GiB build and 1 GiB native RAM caps. The BLAKE3

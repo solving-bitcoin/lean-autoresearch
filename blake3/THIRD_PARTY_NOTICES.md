@@ -2,7 +2,7 @@
 
 The BLAKE3 reference imports `Clean/Specs/BLAKE3.lean` from
 https://github.com/Verified-zkEVM/clean at revision
-`041c6e7ebc06f5cbfd534c2a19c4120f3de62435`.
+`93c9d1ef45be9f687214625d7857889cf2485504`.
 The operation-parametric adaptation in
 `Blake3Prize/Protected/WordProgram.lean` follows that licensed source and is
 proved equal to its imported compression function. The source notice follows.
@@ -28,3 +28,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## VCVio
+
+The proof framework is pinned from Verified-zkEVM/VCVio at
+`ffd0ca198fe6e640c0dd7f0f9c599943caacbf64` under Apache-2.0.
+Its original copyright notices remain in the pinned dependency. The complete
+license is reproduced in `licenses/VCVio-Apache-2.0.txt`.

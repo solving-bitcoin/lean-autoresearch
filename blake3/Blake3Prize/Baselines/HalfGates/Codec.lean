@@ -1,7 +1,7 @@
 import Batteries.Data.ByteArray
 import Batteries.Data.Vector.Lemmas
 
-namespace Blake3Prize.Protected.Framing
+namespace Blake3Prize.Baselines.HalfGates.Framing
 
 /-- All fields are fixed-width bytes, including the adapter selector byte.
 There is no alternate serialization or unscored framing channel. -/
@@ -28,4 +28,4 @@ theorem encode_decode {bytes : ByteArray} {value : Vector UInt8 n}
     rfl
   · contradiction
 
-end Blake3Prize.Protected.Framing
+end Blake3Prize.Baselines.HalfGates.Framing

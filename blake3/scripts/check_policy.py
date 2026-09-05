@@ -2,7 +2,7 @@
 from pathlib import Path
 import tempfile
 
-from policy import check_source
+from policy import check_source,score_value
 from render_benchmark_challenge import parse_score
 
 
@@ -24,6 +24,8 @@ def main():
         solution = submission/'Solution.lean'
         score = submission/'score.txt'
         solution.write_text(original)
+        score.write_text('unranked\n')
+        assert score_value(score) is None
         score.write_text('707680\n')
         check_source(submission)
         assert parse_score(score) == 707680
@@ -37,6 +39,7 @@ def main():
         for source in (
             original.replace(':= 0', ':= by sorry'),
             'import Blake3Prize.Protected.Runner\n' + original,
+            'import Blake3Prize.Baselines.HalfGates.Runner\n' + original,
             original + '\nnamespace Blake3Prize.Protected\ndef extra := 0\nend Blake3Prize.Protected\n',
         ):
             solution.write_text(source)

@@ -1,7 +1,8 @@
 import Blake3Prize.Protected.Reference
 import Mathlib.Tactic.Ring
 
-namespace Blake3Prize.Protected.HalfGate
+namespace Blake3Prize.Baselines.HalfGates.HalfGate
+open Blake3Prize.Protected
 
 /-- One coordinate of the 256-bit half-gates equations. Hash outputs are
 arbitrary: correctness does not assume pseudorandomness or collision resistance.
@@ -34,4 +35,4 @@ theorem carry_truth (a b c : Bool) :
     ((a ^^ c) && (b ^^ c)) ^^ c = ((a && b) || (a && c) || (b && c)) := by
   cases a <;> cases b <;> cases c <;> rfl
 
-end Blake3Prize.Protected.HalfGate
+end Blake3Prize.Baselines.HalfGates.HalfGate

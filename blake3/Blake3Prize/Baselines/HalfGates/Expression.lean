@@ -1,7 +1,8 @@
-import Blake3Prize.Protected.WordExpression
+import Blake3Prize.Baselines.HalfGates.WordExpression
 import Lean
 
-namespace Blake3Prize.Protected
+namespace Blake3Prize.Baselines.HalfGates
+open Blake3Prize.Protected
 
 /-- Boolean expressions use Lean's immutable, hash-cached syntax tree. Only
 natural literals, Boolean operators, and word-bit projections are interpreted; other
@@ -61,4 +62,4 @@ def eval (input : Input) (e : BitExpr) : Bit := evalTerm input e.term
 def inputs : Vector BitExpr 512 := Vector.ofFn inputExpr
 
 end BitExpr
-end Blake3Prize.Protected
+end Blake3Prize.Baselines.HalfGates

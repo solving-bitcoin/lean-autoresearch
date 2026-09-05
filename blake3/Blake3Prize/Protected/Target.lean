@@ -1,34 +1,33 @@
-import Blake3Prize.Protected.Morphism
-import Blake3Prize.Protected.Lowering
-import Blake3Prize.Protected.HalfGate
-import Blake3Prize.Protected.Codec
+import Blake3Prize.Protected.ROM
 
 namespace Blake3Prize.Protected
 
-abbrev Candidate := Vector BitExpr 256
+/-- Reviewed proof profiles are part of the protected contract. Adding one
+requires specifying its game and assumptions here, never accepting a
+submission-provided proposition as its own security assumption. -/
+inductive SecurityProfile where
+  | classicalBoundedQueryROM
+  deriving Repr, DecidableEq
 
-def Correct (candidate : Candidate) : Prop :=
-  ∀ input : Input, candidate.map (BitExpr.eval input) = reference input
+def SecurityRequirement (profile : SecurityProfile) (s : Scheme) : Prop :=
+  match profile with
+  | .classicalBoundedQueryROM => ROM.Secrecy s
 
-/-- A circuit-optimization certificate under the frozen half-gates backend.
-Cryptographic security relies on its documented random-oracle assumptions;
-it is not an exact information-theoretic theorem about 32-byte keys. -/
-structure ValidCandidate (candidate : Candidate) (maxBytes : Nat) : Prop where
-  correct : Correct candidate
-  artifact_bound : artifactBytes (Lowering.compile candidate) ≤ maxBytes
+/-- Acceptance is independent of circuits, gate costs, and garbling methods. -/
+structure ValidCandidate (s : Scheme) (maxBytes : Nat) (profile : SecurityProfile) : Prop where
+  correct : Correct s
+  codec : CodecLaws s
+  artifact_bound : ArtifactBound s maxBytes
+  secret : SecurityRequirement profile s
 
 abbrev RankedClaim := ValidCandidate
 
-/-- Production-shaped API: garbling has no message argument; evaluation has
-neither plaintext bits, label pairs, secret seeds, nor an output decoder. -/
-structure GarblingAPI where
-  garble : (Nat → Label) → InputLabelPairs → OutputLabelPairs → ByteArray
-  evaluate : ByteArray → ActiveInputLabels → Option ActiveOutputLabels
-
-def LabelCorrect (api : GarblingAPI) : Prop :=
-  ∀ coins inputPairs outputPairs input,
-    DistinctPairs inputPairs → DistinctPairs outputPairs →
-    api.evaluate (api.garble coins inputPairs outputPairs) (activeInput inputPairs input) =
-      some (activeOutput outputPairs (reference input))
+/-- The runner executes this very scheme; the proof covers its serialized
+transport, its declared universal bound, and its reviewed security profile. -/
+structure CertifiedScheme where
+  scheme : Scheme
+  maxBytes : Nat
+  profile : SecurityProfile
+  validClaimed : ValidCandidate scheme maxBytes profile
 
 end Blake3Prize.Protected

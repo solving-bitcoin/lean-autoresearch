@@ -29,7 +29,7 @@ def prepare_generated_cache_excludes():
 
 
 def config_digest(packages,entries):
-    # Lean 4.28 caches compiled lakefiles outside .lake/build. Authenticate
+    # Lake caches compiled package configurations outside .lake/build. Authenticate
     # these as well as the shared helper's compiled module/object snapshot.
     h=hashlib.sha256()
     for entry in sorted(entries,key=lambda e:e['name']):
@@ -73,14 +73,22 @@ def check_protected():
 
 
 def check_source(submission):
-    source_policy.VERIFIER_OWNED_NAMESPACES=(('Blake3Prize','Protected'),)
-    source_policy.allowed_import=lambda m: m=='Blake3Prize.Protected.Target' or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
-    source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','native_decide','setEnv','modifyEnv'}
+    source_policy.VERIFIER_OWNED_NAMESPACES=(('Blake3Prize','Protected'),('Blake3Prize','Baselines'))
+    optional_libraries={f'Blake3Prize.Baselines.HalfGates.{name}' for name in (
+        'Expression','WordExpression','WordProgram','Morphism','Lowering','HalfGate','Codec','Target')}
+    source_policy.allowed_import=lambda m: m=='Blake3Prize.Protected.Target' or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
+    source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','native_decide','setEnv','modifyEnv','panic','dbg_trace'}
     source_policy.check_submission(Path(submission))
     for p in Path(submission).glob('*.lean'):
         code=source_policy.code_without_comments_or_strings(p.read_text())
         if re.search(r'(?m)^\s*#',code) or '«' in code or '»' in code:
             raise SystemExit('BLAKE3_SOURCE_REJECTED: commands/quoted identifiers in submission')
+
+
+def score_value(path):
+    from render_benchmark_challenge import parse_score
+    if Path(path).read_bytes()==b'unranked\n':return None
+    return parse_score(Path(path))
 
 
 def dependencies(snapshot=False):
