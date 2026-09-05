@@ -5,8 +5,8 @@ namespace GarblingPrize.Submission.BinaryFieldHint
 
 /-!
 An exact randomized conversion from a binary pad to a prime-field mask with
-one public hint bit.  This is the prospective row reduction for the 8.2 MB
-goal; the ranked candidate is unchanged until its full privacy proof is wired.
+one public hint bit. The ranked candidate uses this conversion, with its
+whole-view privacy proof supplied by `GLVHintPrivacy`.
 
 Let M = 2p+n, with 0 < n < p.  Regard the M equally likely pad values as edges
 of a bipartite graph with p vertices on each side.  There is an identity edge
@@ -33,11 +33,12 @@ ceil(254*255/8)+32 = 8129 bytes, and 91*11 tables use 8,137,129 bytes.
 A simpler byte-aligned layout uses one 32-byte row and one 32-byte constant:
 255*32 = 8160 bytes/table, or 8,168,160 bytes overall, still below the goal.
 
-Privacy must preserve the entire active label.  For a selected false row,
+Privacy preserves the entire active label. For a selected false row,
 keep its pad and coin fixed and translate the unused true pad.  For a selected
 true row, translate the decoded mask while preserving the hint, using a
-bijection between the equal-size finite fibers.  These row transports must
-then be connected to the existing affine, chain-mask, and GLV privacy proofs.
+bijection between the equal-size finite fibers. The row transports are
+connected to the affine, chain-mask, and GLV privacy proofs, including all
+countably many active-label purposes.
 -/
 
 def rangeSize (p n : Nat) : Nat := 2 * p + n

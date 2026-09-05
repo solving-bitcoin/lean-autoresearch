@@ -14,9 +14,11 @@ masking three coordinate polynomials independently.
 These lemmas are a research foundation, not a smaller ranked candidate.
 An encoding must still hide the individual affine openings, prove its exact
 oracle-induced distribution, and preserve completeness before replacing the
-current construction.  At the current 91 maps, five ordinary affine tables
-per map would occupy 7,338,695 bytes, below the 8,200,000-byte goal.  Six
-ordinary tables would occupy 8,806,434 bytes and would not suffice.
+current construction. At the current 91 maps and 8160-byte hint tables,
+five affine tables per map would occupy 3,712,800 bytes, below the new
+4,100,000-byte goal. Six tables would occupy 4,455,360 bytes and would not
+suffice. These are size budgets, not a claim that the matrix construction
+already achieves either table count.
 -/
 
 open HomogeneousRCB

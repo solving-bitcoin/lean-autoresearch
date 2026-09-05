@@ -264,4 +264,85 @@ theorem tableByteCount_eq : tableByteCount = 8160 := by decide
 theorem familyByteCount_eq : 91 * 11 * tableByteCount = 8168160 := by decide
 theorem familyByteCount_below_goal : 91 * 11 * tableByteCount < 8200000 := by decide
 
+/-! A limit of further row-format compression.
+
+Fix both label pads and all private coins of a row. If subtracting its two
+decoded branches recovers an arbitrary field difference, the serialized row
+must distinguish every field element. Thus even an optimally packed row
+needs at least 254 bits. This is a bound on independent row-difference
+encodings, not on all garbling schemes: changing the algebraic encoding or
+coupling rows can fall outside its hypothesis.
+
+At the current 91 * 11 * 254 rows, this already forces 8,072,565 bytes before
+any table headers. Consequently the 4.1 MB goal requires changing more than
+the bit packing of the present row construction.
+-/
+
+theorem rowEncoding_injective {C : Type*} (encode : Word → C)
+    (difference : C → Word) (hdecode : ∀ value, difference (encode value) = value) :
+    Function.Injective encode := by
+  intro left right hequal
+  rw [← hdecode left, ← hdecode right, hequal]
+
+/-- With both fixed pads available, the row difference recovers the slope.
+This auxiliary decoder is used only for the counting argument. -/
+def coefficientFromRow (falsePad truePad : WordBytes) (index : RowIndex)
+    (bytes : WordBytes) : Word :=
+  ((IdealAffineTable.openCiphertext (unpackCiphertext bytes) truePad).getD 0 -
+    maskFromPad falsePad (unpackHint bytes)) / IdealAffineTable.weight index
+
+theorem coefficientFromRow_row (purpose : Purpose) (pairs : RowIndex → Bool → Label)
+    (params : Params) (coins : RowIndex → Coin) (index : RowIndex) :
+    coefficientFromRow (pairs index false purpose) (pairs index true purpose) index
+      (row purpose pairs params coins index) = params.coefficient := by
+  have htwo : (2 : Word) ≠ 0 := by decide
+  have hweight : IdealAffineTable.weight index ≠ 0 := by
+    rw [IdealAffineTable.weight_eq_pow]
+    exact pow_ne_zero _ htwo
+  simp only [coefficientFromRow, row, unpackCiphertext_pack,
+    IdealAffineTable.openCiphertext_encrypt, Option.getD_some,
+    unpackHint_pack, IdealAffineTable.share_eq_weight,
+    IdealAffineTable.bitWord, ↓reduceIte, mul_one, rowMask, add_sub_cancel_right]
+  exact mul_div_cancel_left₀ _ hweight
+
+theorem rowEncoding_bits_ge (bits : Nat) (encode : Word → (Fin bits → Bool))
+    (difference : (Fin bits → Bool) → Word)
+    (hdecode : ∀ value, difference (encode value) = value) : 254 ≤ bits := by
+  have hcard := Fintype.card_le_of_injective encode
+    (rowEncoding_injective encode difference hdecode)
+  have hsize : baseFieldModulus ≤ 2 ^ bits := by
+    simpa [Word, IdealAffineTable.Word, BN254.Fq] using hcard
+  have hfield : 2 ^ 253 < baseFieldModulus := by
+    norm_num [baseFieldModulus]
+  by_contra hbits
+  have hpower : 2 ^ bits ≤ 2 ^ 253 := Nat.pow_le_pow_right (by decide) (by omega)
+  omega
+
+theorem independentRows_byte_floor (bits bytes : Nat)
+    (encode : Word → (Fin bits → Bool))
+    (difference : (Fin bits → Bool) → Word)
+    (hdecode : ∀ value, difference (encode value) = value)
+    (hstorage : 91 * 11 * 254 * bits ≤ 8 * bytes) : 8072565 ≤ bytes := by
+  have := rowEncoding_bits_ge bits encode difference hdecode
+  omega
+
+theorem losslessRowCompression_bits_ge (bits : Nat)
+    (purpose : Purpose) (pairs : RowIndex → Bool → Label)
+    (coins : RowIndex → Coin) (index : RowIndex)
+    (compress : WordBytes → (Fin bits → Bool))
+    (expand : (Fin bits → Bool) → WordBytes)
+    (hlossless : ∀ coefficient : Word,
+      expand (compress (row purpose pairs ⟨coefficient, 0⟩ coins index)) =
+        row purpose pairs ⟨coefficient, 0⟩ coins index) : 254 ≤ bits := by
+  apply rowEncoding_bits_ge bits
+    (fun coefficient => compress (row purpose pairs ⟨coefficient, 0⟩ coins index))
+    (fun encoded => coefficientFromRow (pairs index false purpose)
+      (pairs index true purpose) index (expand encoded))
+  intro coefficient
+  rw [hlossless, coefficientFromRow_row]
+
+theorem fiveTable_budget : 91 * 5 * tableByteCount = 3712800 := by decide
+theorem fiveTable_below_new_goal : 91 * 5 * tableByteCount < 4100000 := by decide
+theorem sixTable_above_new_goal : 4100000 < 91 * 6 * tableByteCount := by decide
+
 end GarblingPrize.Submission.HintAffineTable
