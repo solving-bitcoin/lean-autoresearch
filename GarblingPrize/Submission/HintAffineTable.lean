@@ -12,11 +12,60 @@ abbrev Ciphertext := IdealAffineTable.Ciphertext
 abbrev Coin := Fin (4 * BinaryFieldHint.modulus)
 abbrev RowIndex := Fin IdealAffineTable.tableWidth
 
-def tableWordCount : Nat := IdealAffineTable.tableWidth + 1
+abbrev tableWordCount : Nat := IdealAffineTable.tableWidth + 1
 def tableByteCount : Nat := tableWordCount * 32
 
-@[ext] structure Table where
-  words : Fin tableWordCount → WordBytes
+/-- A concrete vector keeps each row shared throughout encoding. A function
+representation can cause native eta expansion to rebuild a table per lookup. -/
+structure Table where
+  storage : Vector WordBytes tableWordCount
+
+def Table.words (table : Table) (index : Fin tableWordCount) : WordBytes :=
+  table.storage[index.val]
+
+def Table.ofWords (words : Fin tableWordCount → WordBytes) : Table :=
+  ⟨Vector.ofFn words⟩
+
+@[simp] theorem Table.words_ofWords (words : Fin tableWordCount → WordBytes) :
+    (Table.ofWords words).words = words := by
+  funext index
+  simp [Table.words, Table.ofWords]
+
+@[simp] theorem Table.words_ofWords_apply (words : Fin tableWordCount → WordBytes)
+    (index : Fin tableWordCount) : (Table.ofWords words).words index = words index :=
+  congrFun (Table.words_ofWords words) index
+
+@[ext] theorem Table.ext (left right : Table) (hwords : left.words = right.words) :
+    left = right := by
+  cases left with
+  | mk left =>
+    cases right with
+    | mk right =>
+      congr 1
+      apply Vector.ext
+      intro index hindex
+      exact congrFun hwords ⟨index, hindex⟩
+
+@[simp] theorem Table.ofWords_words (table : Table) : Table.ofWords table.words = table := by
+  apply Table.ext
+  exact Table.words_ofWords table.words
+
+/-- Direct indexing of a header followed by rows.  The equation to `Fin.cases`
+below identifies the same finite sequence; the executable branch avoids the
+induction recursor's evaluation of every preceding row. -/
+def prependWord (first : WordBytes) (rest : RowIndex → WordBytes)
+    (index : Fin tableWordCount) : WordBytes :=
+  if h : index.val = 0 then first
+  else rest ⟨index.val - 1, by
+    have hi : index.val < IdealAffineTable.tableWidth + 1 := index.isLt
+    omega⟩
+
+@[simp] theorem prependWord_eq_cases (first : WordBytes) (rest : RowIndex → WordBytes) :
+    prependWord first rest = Fin.cases first rest := by
+  funext index
+  refine Fin.cases ?_ (fun row => ?_) index
+  · simp [prependWord]
+  · simp [prependWord, Fin.val_succ]
 
 theorem modulus_positive : 0 < BinaryFieldHint.modulus := by
   norm_num [BinaryFieldHint.modulus, baseFieldModulus]
@@ -88,12 +137,15 @@ def garble (purpose : Purpose) (pairs : RowIndex → Bool → Label)
     (params : Params) (coins : RowIndex → Coin) : Table :=
   let constant := IdealAffineTable.encodeWord
     (params.constant - ∑ i, rowMask purpose pairs coins i)
-  { words := Fin.cases constant (row purpose pairs params coins) }
+  Table.ofWords (prependWord constant (row purpose pairs params coins))
 
 @[simp] theorem garble_first (purpose : Purpose) (pairs : RowIndex → Bool → Label)
     (params : Params) (coins : RowIndex → Coin) :
     (garble purpose pairs params coins).words ⟨0, by decide⟩ =
       IdealAffineTable.encodeWord (params.constant - ∑ i, rowMask purpose pairs coins i) := by
+  unfold garble
+  rw [Table.words_ofWords_apply]
+  rw [prependWord_eq_cases]
   rfl
 
 def openShare (purpose : Purpose) (table : Table) (bits : RowIndex → Bool)
@@ -123,8 +175,13 @@ theorem openShare_garble (purpose : Purpose) (pairs : RowIndex → Bool → Labe
     openShare purpose (garble purpose pairs params coins) bits
         (fun i => pairs i (bits i)) index =
       some (IdealAffineTable.share params (rowMask purpose pairs coins index) index (bits index)) := by
+  have hrow : (garble purpose pairs params coins).words index.succ =
+      row purpose pairs params coins index := by
+    unfold garble
+    rw [Table.words_ofWords_apply]
+    simp only [prependWord_eq_cases, Fin.cases_succ]
   cases hb : bits index <;>
-    simp [openShare, garble, row, hb, IdealAffineTable.share, rowMask]
+    simp [openShare, hrow, row, hb, IdealAffineTable.share, rowMask]
 
 theorem evaluateList_garble (purpose : Purpose) (pairs : RowIndex → Bool → Label)
     (params : Params) (coins : RowIndex → Coin) (bits : RowIndex → Bool)
@@ -178,7 +235,7 @@ def Table.encode (table : Table) : ByteArray :=
 
 def Table.decode (input : ByteArray) : Except WireDecodeError Table := do
   let words ← FixedCodec.decodeFin wordCodec tableWordCount input
-  pure ⟨words⟩
+  pure (Table.ofWords words)
 
 @[simp] theorem Table.encode_size (table : Table) : table.encode.size = tableByteCount := by
   rw [Table.encode, FixedCodec.encodeFin_size]
@@ -187,7 +244,7 @@ def Table.decode (input : ByteArray) : Except WireDecodeError Table := do
 @[simp] theorem Table.decode_encode (table : Table) : Table.decode table.encode = .ok table := by
   unfold Table.decode Table.encode
   rw [FixedCodec.decodeFin_encode]
-  rfl
+  simp
 
 theorem Table.encode_decode {bytes : ByteArray} {table : Table}
     (h : Table.decode bytes = .ok table) : table.encode = bytes := by
@@ -195,12 +252,13 @@ theorem Table.encode_decode {bytes : ByteArray} {table : Table}
   cases hwords : FixedCodec.decodeFin wordCodec tableWordCount bytes with
   | error error => simp [hwords, Except.bind, bind] at h
   | ok words =>
-      have htable : ({ words := words } : Table) = table := by
+      have htable : (Table.ofWords words) = table := by
         simp only [hwords, Except.bind, bind] at h
-        change Except.ok ({ words := words } : Table) = Except.ok table at h
+        change Except.ok (Table.ofWords words) = Except.ok table at h
         exact Except.ok.inj h
       rw [← htable]
-      exact FixedCodec.encodeFin_decode wordCodec hwords
+      simpa only [Table.encode, Table.words_ofWords] using
+        FixedCodec.encodeFin_decode wordCodec hwords
 
 theorem tableByteCount_eq : tableByteCount = 8160 := by decide
 theorem familyByteCount_eq : 91 * 11 * tableByteCount = 8168160 := by decide

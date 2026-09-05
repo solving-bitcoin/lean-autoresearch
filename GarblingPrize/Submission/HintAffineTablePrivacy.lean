@@ -118,15 +118,16 @@ theorem rowTransport_preserves_uniform (source target : Params) (index : RowInde
       (ProbabilityTheory.uniformOn Set.univ) (ProbabilityTheory.uniformOn Set.univ) := by
   exact measurePreserving_uniformOfFiniteEquiv _
 
-def tableFromState (params : Params) (states : RowIndex → RowState) : Table where
-  words := Fin.cases
+def tableFromState (params : Params) (states : RowIndex → RowState) : Table :=
+  Table.ofWords (Fin.cases
     (IdealAffineTable.encodeWord (params.constant - ∑ i, stateMask (states i)))
-    (fun index => rowView params index (states index))
+    (fun index => rowView params index (states index)))
 
 theorem garble_eq_tableFromState (purpose : Purpose) (pairs : RowIndex → Bool → Label)
     (params : Params) (coins : RowIndex → Coin) :
     garble purpose pairs params coins = tableFromState params
       (fun index => ((pairs index false purpose, coins index), pairs index true purpose)) := by
+  simp only [garble, prependWord_eq_cases]
   rfl
 
 noncomputable def tableTransport (source target : Params) (bits : RowIndex → Bool) :
@@ -153,6 +154,7 @@ theorem tableFromState_transport (source target : Params) (bits : RowIndex → B
     intro i _
     ring
   apply Table.ext
+  simp only [tableFromState, Table.words_ofWords]
   funext word
   refine Fin.cases ?_ (fun index => ?_) word
   · change IdealAffineTable.encodeWord (target.constant - ∑ i, stateMask

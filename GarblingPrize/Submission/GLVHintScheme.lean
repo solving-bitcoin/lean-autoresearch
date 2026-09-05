@@ -54,15 +54,10 @@ def garble (hidden : Hidden) (randomness : Randomness hidden)
         (mapHidden hidden randomness.offsets randomness.randomizers randomness.chainMasks index)
         (tableCoins coins index) := rfl
 
-def materializeTable (table : HintAffineTable.Table) : HintAffineTable.Table :=
-  let words := Vector.ofFn table.words
-  { words := fun index => words[index.val] }
+def materializeTable (table : HintAffineTable.Table) : HintAffineTable.Table := table
 
 @[simp] theorem materializeTable_eq (table : HintAffineTable.Table) :
-    materializeTable table = table := by
-  apply HintAffineTable.Table.ext
-  funext index
-  simp [materializeTable]
+    materializeTable table = table := rfl
 
 def garbleWithOracle (hidden : Hidden) (oracle : InternalOracle)
     (pairs : LabelPairs) : Artifact :=
