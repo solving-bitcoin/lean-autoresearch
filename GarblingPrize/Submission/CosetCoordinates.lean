@@ -16,8 +16,8 @@ S+G1. The imaginary part of a finite point's encoding is nonzero, which
 also rules out every distinct-abscissa exception when adding a base-field
 input to a translated offset.
 
-These lemmas support an eight-base-field-table candidate. They do not yet
-replace the ranked scheme or claim the 4.1 MB target.
+These lemmas support the eight-base-field-table ranked scheme. Its
+5,940,480-byte bound remains above the 4.1 MB target.
 -/
 
 open GarblingPrize.Protected

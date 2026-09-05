@@ -8,8 +8,8 @@ and an affine x denominator. FourAffineQuotient encodes it with four K
 openings, hence eight Fp affine tables. Zero digits use a constant numerator
 and denominator one; nonzero digits substitute (k*x,e*y), k³=e²=1.
 
-This is an algebraic candidate foundation, not a replacement ValidCandidate.
-At 91 maps its eight-table budget is 5,940,480 bytes, still above 4.1 MB.
+CosetScheme integrates this map into the ranked ValidCandidate. At 91 maps
+its eight-table artifact is 5,940,480 bytes, still above 4.1 MB.
 -/
 
 open GarblingPrize.Protected
