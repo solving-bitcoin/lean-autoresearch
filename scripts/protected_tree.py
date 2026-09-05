@@ -34,6 +34,7 @@ EXPLICIT_PATHS = (
     "scripts/lean_source_policy.py",
     "scripts/protected_tree.py",
     "scripts/render_benchmark_challenge.py",
+    "scripts/render_ci_summary.py",
     "scripts/run_with_rss.py",
     "scripts/run_hostile_fixtures.py",
     "scripts/verify_submission.py",
