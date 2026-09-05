@@ -16,14 +16,13 @@ import tempfile
 import time
 
 
-def install_limits(memory_limit: int, file_size_limit: int, cpu_limit: int) -> None:
+def install_limits(file_size_limit: int, cpu_limit: int) -> None:
     """Install inherited hard limits in the child immediately before exec."""
     limits = [(resource.RLIMIT_FSIZE, file_size_limit),
               (resource.RLIMIT_CPU, cpu_limit)]
-    # Darwin rejects useful RLIMIT_AS values for ordinary dynamically linked
-    # processes. The parent-side RSS monitor below enforces the same bound.
-    if sys.platform != "darwin":
-        limits.append((resource.RLIMIT_AS, memory_limit))
+    # Do not set RLIMIT_AS: it counts harmless virtual reservations, including
+    # Lean worker-thread stacks. The parent monitor below enforces the promised
+    # aggregate resident-memory bound for the entire process group.
     for kind, requested in limits:
         _soft, hard = resource.getrlimit(kind)
         effective = requested if hard == resource.RLIM_INFINITY else min(requested, hard)
@@ -198,7 +197,6 @@ def main() -> None:
             stderr=stderr_file,
             start_new_session=True,
             preexec_fn=lambda: install_limits(
-                args.memory_limit_bytes,
                 args.file_size_limit_bytes,
                 aggregate_cpu_limit(args.timeout),
             ),

@@ -302,9 +302,17 @@ def run_limited(command: list[str], cwd: Path, timeout_seconds: int,
             f"VERIFY_REJECTED: {purpose} exceeded {timeout_seconds} seconds"
         )
     if measurement.get("returnCode") != 0:
+        stdout = str(measurement.get("stdout", ""))
+        stderr = str(measurement.get("stderr", ""))
+        output = ""
+        if stdout:
+            output += "stdout:\n" + stdout
+        if stderr:
+            if output and not output.endswith("\n"):
+                output += "\n"
+            output += "stderr:\n" + stderr
         raise SystemExit(
-            f"VERIFY_REJECTED: {purpose} failed:\n" +
-            str(measurement.get("stderr", ""))
+            f"VERIFY_REJECTED: {purpose} failed:\n" + output
         )
     return measurement
 
