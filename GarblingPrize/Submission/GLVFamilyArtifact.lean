@@ -25,6 +25,15 @@ private def mapCodec : FixedCodec GLVProjectiveMap.Artifact
 def encode (artifact : Artifact count) : ByteArray :=
   FixedCodec.encodeFin mapCodec count artifact.maps
 
+/-- Parallel executable encoder. Each map is independent and already has a
+fixed-width canonical encoding; results are joined in the same index order. -/
+def encodeParallel (artifact : Artifact count) : ByteArray :=
+  FixedCodec.encodeFinParallel mapCodec count artifact.maps
+
+@[simp] theorem encodeParallel_eq (artifact : Artifact count) :
+    encodeParallel artifact = encode artifact := by
+  simp [encodeParallel, encode]
+
 @[simp] theorem encode_size (artifact : Artifact count) :
     (encode artifact).size = byteCount count := by
   exact FixedCodec.encodeFin_size mapCodec artifact.maps
