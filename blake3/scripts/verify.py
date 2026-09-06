@@ -84,6 +84,14 @@ def main():
         with (project/'lakefile.lean').open('a') as f:
             f.write('\nlean_exe "blake3-proof-imports" where\n  root := `ProofImports\n')
         measurements=[]
+        # Elaborate the fresh trusted Lake configuration in its own capped
+        # process. Exit before compiling proofs so configuration elaboration's
+        # retained memory does not overlap the large imported environments.
+        # Only configuration is cached here; all challenge modules below are
+        # still rebuilt from source inside this fresh isolated directory.
+        r=guarded(['lake','resolve-deps'],project)
+        measurements.append(r['peakMemoryBytes'])
+        print(f"PASS: isolated Lake configuration; peak {r['peakMemoryBytes']} bytes",flush=True)
         for target in ('blake3-proof-imports','blake3-trusted','blake3-runner-test'):
             r=guarded(['lake','build',target],project)
             measurements.append(r['peakMemoryBytes'])

@@ -9,6 +9,11 @@ sys.path.insert(0,str(REPO/'scripts'))
 from verify_submission import run_limited
 
 os.environ['LEAN_NUM_THREADS']='1'
+# Lean 4.33.1 uses mimalloc 2.2.3, which requests transparent huge pages by
+# default on Linux. Prefer ordinary pages under the aggregate RSS budget:
+# partially used large pages can keep extra physical memory resident.
+# https://github.com/microsoft/mimalloc/blob/v2.2.3/src/options.c
+os.environ['MIMALLOC_ALLOW_LARGE_OS_PAGES']='0'
 
 
 def guarded(command, cwd=ROOT, *, native=False, timeout=None):
