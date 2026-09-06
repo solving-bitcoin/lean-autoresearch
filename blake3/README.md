@@ -152,6 +152,7 @@ Python 3, Git, and a C compiler installed:
 ./blake3/setup.sh
 ./blake3/benchmark.sh                  # requires a certified entry
 ./blake3/benchmark.sh --allow-unranked # challenge-authoring checks only
+./blake3/benchmark.sh --authoring-preview # never emits an accepted score
 python3 blake3/scripts/baseline.py     # optional, never an accepted score
 ```
 
@@ -162,12 +163,44 @@ have a **4 GiB aggregate RSS cap** and 30-minute timeout. Native checks have a
 is 2 GiB, working-directory limit 64 GiB, and process limits 64/32 respectively.
 Never bypass the wrappers on a development machine.
 
+## CI trust boundary
+
+Official submission acceptance runs in
+[blake3-submission.yml](../.github/workflows/blake3-submission.yml), triggered by
+`pull_request_target` for PRs targeting `main`. The workflow, checkout, verifier, Lean toolchain, and
+dependencies come from the event's **immutable base commit**, not the PR tree.
+Before setup or elaboration, that base revision's `check_overlay.py` compares
+the complete base/head Git trees. Only flat regular files under
+`Blake3Prize/Submission` may differ. Changing a rule and recomputing its digest,
+changing any workflow, adding another file, or deleting protected code fails
+admission. Only admitted source blobs are extracted from the exact head commit;
+no candidate setup script, configuration, or verifier is executed.
+
+`protected.sha256` is an internal consistency check, **not a trust anchor**.
+Trust comes from executing the reviewed base revision and keeping all candidate
+changes outside its executable verifier. Local results from an edited verifier
+are not official acceptance evidence.
+
+Protected-code changes instead use the separate PR-owned
+[authoring preview](../.github/workflows/blake3.yml). Its report is explicitly
+`authoring-preview`, with a null score even when a candidate certificate checks.
+Authoring changes require review and merge before they become the trusted base
+for later submissions. This initial challenge PR therefore previews the new
+workflow; base-owned acceptance becomes available after its first merge.
+Ranking must use the `blake3-trusted-submission` workflow's base-owned result,
+not a preview or a matching status name emitted by a PR-owned workflow.
+
 The verifier imports only pinned trusted modules before compiling submitted
 code, then checks the exact certificate and axiom closure (`propext`,
 `Classical.choice`, `Quot.sound` only). It checks that correctness/codec/size
 without secrecy is rejected. An explicitly insecure fixture tests the generic
 binary runner and custom framing; passing those native tests does not make
 that fixture eligible for ranking.
+
+Source policy rejects `include_str` before Lean elaboration, alongside the
+existing restrictions on compile-time execution and filesystem access.
+Regression checks use inert source text and Git blobs; they never elaborate a
+file-inclusion expression or read a verifier file through submitted code.
 
 Contestant changes belong in `Blake3Prize/Submission/*.lean` and `score.txt`.
 The protected reference, profile, runner, dependencies, resource policy, and

@@ -51,12 +51,16 @@ def main():
     parser.add_argument('--submission',type=Path,default=ROOT/'Blake3Prize/Submission')
     parser.add_argument('--allow-unranked',action='store_true',
                         help='authoring CI only: check the challenge even when no certified scheme exists')
+    parser.add_argument('--authoring-preview',action='store_true',
+                        help='PR-owned authoring checks: never emit an accepted score')
     args=parser.parse_args()
     output=ROOT/'.yukon/blake3-64-labeled-hash-score.json'
     if output.exists():output.unlink()
     check_protected();check_source(args.submission);dependencies()
     score=score_value(args.submission/'score.txt')
     r=guarded([sys.executable,ROOT/'scripts/check_policy.py'],native=True)
+    print(r['stdout'],end='',flush=True)
+    r=guarded([sys.executable,ROOT/'scripts/check_overlay_tests.py'],native=True)
     print(r['stdout'],end='',flush=True)
     with tempfile.TemporaryDirectory(prefix='blake3-certified-') as temporary:
         project=Path(temporary)
@@ -131,9 +135,15 @@ example : (Blake3Prize.Submission.entry.map (fun c => c.maxBytes)) = {expected} 
                           p.name.encode()+b'\0'+p.read_bytes()+b'\0'
                           for p in sorted(args.submission.iterdir()))).hexdigest())
         dependencies()
+        if args.authoring_preview:
+            report.update(status='authoring-preview',score=None,
+                          candidateClaimBytes=score,
+                          reason='PR-owned rules: this run cannot certify submission acceptance.')
         output.parent.mkdir(exist_ok=True)
         output.write_text(json.dumps(report,indent=2)+'\n')
-        if score is None:
+        if args.authoring_preview:
+            print(f'AUTHORING PREVIEW ONLY: no accepted score; report {output}',flush=True)
+        elif score is None:
             print(f'UNRANKED: contract and runner checks passed; no accepted size. Report: {output}',flush=True)
             if not args.allow_unranked:
                 raise SystemExit('No certified entry: --allow-unranked is for challenge-authoring checks only')

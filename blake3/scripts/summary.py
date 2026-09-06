@@ -5,7 +5,10 @@ import sys
 
 root=Path(__file__).resolve().parents[1]
 r=json.loads((root/'.yukon/blake3-64-labeled-hash-score.json').read_text())
-if r['status']=='accepted':
+if r['status']=='authoring-preview':
+    status=('**Authoring preview only — no accepted score.** This run checks PR-owned '
+            'challenge changes; it cannot establish submission acceptance.\n')
+elif r['status']=='accepted':
     status=(f"**Accepted universal artifact bound: {r['score']:,} bytes**\n\n"
             f"Measured artifact: {r['artifactBytes']:,} bytes. "
             f"Profile: `{r['securityProfile']}`.\n")

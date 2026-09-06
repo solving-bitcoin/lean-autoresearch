@@ -54,8 +54,9 @@ def protected_files():
     paths.extend(REPO/'scripts'/name for name in (
         'run_with_rss.py','verify_submission.py','check_submission.py','lean_source_policy.py',
         'dependency_builds.py','protected_tree.py','render_benchmark_challenge.py'))
-    workflow=REPO/'.github/workflows/blake3.yml'
-    if workflow.exists():paths.append(workflow)
+    for name in ('blake3.yml','blake3-submission.yml'):
+        workflow=REPO/'.github/workflows'/name
+        if workflow.exists():paths.append(workflow)
     return sorted(set(paths))
 
 
@@ -68,6 +69,9 @@ def digest():
 
 
 def check_protected():
+    # Internal consistency only. CI authenticates this entire checker and its
+    # expected digest against the immutable base revision BEFORE running it.
+    # A checksum stored next to PR-controlled sources is not a trust anchor.
     if (ROOT/'protected.sha256').read_text().strip()!=digest():
         raise SystemExit('BLAKE3_PROTECTED_REJECTED: frozen source digest mismatch')
 
@@ -77,7 +81,7 @@ def check_source(submission):
     optional_libraries={f'Blake3Prize.Baselines.HalfGates.{name}' for name in (
         'Expression','WordExpression','WordProgram','Morphism','Lowering','HalfGate','Codec','Target')}
     source_policy.allowed_import=lambda m: m=='Blake3Prize.Protected.Target' or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
-    source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','native_decide','setEnv','modifyEnv','panic','dbg_trace'}
+    source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','native_decide','setEnv','modifyEnv','panic','dbg_trace','include_str'}
     source_policy.check_submission(Path(submission))
     for p in Path(submission).glob('*.lean'):
         code=source_policy.code_without_comments_or_strings(p.read_text())

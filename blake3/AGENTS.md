@@ -28,8 +28,14 @@ Run one build/test at a time. Never use an uncapped compilation or benchmark.
 
 No proof gaps, local axioms, native_decide, unsafe/partial definitions, FFI,
 initialization, metaprogram execution, macros, compiler substitution attributes,
-namespace overrides, filesystem access, or extra unpinned dependencies in
+namespace overrides, include_str, filesystem access, or extra unpinned dependencies in
 submissions. The exact certificate and allowed axiom closure are audited.
+
+Submission acceptance must execute the immutable base revision's workflow and
+verifier. Admit only flat regular submission blobs after comparing complete
+base/head Git trees. A PR-controlled digest cannot authenticate PR-controlled
+rules. Protected-code authoring uses a separate non-ranking preview; its rules
+become trusted only after review and merge into the base.
 
 Keep every commit title below 50 characters, use unsigned commits, explain the
 mathematics in the body, and keep PR #3 open and ready for CI.

@@ -56,7 +56,7 @@ submission yet**. The baseline's measurement is displayed separately in CI.
 
 ```bash
 ./blake3/setup.sh
-./blake3/benchmark.sh --allow-unranked
+./blake3/benchmark.sh --authoring-preview
 python3 blake3/scripts/baseline.py
 ```
 

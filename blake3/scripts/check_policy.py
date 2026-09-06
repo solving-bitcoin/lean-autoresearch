@@ -41,9 +41,19 @@ def main():
             'import Blake3Prize.Protected.Runner\n' + original,
             'import Blake3Prize.Baselines.HalfGates.Runner\n' + original,
             original + '\nnamespace Blake3Prize.Protected\ndef extra := 0\nend Blake3Prize.Protected\n',
+            # Policy-only input: never elaborate it or read any file.
+            original.replace('def policyExample : Nat := 0',
+                             'def policyExample := include_str "fixture.txt"'),
+            original.replace(':= 0', ':= include_str\n  ("fixture.txt")'),
+            original.replace(':= 0', ':= include_str /- comment -/ "fixture.txt"'),
         ):
             solution.write_text(source)
             rejected(lambda: check_source(submission))
+        solution.write_text(original)
+        # Documentation can name the forbidden feature without executing it.
+        solution.write_text(original + '\n-- include_str is forbidden\n'
+                            'def documentation := "include_str"\n')
+        check_source(submission)
         solution.write_text(original)
         extra = submission/'extra.json'
         extra.write_text('{}')
@@ -51,7 +61,7 @@ def main():
         extra.unlink()
         (submission/'Alias.lean').symlink_to(solution)
         rejected(lambda: check_source(submission))
-    print('PASS: canonical scores, proof-gap/import/namespace policy, and submission file boundary')
+    print('PASS: canonical scores, proof-gap/import/namespace/file-inclusion policy, and submission file boundary')
 
 
 if __name__ == '__main__':
