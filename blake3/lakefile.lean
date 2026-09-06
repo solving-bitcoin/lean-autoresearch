@@ -15,6 +15,12 @@ require VCVio from git "https://github.com/Verified-zkEVM/VCVio" @
 @[default_target]
 lean_lib Blake3Prize
 
+lean_lib SecretRelease
+lean_lib SecretReleaseExamples
+
+lean_exe "secret-release-checks" where
+  root := `SecretReleaseNative
+
 lean_exe "blake3-submission" where
   root := `Blake3Prize.Main
 

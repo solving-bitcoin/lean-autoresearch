@@ -145,6 +145,14 @@ separately and cannot turn it into an accepted scheme-level score.
 
 ## Run safely
 
+The new [SecretRelease contract](SecretRelease.lean) extracts the common
+declarations and ROM acceptance predicates into one file. Its
+[examples and migration assessment](SECRET_RELEASE.md) cover Lamport, HORS,
+ones-only, preimage and plain disclosures, valid encodings, optional private-map
+privacy, and exact or bounded-error correctness. CI checks it separately; the
+existing BLAKE3 and G1 acceptance predicates have not been replaced by these
+example declarations.
+
 Lean **4.33.1**, Clean, VCVio, PolyFun, and Mathlib are pinned. With `elan`,
 Python 3, Git, and a C compiler installed:
 

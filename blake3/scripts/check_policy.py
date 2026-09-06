@@ -41,6 +41,7 @@ def main():
             'import Blake3Prize.Protected.Runner\n' + original,
             'import Blake3Prize.Baselines.HalfGates.Runner\n' + original,
             original + '\nnamespace Blake3Prize.Protected\ndef extra := 0\nend Blake3Prize.Protected\n',
+            original + '\nnamespace SecretRelease\ndef extra := 0\nend SecretRelease\n',
             # Policy-only input: never elaborate it or read any file.
             original.replace('def policyExample : Nat := 0',
                              'def policyExample := include_str "fixture.txt"'),
@@ -50,6 +51,8 @@ def main():
             solution.write_text(source)
             rejected(lambda: check_source(submission))
         solution.write_text(original)
+        solution.write_text('import SecretRelease\n' + original)
+        check_source(submission)
         # Documentation can name the forbidden feature without executing it.
         solution.write_text(original + '\n-- include_str is forbidden\n'
                             'def documentation := "include_str"\n')
