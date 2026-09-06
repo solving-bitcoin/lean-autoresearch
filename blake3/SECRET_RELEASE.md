@@ -11,6 +11,9 @@ Clean's BLAKE3 reference. `privateMap` shows the declaration pattern for
 `Q + [r]A`: valid affine inputs, private canonical `(Q,r)`, plaintext canonical
 point output, and hidden-parameter privacy. These are new declarations, not
 certified solutions or replacements for the existing ranked contracts.
+The BLAKE3 example additionally requires withholding every input/output label
+before either disclosure channel arrives. The existing ranked BLAKE3 predicate
+still specifies only its original post-release recovery experiment.
 
 ## Declare a challenge
 
@@ -40,6 +43,9 @@ The author freezes this declaration before contestants submit anything.
 the contestant can supply. For signature-like inputs it checks a credential
 for a different **valid** encoding. For BLAKE3 it checks recovery of any one
 opposite input/output label. Those are different security properties.
+`withholding := some beforeReleaseWins` optionally adds a separate pre-release
+target, using the same claim type and ROM bounds. Its attacker sees only the
+known input and artifact. `none` makes no pre-release promise.
 
 `Codec.checked n valid` makes accepted bit strings a subtype, including any
 checksum, canonical representation, or curve-membership condition. Correctness
@@ -48,6 +54,10 @@ unrestricted; invalid data that eventually enables a forbidden valid disclosure
 still wins. Merely calling an encoding valid does not prevent another valid
 encoding from being freely derivable. That is an obligation for the chosen
 encoding and security proof, not an extra universal restriction on codecs.
+Before accepting a challenge declaration, check what an attacker can derive
+from its disclosure channels while ignoring the artifact entirely. For example,
+unrestricted ones-only encodings permit subset disclosures. No construction
+can repair a forbidden claim already achievable through those fixed channels.
 
 ## Input/output mechanisms
 
@@ -63,6 +73,8 @@ These are disclosure mechanisms, not full signature suites. A public verificatio
 key is not an implicit free channel. A future Winternitz mechanism can use a
 custom `Disclosure`: uniform independent chain roots, oracle-derived chain nodes,
 and a reviewed checksum/verification rule. Derived nodes need not be independent.
+If verification accepts alternative preimages, the winning rule must use that
+verification predicate; equality with the originally issued secret is weaker.
 
 A `Disclosure` can choose any finite nonempty key space. Its uniform distribution
 can therefore express admissibility constraints such as distinct label pairs.
@@ -76,9 +88,18 @@ so free-XOR and half-gates are eligible.
 
 - Correctness through the actual encode/decode/evaluate path.
 - Both artifact-codec round trips and a worst-case serialized byte bound.
-- The challenge's forbidden-disclosure theorem in a shared 256-bit ROM.
-- If `hidePrivate` is true, indistinguishability for any two private inputs
-  producing the same permitted result at the fixed evaluator input.
+- Post-release resistance to the challenge's forbidden claim in a shared ROM.
+- If `withholding` is supplied, the additional pre-release target bound.
+- If `privateLeakage` is supplied, indistinguishability for any two private
+  inputs producing the same explicitly permitted leakage bytes.
+
+`privateLeakage := some (fun p x => ...)` is a reviewed author choice, never
+inferred from the full typed reference result. Constant empty leakage compares
+all private inputs; `none` requests no private-parameter privacy. The G1 helper
+explicitly permits the plaintext output bytes and requires an injective encoder.
+This is privacy modulo deterministic leakage, **not** automatic simulation
+relative to randomized disclosure channels. Selecting overly revealing leakage
+weakens the goal; the author must justify it before freezing the challenge.
 
 Exact correctness for all admissible keys, coins, and hash interpretations is
 the default. The author may instead select `Correctness.statistical`, with a
@@ -90,13 +111,30 @@ one throughout that range. Rationals keep the challenge metadata executable;
 probability measures remain proof-only. The example bound is `(q+1)/2^128`
 through `q = 2^64`, matching the current BLAKE3 target numerically. A certificate
 must establish it; choosing the profile supplies no security theorem.
+Specifically, the allowed success probability is `2^-128` at zero queries and
+`2^-64 + 2^-128` at the maximum query budget, approximately `2^-64`.
 
 The evaluator knows the input. This initial profile is classical, one-shot,
-and static-input; it gives the attacker the authorized output for free. It
-does not cover adaptive input selection, multiple releases, quantum queries,
+and static-input. The post-release experiment gives the attacker both disclosure
+channels for free, so it cannot establish withholding on its own. The optional
+pre-release experiment supplies neither channel. These are separate marginal
+experiments, not a multi-stage adaptive game. The profile does not cover
+adaptive input selection, multiple releases, quantum queries,
 timing leakage, or security of SHA-256 as an ideal oracle. Bounds hold for every
 deterministic bounded-query attacker, including every fixed choice of auxiliary
 coins; a randomized-attacker lifting theorem is not included here.
+
+The examples' whole-label recovery goals do not promise that every bit of an
+unreleased label stays confidential. Partial leakage can be consistent with
+their guessing bound. General confidentiality needs an additional reviewed
+indistinguishability or simulation definition. Distinct pairs exclude equality
+within each pair; collisions across coordinates remain possible and must be
+accounted for in construction proofs.
+
+`maxBytes` is a proven score. An author wanting a hard cap can require
+`SizeAccepted challenge limit`, where the trusted author/runner fixes `limit`.
+That adds the proof `certified.maxBytes ≤ limit`; a submitted score by itself
+does not enforce a threshold.
 
 All public instance-dependent state must be serialized into the scored artifact.
 Fixed compiled program code and the declared disclosure channels are outside
@@ -105,14 +143,43 @@ Fixed codecs allow a future generic runtime to reject malformed private/input
 encodings. The executable methods must compile even though their proof fields
 may use noncomputable mathematics.
 
+## Acceptance and runtime boundary
+
+`Certified` is a mathematical certificate, not the complete executable
+acceptance process. A challenge migration must bind it to all of these checks:
+
+- An immutable base-owned challenge, verifier, and optional size threshold;
+  `protected.sha256` checks consistency and is not itself a trust anchor.
+- The committed Lean toolchain and dependency revisions, authenticated build
+  products, and the exact certificate's axiom closure. Only `propext`,
+  `Classical.choice`, and `Quot.sound` are allowed by the current checker.
+- The existing submission source policy: no implementation replacement,
+  compiler attributes, custom metaprogramming/recursion preprocessing, native
+  proof evaluation, unsafe code, submission FFI, or file inclusion. Compilation
+  alone does not establish agreement with the definitions used in proofs.
+- The compiled certificate's exact algorithms, a protected byte parser connected
+  to `inputCodec.decode`, and invalid-encoding rejection. The shared contract's
+  evaluator currently takes a typed input; generic byte parsing is still pending.
+- The existing sequential RAM/time/process/disk caps. Honest `garble`, `evaluate`,
+  and `reveal` take a mathematical `Hash`; this certificate imposes no honest
+  oracle-query or local-computation bound. Attacker queries remain explicitly
+  bounded through `Program` and never receive that function for free.
+
+The current BLAKE3 verifier enforces its existing source/build/runtime policy
+and builds/audits the shared examples. It does not yet accept `SecretRelease`
+certificates or provide their generic binary packager. The corresponding
+migration and C-backend trust boundary remain the work below.
+
 ## Small implementation plan and feasibility
 
 1. **Done here:** one-file contract, executable BLAKE3 declaration and G1
-   declaration pattern, meaningful probability/nonvacuity audits, disclosure
+   declaration pattern, probability normalization and nonvacuity audits, disclosure
    and validity native tests, immutable-base CI integration.
 2. **BLAKE3 migration:** adapt the existing byte runner and audit to the new
    declaration; explicitly verify equivalence of bit order, distinct-pair
    sampling, selected output, and the recovery game before changing acceptance.
+   The new pre-release goal also needs a separate theorem; it is not equivalent
+   to the old post-release certificate.
    This is manageable plumbing. Certifying its half-gates baseline still needs
    complete lowering/transport correctness and its correlated-label ROM proof.
 3. **G1 migration:** supply the codecs/reference and preserve function privacy.

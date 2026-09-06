@@ -28,6 +28,7 @@ def main : IO Unit := do
       (checked.decode bits).isSome do
     throw (IO.userError "valid encoding boundary")
   unless Examples.blake3.inputCodec.width == 512 &&
-      Examples.blake3.rom.error 0 == (1 : ℚ≥0) / 2^128 do
+      Examples.blake3.rom.error 0 == (1 : ℚ≥0) / 2^128 &&
+      Examples.blake3.privateLeakage.isNone && Examples.blake3.withholding.isSome do
     throw (IO.userError "executable challenge metadata")
   IO.println "PASS: native SecretRelease disclosure modes, checked encodings, and metadata"

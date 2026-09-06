@@ -28,7 +28,7 @@ Run one build/test at a time. Never use an uncapped compilation or benchmark.
 
 No proof gaps, local axioms, native_decide, unsafe/partial definitions, FFI,
 initialization, metaprogram execution, macros, compiler substitution attributes,
-namespace overrides, include_str, filesystem access, or extra unpinned dependencies in
+namespace overrides, include_str, wf_preprocess, filesystem access, or extra unpinned dependencies in
 submissions. The exact certificate and allowed axiom closure are audited.
 
 Submission acceptance must execute the immutable base revision's workflow and
@@ -47,3 +47,8 @@ migration must preserve each game's semantics; G1's ideal-pad theorem is not
 a finite-key ROM certificate. The challenge fixes validity, disclosure, key
 law, error bounds, and forbidden claims before submissions; only submissions'
 schemes/proofs may vary. Build the shared native check through the same caps.
+Private-parameter leakage must be explicitly declared; do not infer it from a
+typed reference result behind a lossy disclosure. Post-release recovery does
+not establish withholding: enable the separate pre-release target when needed.
+Full-label recovery does not imply absence of partial leakage. Keep these
+goals and the separate executable acceptance obligations explicit.

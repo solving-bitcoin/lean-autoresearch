@@ -47,6 +47,11 @@ def main():
                              'def policyExample := include_str "fixture.txt"'),
             original.replace(':= 0', ':= include_str\n  ("fixture.txt")'),
             original.replace(':= 0', ':= include_str /- comment -/ "fixture.txt"'),
+            # Inert policy fixtures, never compiled or registered as attributes.
+            original + '\n@[wf_preprocess] theorem fixture : True := True.intro\n',
+            original + '\n@[csimp] theorem fixture : True := True.intro\n',
+            original.replace('def policyExample', '@[implemented_by fixture] def policyExample'),
+            original + '\ntheorem fixture : True := by native_decide\n',
         ):
             solution.write_text(source)
             rejected(lambda: check_source(submission))

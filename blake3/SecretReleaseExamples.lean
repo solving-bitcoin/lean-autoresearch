@@ -34,14 +34,21 @@ def blake3 : Challenge where
   wins := fun _ _ x ik ok guess => guess.2 = match guess.1 with
     | .inl i => (ik i).get (!x[i.val])
     | .inr i => (ok i).get (!(hash64 x)[i.val])
+  withholding := some fun _ _ _ ik ok guess =>
+    let pair := match guess.1 with
+      | .inl i => ik i
+      | .inr i => ok i
+    guess.2 = pair.get false ∨ guess.2 = pair.get true
   rom := rom128
 
 /-- The G1 declaration pattern: instantiate `reference` with Q + [r]A,
 the private codec with canonical (Q,r), and the input codec with valid affine
-points. The output encoder must be the canonical point encoding. This does
-not transport G1's existing infinite-pad proof to finite keys. -/
+points. The output encoder is injective; its bytes are the explicit permitted
+private-parameter leakage. This does not transport G1's existing infinite-pad
+proof to finite keys. -/
 def privateMap (privateCodec : Codec P) (inputCodec : Codec A)
-    (encodeOutput : O → ByteArray) (reference : P → A → O) : Challenge where
+    (encodeOutput : O → ByteArray) (_injective : Function.Injective encodeOutput)
+    (reference : P → A → O) : Challenge where
   Private := P
   Input := A
   Output := O
@@ -53,7 +60,7 @@ def privateMap (privateCodec : Codec P) (inputCodec : Codec A)
   Claim := Fin inputCodec.width × Label
   wins := fun _ _ a keys _ guess => guess.2 =
     (keys guess.1).get (!(inputCodec.encode a)[guess.1.val])
-  hidePrivate := true
+  privateLeakage := some fun p a => encodeOutput (reference p a)
   rom := rom128
 
 end SecretRelease.Examples

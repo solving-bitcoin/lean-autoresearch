@@ -131,7 +131,13 @@ structure Challenge where
   DIFFERENT VALID encoding here; invalid intermediate credentials are allowed.
   Raw-label recovery is a different goal and can be required separately. -/
   wins : Hash → Private → Input → inputs.Keys → outputs.Keys → Claim → Prop
-  hidePrivate : Bool := false
+  /-- Optional additional target BEFORE either disclosure channel is given.
+  This is a separate experiment, with the same reviewed query/error bounds. -/
+  withholding : Option (Hash → Private → Input → inputs.Keys → outputs.Keys → Claim → Prop) := none
+  /-- Explicit permitted leakage of private parameters. `none` disables this
+  privacy goal; `some` compares every pair with equal leakage bytes. This is
+  NOT automatically privacy relative to randomized disclosure channels. -/
+  privateLeakage : Option (Private → Input → ByteArray) := none
   correctness : Correctness := .exact
   rom : ClassicalBoundedQueryROM
 
@@ -165,6 +171,11 @@ structure View (c : Challenge) where
   making honest evaluation computationally difficult. -/
   activeOutputs : ByteArray
 
+/-- Before credentials arrive, neither disclosure channel is available. -/
+structure PreReleaseView (c : Challenge) where
+  input : c.Input
+  artifact : ByteArray
+
 namespace ROM
 abbrev Oracle := List (Fin 256) → Label
 abbrev Sample (s : Scheme c) := c.inputs.Keys × c.outputs.Keys × Bytes s.randomnessBytes × Oracle
@@ -182,7 +193,10 @@ def view (s : Scheme c) (p : c.Private) (x : c.Input) (ω : Sample s) : View c :
   let h := hash ω.2.2.2
   ⟨x, s.garbleBytes h ω.2.2.1 p ω.1 ω.2.1,
     c.inputs.reveal h ω.1 x, c.outputs.reveal h ω.2.1 (c.reference p x)⟩
-def Bounded (a : View c → Program α) (q : Nat) : Prop :=
+def preReleaseView (s : Scheme c) (p : c.Private) (x : c.Input)
+    (ω : Sample s) : PreReleaseView c :=
+  ⟨x, s.garbleBytes (hash ω.2.2.2) ω.2.2.1 p ω.1 ω.2.1⟩
+def Bounded (a : V → Program α) (q : Nat) : Prop :=
   ∀ v, IsTotalQueryBound (a v) q
 def winEvent (s : Scheme c) (p : c.Private) (x : c.Input)
     (a : View c → Program c.Claim) : Set (Sample s) :=
@@ -191,6 +205,11 @@ def winEvent (s : Scheme c) (p : c.Private) (x : c.Input)
 def distinguishEvent (s : Scheme c) (p : c.Private) (x : c.Input)
     (a : View c → Program Bool) : Set (Sample s) :=
   {ω | run (hash ω.2.2.2) (a (view s p x ω)) = true}
+def preReleaseEvent (s : Scheme c)
+    (wins : Hash → c.Private → c.Input → c.inputs.Keys → c.outputs.Keys → c.Claim → Prop)
+    (p : c.Private) (x : c.Input) (a : PreReleaseView c → Program c.Claim) : Set (Sample s) :=
+  {ω | wins (hash ω.2.2.2) p x ω.1 ω.2.1
+    (run (hash ω.2.2.2) (a (preReleaseView s p x ω)))}
 
 def CorrectWithError (s : Scheme c) (error : ENNReal) : Prop :=
   letI : MeasurableSpace c.inputs.Keys := ⊤
@@ -201,19 +220,31 @@ def CorrectWithError (s : Scheme c) (error : ENNReal) : Prop :=
         (view s p x ω).activeInputs ≠ some (view s p x ω).activeOutputs}
     MeasurableSet failed ∧ law s failed ≤ error
 
+/-- Post-release resistance to the specified claim, not general confidentiality
+or evidence that the authorized result required input credentials. -/
 def ReleaseSecure (s : Scheme c) : Prop :=
   letI : MeasurableSpace c.inputs.Keys := ⊤
   letI : MeasurableSpace c.outputs.Keys := ⊤
   ∀ p x q, q ≤ c.rom.maxQueries → ∀ a, Bounded a q →
     MeasurableSet (winEvent s p x a) ∧ law s (winEvent s p x a) ≤ (c.rom.error q : ENNReal)
 
-/-- Preserve hidden-parameter privacy whenever the two permitted results
-agree. Quantifying both ordered pairs gives both distinguishing inequalities.
-The input, public oracle access, and authorized output are all in the view. -/
+/-- Optional pre-release withholding, with no active labels given for free. -/
+def WithholdingSecure (s : Scheme c) : Prop :=
+  letI : MeasurableSpace c.inputs.Keys := ⊤
+  letI : MeasurableSpace c.outputs.Keys := ⊤
+  match c.withholding with
+  | none => True
+  | some wins => ∀ p x q, q ≤ c.rom.maxQueries → ∀ a, Bounded a q →
+      MeasurableSet (preReleaseEvent s wins p x a) ∧
+      law s (preReleaseEvent s wins p x a) ≤ (c.rom.error q : ENNReal)
+
+/-- Privacy modulo explicitly declared deterministic leakage. The author must
+review that leakage; equality of full reference results is never implicit.
+Both ordered pairs give both inequalities. This is not a simulation goal. -/
 def FunctionPrivate (s : Scheme c) : Prop :=
   letI : MeasurableSpace c.inputs.Keys := ⊤
   letI : MeasurableSpace c.outputs.Keys := ⊤
-  c.hidePrivate = true → ∀ p₀ p₁ x, c.reference p₀ x = c.reference p₁ x →
+  ∀ leakage, c.privateLeakage = some leakage → ∀ p₀ p₁ x, leakage p₀ x = leakage p₁ x →
     ∀ q, q ≤ c.rom.maxQueries → ∀ a, Bounded a q →
       MeasurableSet (distinguishEvent s p₀ x a) ∧
       law s (distinguishEvent s p₀ x a) ≤
@@ -233,6 +264,13 @@ structure Certified (c : Challenge) where
   encode_decode : ∀ b a, scheme.decode b = some a → scheme.encode a = b
   artifactBound : ArtifactBound scheme maxBytes
   releaseSecure : ROM.ReleaseSecure scheme
+  withholdingSecure : ROM.WithholdingSecure scheme
   functionPrivate : ROM.FunctionPrivate scheme
+
+/-- An optional hard cap, fixed by the challenge's trusted acceptance layer.
+Without this wrapper, `maxBytes` is a certified score, not a threshold check. -/
+structure SizeAccepted (c : Challenge) (limit : Nat) where
+  certified : Certified c
+  withinLimit : certified.maxBytes ≤ limit
 
 end SecretRelease
