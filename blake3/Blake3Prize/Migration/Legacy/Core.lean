@@ -1,6 +1,6 @@
 import Blake3Prize.Protected.Reference
 
-namespace Blake3Prize.Protected
+namespace Blake3Prize.Protected.Legacy
 
 /-- An optional public primitive. This is an ordinary function in correctness
 statements; a security profile specifies its law or computational assumptions. -/
@@ -50,4 +50,4 @@ def ArtifactBound (s : Scheme) (maxBytes : Nat) : Prop :=
   ∀ hash coins inputs outputs,
     (s.garbleBytes hash coins inputs outputs).size ≤ maxBytes
 
-end Blake3Prize.Protected
+end Blake3Prize.Protected.Legacy

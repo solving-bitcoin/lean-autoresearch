@@ -3,7 +3,7 @@ from resources import ROOT,guarded
 from policy import check_protected,dependencies,prepare_generated_cache_excludes
 
 check_protected()
-for command in (['lake','update'],['lake','-v','build','blake3-trusted']):
+for command in (['lake','update'],['lake','build','blake3-trusted']):
     print(f"CHECK: {' '.join(command)}",flush=True)
     r=guarded(command)
     print(r['stdout'],end='');print(r['stderr'],end='')

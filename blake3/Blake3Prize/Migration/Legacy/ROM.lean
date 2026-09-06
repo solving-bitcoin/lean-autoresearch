@@ -1,4 +1,4 @@
-import Blake3Prize.Protected.SecretRelease
+import Blake3Prize.Migration.Legacy.SecretRelease
 import VCVio.OracleComp.QueryTracking.QueryBound
 import VCVio.OracleComp.SimSemantics.QueryImpl.Constructions
 -- ProductMeasure supplies infinitePi and its probability instance. Importing
@@ -6,7 +6,7 @@ import VCVio.OracleComp.SimSemantics.QueryImpl.Constructions
 import Mathlib.Probability.ProductMeasure
 import Mathlib.Probability.UniformOn
 
-namespace Blake3Prize.Protected.ROM
+namespace Blake3Prize.Protected.Legacy.ROM
 open MeasureTheory ProbabilityTheory OracleSpec OracleComp
 open SecretRelease
 
@@ -132,4 +132,4 @@ theorem not_secrecy_of_always_wins (s : Scheme) (input : Input) (attack : Advers
   rw [hevent, experimentLaw_univ] at hbound
   exact (not_le_of_gt successBound_zero_lt_one) hbound
 
-end Blake3Prize.Protected.ROM
+end Blake3Prize.Protected.Legacy.ROM

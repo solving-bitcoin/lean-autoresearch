@@ -1,4 +1,4 @@
-import G1Release.Protected.Runner
+import G1Release.Protected.Wire
 
 /-! Deliberately INSECURE transport test: it publishes the private parameters,
 all label pairs, and coins. There is no certificate or ranked entry for it. -/
@@ -20,7 +20,7 @@ def insecureFixture : Scheme challenge where
       Vector.ofFn fun j => bytes[97 + 32*(2*i.val + if (inputCodec.encode a)[i.val] then 1 else 0) + j.val]!)
     if active == expected then pure (encodeOutput (reference p a)) else none
 
-end G1Release.Protected
 
-def main (args : List String) : IO UInt32 :=
-  G1Release.Protected.Runner.runScheme G1Release.Protected.insecureFixture 32868 args
+def fixtureEntry : Option (Candidate challenge) := some ⟨insecureFixture, 32868, none⟩
+
+end G1Release.Protected

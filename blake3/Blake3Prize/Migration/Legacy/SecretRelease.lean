@@ -1,6 +1,6 @@
-import Blake3Prize.Protected.Core
+import Blake3Prize.Migration.Legacy.Core
 
-namespace Blake3Prize.Protected.SecretRelease
+namespace Blake3Prize.Protected.Legacy.SecretRelease
 
 /-- Construction-independent public observation. The message and therefore
 its digest may be known. Giving the selected output labels for free makes
@@ -30,4 +30,4 @@ def Wins (inputs : InputLabelPairs) (outputs : OutputLabelPairs)
     (input : Input) (guess : Guess) : Prop :=
   guess.2 = oppositeLabel inputs outputs input guess.1
 
-end Blake3Prize.Protected.SecretRelease
+end Blake3Prize.Protected.Legacy.SecretRelease

@@ -42,6 +42,8 @@ def main():
         for source in (
             original.replace(':= 0', ':= by sorry'),
             'import Blake3Prize.Protected.Runner\n' + original,
+            'import SecretRelease.NativeHash\n' + original,
+            'import SecretRelease.CLI\n' + original,
             'import Blake3Prize.Baselines.HalfGates.Runner\n' + original,
             original + '\nnamespace Blake3Prize.Protected\ndef extra := 0\nend Blake3Prize.Protected\n',
             original + '\nnamespace SecretRelease\ndef extra := 0\nend SecretRelease\n',
@@ -60,6 +62,8 @@ def main():
             rejected(lambda: check_source(submission))
         solution.write_text(original)
         solution.write_text('import SecretRelease\n' + original)
+        check_source(submission)
+        solution.write_text('import SecretRelease.Encoding\nimport SecretRelease.Runtime\n' + original)
         check_source(submission)
         solution.write_text('import SecretRelease.Simulation\n' + original)
         check_source(submission)

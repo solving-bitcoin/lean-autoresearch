@@ -254,9 +254,7 @@ end ROM
 /-- Only the exact serialized scheme can be certified. Mathematical
 well-formedness and compilation/resource/source-policy checks are separate:
 proofs can be noncomputable; the executed methods must compile. -/
-structure Certified (c : Challenge) where
-  scheme : Scheme c
-  maxBytes : Nat
+structure Certificate (scheme : Scheme c) (maxBytes : Nat) : Type where
   correct : match c.correctness with
     | .exact => Correct scheme
     | .statistical error _ => ROM.CorrectWithError scheme error
@@ -266,6 +264,21 @@ structure Certified (c : Challenge) where
   releaseSecure : ROM.ReleaseSecure scheme
   withholdingSecure : ROM.WithholdingSecure scheme
   functionPrivate : ROM.FunctionPrivate scheme
+
+/-- Executable candidates need no security claim to run. Ranking requires the
+optional certificate indexed by this exact scheme and claimed byte bound. -/
+structure Candidate (c : Challenge) where
+  scheme : Scheme c
+  maxBytes : Nat
+  certificate : Option (Certificate scheme maxBytes) := none
+
+structure Certified (c : Challenge) where
+  scheme : Scheme c
+  maxBytes : Nat
+  proof : Certificate scheme maxBytes
+
+def Candidate.certified (candidate : Candidate c) : Option (Certified c) :=
+  candidate.certificate.map fun proof => ⟨candidate.scheme, candidate.maxBytes, proof⟩
 
 /-- An optional hard cap, fixed by the challenge's trusted acceptance layer.
 Without this wrapper, `maxBytes` is a certified score, not a threshold check. -/

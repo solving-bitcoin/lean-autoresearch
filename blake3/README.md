@@ -23,8 +23,8 @@ expression language, lowerer, gate count, half-gates layout, or Yao backend.
 
 ## What acceptance checks
 
-[Core.lean](Blake3Prize/Protected/Core.lean) defines the functional interface.
-[Target.lean](Blake3Prize/Protected/Target.lean) requires a `ValidCandidate`
+[SecretRelease.lean](../secret-release/SecretRelease.lean) defines the shared functional interface.
+[Target.lean](Blake3Prize/Protected/Target.lean) specializes `SecretRelease.Certificate` as the
 certificate containing all four obligations:
 
 1. **Serialized correctness:** for every message, every randomness tape, all
@@ -39,15 +39,15 @@ certificate containing all four obligations:
 4. **Secrecy:** the common conditional-release winning predicate must satisfy
    a protected, reviewed proof profile. Correctness alone cannot qualify.
 
-A submission exports `entry : Option CertifiedScheme`. A certified entry carries
-the scheme, literal byte bound, profile, and certificate together. The verifier
+A submission exports `entry : Option Candidate`. An entry carries the scheme and literal byte bound with an optional certificate
+indexed by those exact values. Uncertified entries run but receive no accepted score. The verifier
 kernel-checks that the bound equals `score.txt`, audits the axiom closure, and
 executes **those same submitted Lean functions** in fresh processes. It never
 substitutes the optional Python garbler for the submitted evaluator.
 
 ## Common secrecy rule and the initial ROM profile
 
-[SecretRelease.lean](Blake3Prize/Protected/SecretRelease.lean) defines the public
+[Challenge.lean](Blake3Prize/Protected/Challenge.lean) defines the public
 view and winning rule without naming a cryptographic construction or model.
 The view contains the message, artifact, active input labels, and selected
 output labels. The attacker wins by returning the correct value and index of
@@ -55,7 +55,7 @@ output labels. The attacker wins by returning the correct value and index of
 free, so the guarantee does not depend on charging for honest evaluation.
 
 The initially admitted profile is **ClassicalBoundedQueryROM**, defined in
-[ROM.lean](Blake3Prize/Protected/ROM.lean). It uses pinned
+[SecretRelease.lean](../secret-release/SecretRelease.lean). It uses pinned
 [VCVio](https://github.com/Verified-zkEVM/VCVio/tree/ffd0ca198fe6e640c0dd7f0f9c599943caacbf64)
 `OracleComp`, `simulateQ`, and `IsTotalQueryBound`:
 
@@ -91,7 +91,7 @@ assumptions (for example a PRF reduction). A submission cannot invent an empty
 adversary class, weaken the winning rule, or assume its own security theorem.
 Adding a profile changes the protected registry through challenge review.
 
-The executable optional hash is Clean's pure Lean SHA-256 specification.
+The executable optional hash is the shared trusted C SHA-256 backend.
 **The ROM theorem contains no SHA-256 assumption or SHA-256 implementation.**
 The implementation profile explicitly records the substitution:
 
@@ -114,9 +114,8 @@ public program code can be shared across instances; instance-dependent public
 data cannot be hidden in a separate code or topology file.
 
 The 16,384-byte active-input channel and 8,192-byte active-output channel are
-fixed and excluded from the artifact score. Reports separately show the
-24,576 active-label bytes and 64 bytes of already-known message input, plus
-`totalIOBytes = measuredArtifactBytes + 24,640`. Private label pairs and an
+fixed and excluded from the artifact score. Native SDK measurements record the active-label channels and known input
+separately; their combined evaluator traffic is artifact bytes plus 24,640 bytes. Private label pairs and an
 oblivious-transfer protocol are outside this interface.
 
 ## Reference and optional baseline
@@ -136,82 +135,43 @@ The previous implementation is now an **optional, uncertified baseline** in
 half-gates identity remain available as optional libraries. Neither the core
 contract nor its secrecy profile imports those modules.
 
-Its last measured artifact was **707,680 bytes**:
+Its executable Lean port declares and tests **707,680 bytes**:
 `32 + 512×65 + 10,281×64 + 256×64 = 707,680`.
 That is a measurement of this particular implementation. It lacks the full
 serialized-correctness and secrecy certificates required by the new contract,
-so **there is currently no ranked submission**. CI displays its measurement
-separately and cannot turn it into an accepted scheme-level score.
+so **there is currently no ranked submission**. CI executes it through the generated tools and reports its measured bytes
+without turning that measurement into a ranked score.
 
-## Run safely
+## Generated tools and verification
 
-The new [shared SecretRelease contract](../secret-release/SecretRelease.lean) extracts the common
-declarations and ROM acceptance predicates into one file. Its
-[examples, VCVio simulation imports, and migration assessment](../secret-release/README.md) cover Lamport, HORS,
-ones-only, preimage and plain disclosures, valid encodings, explicit permitted
-private leakage, optional pre-release withholding, and exact or bounded-error
-correctness. Whole-label recovery is distinct from general confidentiality.
-CI checks it separately; the
-existing BLAKE3 and G1 acceptance predicates have not been replaced by these
-example declarations.
-
-Lean **4.33.1**, Clean, VCVio, PolyFun, and Mathlib are pinned. With `elan`,
-Python 3, Git, and a C compiler installed:
-
-```bash
+```sh
 ./blake3/setup.sh
-./blake3/benchmark.sh                  # requires a certified entry
-./blake3/benchmark.sh --allow-unranked # challenge-authoring checks only
-./blake3/benchmark.sh --authoring-preview # never emits an accepted score
-python3 blake3/scripts/baseline.py     # optional, never an accepted score
+./blake3/benchmark.sh --allow-unranked  # authoring only
+blake3/.yukon/bundle/challenge describe
+blake3/.yukon/bundle/garble coins.bin empty.bin input-keys.bin output-keys.bin artifact.bin
+blake3/.yukon/bundle/encode message.bin input-keys.bin known.bin active.bin
+blake3/.yukon/bundle/evaluate artifact.bin known.bin active.bin output.bin
 ```
 
-All builds and native checks are sequential, use one Lean thread and reduced
-CPU priority, and fail closed if the memory monitor is unavailable. Builds
-have an **8 GiB CI / 4 GiB local aggregate RSS cap** and 30-minute timeout. Native checks have a
-**1 GiB aggregate RSS cap** and five-minute timeout. The common file-size limit
-is 2 GiB, working-directory limit 64 GiB, and process limits 64/32 respectively.
-Never bypass the wrappers on a development machine.
+The private-value file is empty. Input keys contain 512 ordered label pairs;
+output keys contain 256 ordered pairs. The baseline takes 16,448 coin bytes.
+All fields use the [shared canonical byte protocol](../secret-release/ARCHITECTURE.md).
+The Rust SDK tests the reference against the official BLAKE3 crate, including
+all 512 one-bit messages, and checks selected labels through the real binaries.
 
-## CI trust boundary
+BLAKE3 now uses the same accepted predicate as G1 release. Historical definitions
+live only under `Blake3Prize/Migration` for checked distribution/view/claim
+transport and are excluded from the accepted import graph. The original
+post-release game is preserved; the stronger withholding example is not imposed.
 
-Official submission acceptance runs in
-[blake3-submission.yml](../.github/workflows/blake3-submission.yml), triggered by
-`pull_request_target` for PRs targeting `main`. The workflow, checkout, verifier, Lean toolchain, and
-dependencies come from the event's **immutable base commit**, not the PR tree.
-Before setup or elaboration, that base revision's `check_overlay.py` compares
-the complete base/head Git trees. Only flat regular files under
-`Blake3Prize/Submission` may differ. Changing a rule and recomputing its digest,
-changing any workflow, adding another file, or deleting protected code fails
-admission. Only admitted source blobs are extracted from the exact head commit;
-no candidate setup script, configuration, or verifier is executed.
+Contestants edit only flat `Blake3Prize/Submission/*.lean` and `score.txt`.
+No numeric accepted score is emitted without the complete shared certificate,
+source/axiom/dependency checks and passing native tests. The shared trusted CI
+runs immutable-base code and admits only regular submission Git blobs; modifying
+rules and recomputing their checksum cannot pass trusted admission. Authoring
+previews always have null accepted scores.
 
-`protected.sha256` is an internal consistency check, **not a trust anchor**.
-Trust comes from executing the reviewed base revision and keeping all candidate
-changes outside its executable verifier. Local results from an edited verifier
-are not official acceptance evidence.
-
-Protected-code changes instead use the separate PR-owned
-[authoring preview](../.github/workflows/blake3.yml). Its report is explicitly
-`authoring-preview`, with a null score even when a candidate certificate checks.
-Authoring changes require review and merge before they become the trusted base
-for later submissions. This initial challenge PR therefore previews the new
-workflow; base-owned acceptance becomes available after its first merge.
-Ranking must use the `blake3-trusted-submission` workflow's base-owned result,
-not a preview or a matching status name emitted by a PR-owned workflow.
-
-The verifier imports only pinned trusted modules before compiling submitted
-code, then checks the exact certificate and axiom closure (`propext`,
-`Classical.choice`, `Quot.sound` only). It checks that correctness/codec/size
-without secrecy is rejected. An explicitly insecure fixture tests the generic
-binary runner and custom framing; passing those native tests does not make
-that fixture eligible for ranking.
-
-Source policy rejects `include_str` before Lean elaboration, alongside the
-existing restrictions on compile-time execution and filesystem access.
-Regression checks use inert source text and Git blobs; they never elaborate a
-file-inclusion expression or read a verifier file through submitted code.
-
-Contestant changes belong in `Blake3Prize/Submission/*.lean` and `score.txt`.
-The protected reference, profile, runner, dependencies, resource policy, and
-workflow belong to challenge authors. The G1 challenge remains separate.
+Run one build/test at a time with the shared guards: 8 GiB CI / 4 GiB local build
+RSS, 1 GiB native RSS, one thread and nice 10, plus time/process/disk caps.
+Never set `GITHUB_ACTIONS=true` on the local machine. SHA-256/FFI/compiler trust
+and the unproved ROM-to-SHA-256 bridge remain explicit in bundle metadata.

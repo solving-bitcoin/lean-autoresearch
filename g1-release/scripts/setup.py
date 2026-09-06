@@ -3,7 +3,7 @@ from limits import guarded
 from boundary import check_protected, dependencies, prepare_generated_cache_excludes
 
 check_protected()
-for command in (['lake','update'], ['lake','resolve-deps'], ['lake','build','g1-release-checks']):
+for command in (['lake','update'], ['lake','resolve-deps'], ['lake','build','G1Release.Protected.Wire']):
     print(f"CHECK: {' '.join(command)}", flush=True)
     r = guarded(command)
     print(r['stdout'], end=''); print(r['stderr'], end='')

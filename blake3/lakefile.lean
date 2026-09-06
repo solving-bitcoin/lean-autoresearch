@@ -16,8 +16,9 @@ lean_lib Blake3Prize
 
 lean_lib SecretReleaseExamples
 
-lean_exe "blake3-submission" where
-  root := `Blake3Prize.Main
+lean_exe "secret-release-tools" where
+  srcDir := ".lake/generated"
+  root := `SRTools
 
 lean_exe "blake3-trusted" where
   root := `Blake3Prize.Protected.TrustedMain
@@ -28,6 +29,3 @@ lean_exe "blake3-half-gates" where
 
 lean_exe "blake3-half-gates-checks" where
   root := `Blake3Prize.Baselines.HalfGates.TrustedMain
-
-lean_exe "blake3-runner-test" where
-  root := `Blake3Prize.Protected.RunnerTest

@@ -42,9 +42,8 @@ Keep every commit title below 50 characters, use unsigned commits, explain the
 mathematics in the body, and keep PR #3 open and ready for CI.
 
 The shared SecretRelease contract is author-owned and intentionally one file.
-Keep reusable construction/security reductions outside it. Its example
-declarations do not replace either existing acceptance predicate. Future
-migration must preserve each game's semantics; G1's ideal-pad theorem is not
+Keep reusable construction/security reductions outside it. BLAKE3 now instantiates the shared accepted predicate; migration evidence
+remains outside its import graph. Preserve each game's semantics; G1's ideal-pad theorem is not
 a finite-key ROM certificate. The challenge fixes validity, disclosure, key
 law, error bounds, and forbidden claims before submissions; only submissions'
 schemes/proofs may vary. Build the shared native check through the same caps.

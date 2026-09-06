@@ -56,7 +56,7 @@ def shared_source_files(directory=SHARED):
         raise SystemExit('symlink or missing shared package')
     paths=[]
     for p in directory.rglob('*'):
-        if any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(directory).parts):
+        if any(part in ('.lake','.yukon','__pycache__','target') for part in p.relative_to(directory).parts):
             continue
         if p.is_symlink():raise SystemExit('symlink in shared protected sources')
         # Finder metadata is not package source and is absent from Git checkouts.
@@ -96,14 +96,14 @@ def config_digest(packages,entries):
 
 def protected_files():
     paths=[p for p in ROOT.rglob('*') if p.is_file()
-           and not any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(ROOT).parts)
+           and not any(part in ('.lake','.yukon','__pycache__','target') for part in p.relative_to(ROOT).parts)
            and 'Submission' not in p.relative_to(ROOT).parts
            and p.name not in ('protected.sha256','.DS_Store')]
     paths.extend(shared_source_files())
     paths.extend(REPO/'scripts'/name for name in (
         'run_with_rss.py','verify_submission.py','check_submission.py','lean_source_policy.py',
         'dependency_builds.py','protected_tree.py','render_benchmark_challenge.py'))
-    for name in ('blake3.yml','blake3-submission.yml'):
+    for name in ('secret-release.yml','secret-release-submission.yml'):
         workflow=REPO/'.github/workflows'/name
         if workflow.exists():paths.append(workflow)
     return sorted(set(paths))
@@ -128,8 +128,8 @@ def check_protected():
 def check_source(submission):
     source_policy.VERIFIER_OWNED_NAMESPACES=(('Blake3Prize','Protected'),('Blake3Prize','Baselines'),('SecretRelease',))
     optional_libraries={f'Blake3Prize.Baselines.HalfGates.{name}' for name in (
-        'Expression','WordExpression','WordProgram','Morphism','Lowering','HalfGate','Codec','Target')}
-    source_policy.allowed_import=lambda m: m in {'Blake3Prize.Protected.Target','SecretRelease','SecretRelease.Simulation','SecretRelease.Examples'} or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
+        'Expression','WordExpression','WordProgram','Morphism','Lowering','HalfGate','Codec','Target','Scheme')}
+    source_policy.allowed_import=lambda m: m in {'Blake3Prize.Protected.Target','SecretRelease','SecretRelease.Encoding','SecretRelease.Runtime','SecretRelease.Simulation','SecretRelease.Examples'} or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
     source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','wf_preprocess','native_decide','setEnv','modifyEnv','panic','dbg_trace','include_str'}
     source_policy.check_submission(Path(submission))
     for p in Path(submission).glob('*.lean'):

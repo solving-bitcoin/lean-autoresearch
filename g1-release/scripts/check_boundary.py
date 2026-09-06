@@ -33,6 +33,8 @@ def main():
             original + '\nnamespace SecretRelease\ndef evil := 0\nend SecretRelease\n',
             original + '\nnamespace G1Release.Protected\ndef evil := 0\nend G1Release.Protected\n',
             'import G1Release.Protected.Runner\n' + original,
+            'import SecretRelease.NativeHash\n' + original,
+            'import SecretRelease.CLI\n' + original,
             'import GarblingPrize.Protected.SHA256\n' + original,
             'import GarblingPrize.Submission.Solution\n' + original,
             original + '\n#eval IO.println "untrusted"\n',

@@ -30,7 +30,7 @@ def protected_files():
     paths += [REPO/'scripts'/n for n in ('run_with_rss.py','verify_submission.py',
               'check_submission.py','lean_source_policy.py','dependency_builds.py',
               'protected_tree.py','render_benchmark_challenge.py')]
-    paths += list((REPO/'.github/workflows').glob('g1-release*.yml'))
+    paths += list((REPO/'.github/workflows').glob('secret-release*.yml'))
     for p in paths:
         if p.is_symlink(): raise SystemExit('G1_RELEASE_PROTECTED_REJECTED: symlink')
     return sorted(set(p for p in paths if p.is_file()))
@@ -52,7 +52,7 @@ def check_source(submission):
     pure_math = {'GarblingPrize.Protected.'+n for n in ('BN254','G1','PrimeCertificates.Base','Bytes')}
     policy.allowed_import = lambda m: (m in pure_math or m in {
         'G1Release.Protected.Target','G1Release.Protected.Codecs',
-        'SecretRelease','SecretRelease.Simulation','SecretRelease.Examples'} or
+        'SecretRelease','SecretRelease.Encoding','SecretRelease.Runtime','SecretRelease.Simulation','SecretRelease.Examples'} or
         m.startswith(('G1Release.Submission.','Mathlib.','CompPoly.','VCVio.OracleComp.QueryTracking.',
                       'VCVio.OracleComp.SimSemantics.','VCVio.EvalDist.')) or m == 'Mathlib')
     policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','wf_preprocess','native_decide',

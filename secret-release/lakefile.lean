@@ -1,5 +1,5 @@
 import Lake
-open Lake DSL
+open Lake DSL System
 
 package secretRelease where
   weakLeanArgs := #["-j1"]
@@ -14,3 +14,11 @@ lean_lib SecretRelease
 
 lean_exe "secret-release-checks" where
   root := `SecretReleaseTests.Native
+
+-- Trusted runtime instantiation; absent from SecretRelease's proof imports.
+target nativeSha256.o pkg : FilePath := do
+  buildO (pkg.buildDir / "native" / "sha256.o")
+    (← inputTextFile <| pkg.dir / "native" / "sha256.c")
+    #["-I", (← getLeanIncludeDir).toString] #["-O3", "-fPIC"]
+extern_lib nativeSha256 pkg := do
+  buildStaticLib (pkg.staticLibDir / nameToStaticLib "secret_release_sha256") #[← nativeSha256.o.fetch]

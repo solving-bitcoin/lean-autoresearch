@@ -1,4 +1,5 @@
 import SecretRelease.Examples
+import SecretRelease.Runtime
 import Lean
 
 open SecretRelease MeasureTheory ProbabilityTheory
@@ -150,7 +151,9 @@ run_cmd liftTermElabM do
     ``secretRelease_early_rejected,
     ``SecretRelease.Codec.bits, ``SecretRelease.Codec.unit, ``SecretRelease.Codec.checked,
     ``SecretRelease.Examples.rom128,
-    ``SecretRelease.Examples.privateMap, ``SecretRelease.Certified, ``SecretRelease.SizeAccepted] do
+    ``SecretRelease.Examples.privateMap, ``SecretRelease.Certified, ``SecretRelease.SizeAccepted, ``SecretRelease.Certificate, ``SecretRelease.Candidate,
+    ``SecretRelease.Runtime.pipeline_correct, ``SecretRelease.Codec.pi,
+    ``SecretRelease.Codec.bytes, ``SecretRelease.pairCodec] do
     for ax in ← collectAxioms decl do
       unless [``propext, ``Classical.choice, ``Quot.sound].contains ax do
         throwError "SecretRelease contract has forbidden axiom: {ax}"

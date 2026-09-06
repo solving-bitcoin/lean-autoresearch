@@ -15,3 +15,10 @@ Never run an uncapped Lake/Lean/native build. BLAKE3's protected digest and
 immutable-base overlay cover this package; preserve that boundary when moving it.
 Every commit must describe the mathematics, be unsigned, and use a title below
 50 characters. Keep PR #3 open for CI.
+
+The shared runtime derives canonical byte/key codecs and generates all four
+entrypoints. Uncertified candidates may run; only a complete Certificate indexed
+by the exact scheme and bound can rank. Rust references and test success never
+replace Lean proofs. Keep artifact serialization submission-owned and custom
+hash-dependent/variable-size disclosures supported. Run Rust tests through
+scripts/test_rust.py, which separates build and native aggregate caps.
