@@ -1,7 +1,8 @@
 import Blake3Prize.Protected.SecretRelease
 import VCVio.OracleComp.QueryTracking.QueryBound
 import VCVio.OracleComp.SimSemantics.QueryImpl.Constructions
-import Mathlib.Probability.Independence.InfinitePi
+-- ProductMeasure supplies infinitePi and its probability instance. Importing
+-- derived independence results also loads unused density and moment proofs.
 import Mathlib.Probability.ProductMeasure
 import Mathlib.Probability.UniformOn
 
