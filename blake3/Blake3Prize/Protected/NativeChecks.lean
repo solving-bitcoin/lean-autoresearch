@@ -1,5 +1,6 @@
 import Blake3Prize.Protected.NativeHash
-import Lean
+import Lean.Data.Json.FromToJson
+import Lean.Data.Json.Printer
 
 namespace Blake3Prize.Protected.NativeChecks
 open Blake3Prize.Protected
