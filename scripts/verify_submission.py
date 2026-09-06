@@ -286,10 +286,17 @@ def run_limited(command: list[str], cwd: Path, timeout_seconds: int,
     if measurement.get("outputLimitExceeded") is True:
         raise SystemExit(f"VERIFY_REJECTED: {purpose} exceeded its output limit")
     if measurement.get("memoryLimitExceeded") is True:
+        # Preserve bounded diagnostics from the killed compiler. Its exit
+        # status cannot turn a resource rejection into acceptance.
+        output = "\n".join(
+            f"{stream} (last 8192 characters):\n{str(measurement[stream])[-8192:]}"
+            for stream in ("stdout", "stderr") if measurement.get(stream)
+        )
         raise SystemExit(
             f"VERIFY_REJECTED: {purpose} exceeded its memory limit "
             f"(peak {measurement.get('peakMemoryBytes')}, "
-            f"limit {measurement.get('memoryLimitBytes')})"
+            f"limit {measurement.get('memoryLimitBytes')})" +
+            ("\n" + output if output else "")
         )
     if measurement.get("processLimitExceeded") is True:
         raise SystemExit(f"VERIFY_REJECTED: {purpose} exceeded its process limit")
