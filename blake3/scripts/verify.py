@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 from resources import ROOT,guarded
-from policy import check_protected,check_source,dependencies,score_value
+from policy import check_protected,check_source,dependencies,score_value,SHARED,shared_source_files
 from lean_source_policy import import_modules,code_without_comments_or_strings
 from check_runtime import check_reference
 
@@ -62,10 +62,19 @@ def main():
     print(r['stdout'],end='',flush=True)
     r=guarded([sys.executable,ROOT/'scripts/check_overlay_tests.py'],native=True)
     print(r['stdout'],end='',flush=True)
+    r=guarded([sys.executable,ROOT/'scripts/check_resources.py'],native=True)
+    print(r['stdout'],end='',flush=True)
     with tempfile.TemporaryDirectory(prefix='blake3-certified-') as temporary:
-        project=Path(temporary)
+        project=Path(temporary)/'blake3'
+        project.mkdir()
+        shared=Path(temporary)/'secret-release'
+        # Copy only authenticated source; never reuse local-package build/config caches.
+        for source in shared_source_files():
+            target=shared/source.relative_to(SHARED)
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(source,target)
         for name in ('lakefile.lean','lake-manifest.json','lean-toolchain','Blake3Prize.lean',
-                     'SecretRelease.lean','SecretReleaseExamples.lean','SecretReleaseNative.lean'):
+                     'SecretReleaseExamples.lean'):
             shutil.copy2(ROOT/name,project/name)
         for name in ('Protected','Baselines'):
             shutil.copytree(ROOT/'Blake3Prize'/name,project/'Blake3Prize'/name)
@@ -93,11 +102,16 @@ def main():
         r=guarded(['lake','resolve-deps'],project)
         measurements.append(r['peakMemoryBytes'])
         print(f"PASS: isolated Lake configuration; peak {r['peakMemoryBytes']} bytes",flush=True)
-        for target in ('secret-release-checks','blake3-proof-imports','blake3-trusted','blake3-runner-test'):
+        for target in ('secretRelease/secret-release-checks','SecretRelease.Simulation',
+                       'SecretReleaseExamples','blake3-proof-imports','blake3-trusted','blake3-runner-test'):
             r=guarded(['lake','build',target],project)
             measurements.append(r['peakMemoryBytes'])
             print(f"PASS: trusted build {target}; peak {r['peakMemoryBytes']} bytes",flush=True)
         dependencies(snapshot=True)
+        for audit in ('Audit.lean','SimulationAudit.lean'):
+            r=guarded(['lake','env','lean','-j1',shared/'SecretReleaseTests'/audit],project)
+            print(r['stdout'],end='',flush=True)
+            measurements.append(r['peakMemoryBytes'])
         shutil.copy2(ROOT/'scripts/SecretReleaseAudit.lean',project/'SecretReleaseAudit.lean')
         r=guarded(['lake','env','lean','-j1','SecretReleaseAudit.lean'],project)
         print(r['stdout'],end='',flush=True)
@@ -122,10 +136,11 @@ example : (Blake3Prize.Submission.entry.map (fun c => c.maxBytes)) = {expected} 
         native_peaks=[r['peakMemoryBytes']]
         clean_path=project/'clean-checks.json';clean_path.write_text(r['stdout'])
         report=check_reference(clean_path)
-        r=guarded([project/'.lake/build/bin/secret-release-checks'],project,native=True)
+        r=guarded([shared/'.lake/build/bin/secret-release-checks'],project,native=True)
         print(r['stdout'],end='',flush=True)
         native_peaks.append(r['peakMemoryBytes'])
         report['secretReleaseContractChecks']='passed'
+        report['secretReleaseSimulationChecks']='passed'
         fixture=project/'.lake/build/bin/blake3-runner-test'
         fixture_description,peak=native_description(fixture,project);native_peaks.append(peak)
         fixture_report,peak=native_cases(fixture,fixture_description,project,'runner-test')

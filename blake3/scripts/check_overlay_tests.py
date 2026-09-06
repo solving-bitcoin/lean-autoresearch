@@ -19,15 +19,21 @@ def main():
     different = ('100644', 'blob', '2' * 40)
     base = {PREFIX+'Solution.lean': regular, PREFIX+'score.txt': regular,
             'blake3/scripts/policy.py': regular, 'blake3/protected.sha256': regular,
+            'secret-release/SecretRelease.lean': regular,
+            'secret-release/lakefile.lean': regular,
             '.github/workflows/blake3-submission.yml': regular}
     admitted_entries(base, {**base, PREFIX+'Solution.lean': different})
     admitted_entries(base, {**base, PREFIX+'Helper.lean': regular})
     # A changed checker AND its replacement checksum are still protected.
     rejected(lambda: admitted_entries(base, {**base, 'blake3/scripts/policy.py': different,
                                            'blake3/protected.sha256': different}))
+    rejected(lambda: admitted_entries(base, {**base, 'secret-release/SecretRelease.lean': different,
+                                           'blake3/protected.sha256': different}))
     for path in ('blake3/protected.sha256', 'blake3/scripts/policy.py',
                  '.github/workflows/blake3-submission.yml', 'scripts/run_with_rss.py',
                  'blake3/lakefile.lean', 'blake3/new-rule.txt',
+                 'secret-release/SecretRelease.lean', 'secret-release/lakefile.lean',
+                 'secret-release/SecretRelease/Simulation.lean', 'secret-release/lake-manifest.json',
                  PREFIX+'Nested/Helper.lean', PREFIX+'extra.json'):
         rejected(lambda: admitted_entries(base, {**base, path: different}))
     rejected(lambda: admitted_entries(base, {p: e for p, e in base.items()

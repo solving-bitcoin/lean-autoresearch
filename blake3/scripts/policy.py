@@ -7,6 +7,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 REPO=ROOT.parent
+SHARED=REPO/'secret-release'
 sys.path.insert(0,str(REPO/'scripts'))
 import check_submission as source_policy
 from dependency_builds import write_snapshot,verify_snapshot
@@ -16,10 +17,56 @@ SNAPSHOT=ROOT/'.lake/trusted-dependency-builds.json'
 CONFIG_SNAPSHOT=ROOT/'.lake/trusted-dependency-configs.sha256'
 
 
+def git_dependencies(entries, shared_entries):
+    """Only the fixed, base-owned sibling package may be a path dependency.
+
+    Its source is protected and rebuilt in isolation, never accepted as a cached
+    Git dependency. All external packages retain the existing Git provenance rule.
+    """
+    local=[e for e in entries if e.get('type') != 'git']
+    expected={'type':'path','dir':'../secret-release','name':'secretRelease',
+              'scope':'','manifestFile':'lake-manifest.json',
+              'inherited':False,'configFile':'lakefile.lean'}
+    if local != [expected]:
+        raise SystemExit('BLAKE3_DEPENDENCY_REJECTED: unexpected local package')
+    external=[e for e in entries if e.get('type') == 'git']
+    if len({e['name'] for e in entries}) != len(entries):
+        raise SystemExit('BLAKE3_DEPENDENCY_REJECTED: duplicate package name')
+    by_name={e['name']:e for e in external}
+    for entry in shared_entries:
+        actual=by_name.get(entry.get('name'))
+        # Lake changes inherited status when resolving the consumer workspace.
+        source=lambda e: {k:v for k,v in e.items() if k != 'inherited'}
+        if entry.get('type') != 'git' or actual is None or source(entry) != source(actual):
+            raise SystemExit('BLAKE3_DEPENDENCY_REJECTED: shared dependency pin mismatch')
+    return external
+
+
+def dependency_entries():
+    if SHARED.is_symlink() or not SHARED.is_dir():
+        raise SystemExit('BLAKE3_DEPENDENCY_REJECTED: shared package is not a regular directory')
+    if (SHARED/'lean-toolchain').read_bytes() != (ROOT/'lean-toolchain').read_bytes():
+        raise SystemExit('BLAKE3_DEPENDENCY_REJECTED: shared toolchain mismatch')
+    return git_dependencies(json.loads((ROOT/'lake-manifest.json').read_text())['packages'],
+                            json.loads((SHARED/'lake-manifest.json').read_text())['packages'])
+
+
+def shared_source_files(directory=SHARED):
+    if directory.is_symlink() or not directory.is_dir():
+        raise SystemExit('symlink or missing shared package')
+    paths=[]
+    for p in directory.rglob('*'):
+        if any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(directory).parts):
+            continue
+        if p.is_symlink():raise SystemExit('symlink in shared protected sources')
+        if p.is_file():paths.append(p)
+    return paths
+
+
 def prepare_generated_cache_excludes():
     # Dependencies can differ in whether they ignore Lake's generated files.
     # Keep source files unchanged and exclude only the two authenticated caches.
-    for package in json.loads((ROOT/'lake-manifest.json').read_text())['packages']:
+    for package in dependency_entries():
         exclude=ROOT/'.lake/packages'/package['name']/'.git/info/exclude'
         previous=exclude.read_text() if exclude.exists() else ''
         additions=[p for p in ('/.lake/build/','/.lake/config/') if p not in previous.splitlines()]
@@ -51,6 +98,7 @@ def protected_files():
            and not any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(ROOT).parts)
            and 'Submission' not in p.relative_to(ROOT).parts
            and p.name!='protected.sha256']
+    paths.extend(shared_source_files())
     paths.extend(REPO/'scripts'/name for name in (
         'run_with_rss.py','verify_submission.py','check_submission.py','lean_source_policy.py',
         'dependency_builds.py','protected_tree.py','render_benchmark_challenge.py'))
@@ -80,7 +128,7 @@ def check_source(submission):
     source_policy.VERIFIER_OWNED_NAMESPACES=(('Blake3Prize','Protected'),('Blake3Prize','Baselines'),('SecretRelease',))
     optional_libraries={f'Blake3Prize.Baselines.HalfGates.{name}' for name in (
         'Expression','WordExpression','WordProgram','Morphism','Lowering','HalfGate','Codec','Target')}
-    source_policy.allowed_import=lambda m: m in {'Blake3Prize.Protected.Target','SecretRelease'} or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
+    source_policy.allowed_import=lambda m: m in {'Blake3Prize.Protected.Target','SecretRelease','SecretRelease.Simulation','SecretRelease.Examples'} or m.startswith('VCVio.OracleComp.QueryTracking.') or m.startswith('VCVio.OracleComp.SimSemantics.') or m.startswith('VCVio.EvalDist.') or m in optional_libraries or m.startswith('Blake3Prize.Submission.') or m=='Mathlib' or m.startswith('Mathlib.')
     source_policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','wf_preprocess','native_decide','setEnv','modifyEnv','panic','dbg_trace','include_str'}
     source_policy.check_submission(Path(submission))
     for p in Path(submission).glob('*.lean'):
@@ -96,7 +144,7 @@ def score_value(path):
 
 
 def dependencies(snapshot=False):
-    entries=json.loads((ROOT/'lake-manifest.json').read_text())['packages']
+    entries=dependency_entries()
     packages=ROOT/'.lake/packages'
     verify_dependency_sources(packages,entries)
     toolchain=(ROOT/'lean-toolchain').read_text().strip()

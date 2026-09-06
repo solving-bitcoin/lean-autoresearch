@@ -145,9 +145,9 @@ separately and cannot turn it into an accepted scheme-level score.
 
 ## Run safely
 
-The new [SecretRelease contract](SecretRelease.lean) extracts the common
+The new [shared SecretRelease contract](../secret-release/SecretRelease.lean) extracts the common
 declarations and ROM acceptance predicates into one file. Its
-[examples and migration assessment](SECRET_RELEASE.md) cover Lamport, HORS,
+[examples, VCVio simulation imports, and migration assessment](../secret-release/README.md) cover Lamport, HORS,
 ones-only, preimage and plain disclosures, valid encodings, explicit permitted
 private leakage, optional pre-release withholding, and exact or bounded-error
 correctness. Whole-label recovery is distinct from general confidentiality.

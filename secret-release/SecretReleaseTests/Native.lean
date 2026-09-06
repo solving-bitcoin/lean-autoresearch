@@ -1,4 +1,4 @@
-import SecretReleaseExamples
+import SecretRelease.Examples
 
 /-! Executability/selection tests only. These known fixture keys and dummy
 oracle are deliberately public; this executable is not a certified scheme. -/
@@ -27,8 +27,7 @@ def main : IO Unit := do
       (checked.decode #v[true, true]).isNone &&
       (checked.decode bits).isSome do
     throw (IO.userError "valid encoding boundary")
-  unless Examples.blake3.inputCodec.width == 512 &&
-      Examples.blake3.rom.error 0 == (1 : ℚ≥0) / 2^128 &&
-      Examples.blake3.privateLeakage.isNone && Examples.blake3.withholding.isSome do
+  unless Examples.rom128.maxQueries == 2^64 &&
+      Examples.rom128.error 0 == (1 : ℚ≥0) / 2^128 do
     throw (IO.userError "executable challenge metadata")
   IO.println "PASS: native SecretRelease disclosure modes, checked encodings, and metadata"

@@ -9,17 +9,12 @@ require mathlib from git "https://github.com/leanprover-community/mathlib4" @
 require Clean from git "https://github.com/Verified-zkEVM/clean" @
   "93c9d1ef45be9f687214625d7857889cf2485504"
 
-require VCVio from git "https://github.com/Verified-zkEVM/VCVio" @
-  "ffd0ca198fe6e640c0dd7f0f9c599943caacbf64"
+require secretRelease from "../secret-release"
 
 @[default_target]
 lean_lib Blake3Prize
 
-lean_lib SecretRelease
 lean_lib SecretReleaseExamples
-
-lean_exe "secret-release-checks" where
-  root := `SecretReleaseNative
 
 lean_exe "blake3-submission" where
   root := `Blake3Prize.Main

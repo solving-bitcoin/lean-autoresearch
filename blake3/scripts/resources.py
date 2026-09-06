@@ -17,8 +17,15 @@ os.environ['MIMALLOC_ALLOW_LARGE_OS_PAGES']='0'
 
 
 def guarded(command, cwd=ROOT, *, native=False, timeout=None):
+    cwd=Path(cwd).resolve()
+    # The local library now builds in a sibling directory. Monitor both packages
+    # for disk usage while preserving the command's original working directory.
+    scope=cwd.parent if (cwd.name in ('blake3','secret-release') and
+                         (cwd.parent/'blake3').is_dir() and
+                         (cwd.parent/'secret-release').is_dir()) else cwd
+    enter='import os,sys; os.chdir(sys.argv[1]); os.execvp(sys.argv[2],sys.argv[2:])'
     result=run_limited(
-        ['nice','-n','10',*map(str,command)],Path(cwd),
+        ['nice','-n','10',sys.executable,'-c',enter,str(cwd),*map(str,command)],scope,
         timeout or (300 if native else 1800),
         1073741824 if native else 4294967296,
         16*1024*1024,2*1024**3,32 if native else 64,64*1024**3,

@@ -31,6 +31,9 @@ traffic is 24,576 bytes; the already-known message adds 64 bytes to total API I/
 Clean reference cases: {r['cleanReferenceCases']}; SHA-256 implementation cases: {r['nativeHashCases']};
 generic runner/custom framing cases: {r['runnerSelfTestCases']}.
 Exact certificate-type, axiom-closure, and missing-secrecy rejection checks passed.
+Shared SecretRelease contract checks: {r['secretReleaseContractChecks']};
+optional VCVio simulation/cost integration checks: {r['secretReleaseSimulationChecks']}.
+The imports alone do not certify a construction's simulation security.
 
 Build peak RSS: {r['compilerPeakMemoryBytes']/2**20:.1f} MiB (cap 4096 MiB).
 Native check peak RSS: {r['nativePeakMemoryBytes']/2**20:.1f} MiB (cap 1024 MiB).

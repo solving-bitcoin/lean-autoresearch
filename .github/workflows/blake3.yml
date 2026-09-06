@@ -6,6 +6,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'blake3/**'
+      - 'secret-release/**'
       - '.github/workflows/blake3*.yml'
       - 'scripts/**'
 
