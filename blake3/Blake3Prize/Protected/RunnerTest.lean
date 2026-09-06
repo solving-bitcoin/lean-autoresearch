@@ -1,4 +1,4 @@
-import Blake3Prize.Protected.Runner
+import Blake3Prize.Protected.RunnerIO
 
 namespace Blake3Prize.Protected.RunnerTest
 
