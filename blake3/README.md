@@ -168,7 +168,7 @@ python3 blake3/scripts/baseline.py     # optional, never an accepted score
 
 All builds and native checks are sequential, use one Lean thread and reduced
 CPU priority, and fail closed if the memory monitor is unavailable. Builds
-have a **4 GiB aggregate RSS cap** and 30-minute timeout. Native checks have a
+have an **8 GiB CI / 4 GiB local aggregate RSS cap** and 30-minute timeout. Native checks have a
 **1 GiB aggregate RSS cap** and five-minute timeout. The common file-size limit
 is 2 GiB, working-directory limit 64 GiB, and process limits 64/32 respectively.
 Never bypass the wrappers on a development machine.

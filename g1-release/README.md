@@ -106,7 +106,8 @@ Python BN254 arithmetic test the compiled implementation.
 All local sources (this challenge, shared contract, and reused G1 mathematics)
 are freshly compiled in an isolated tree. Only pinned and authenticated external
 Git dependency caches are reused. Builds are sequential, one Lean thread,
-nice 10, with a 4 GiB aggregate RSS cap; native checks use 1 GiB. Time, process,
+nice 10, with an 8 GiB CI / 4 GiB local aggregate RSS cap; native checks use
+1 GiB in both environments. Time, process,
 output, file-size, and combined package disk limits are also enforced.
 
 `g1-release-authoring-preview` tests rule changes and publishes the executable

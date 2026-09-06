@@ -1,5 +1,8 @@
 # SecretRelease
 
+See [the current architecture map and proposed binary/Rust SDK design](ARCHITECTURE.md)
+for the next consolidation step. The generic four-tool runtime is a proposal.
+
 The common contract is [one file](SecretRelease.lean). It contains no BLAKE3,
 G1, half-gates, circuit compiler, SHA implementation, checksum theorem, or
 construction-security reduction. The standalone `secretRelease` Lake package
@@ -271,4 +274,5 @@ make certification vacuous and is not an acceptable shortcut. Trusting the C
 hash implementation avoids a machine-code proof; it does not solve garbling
 security or make SHA-256 an ideal random oracle.
 
-All builds and tests retain the sequential 4 GiB build / 1 GiB native RSS caps.
+Builds remain sequential: 8 GiB aggregate RSS on GitHub Actions, 4 GiB locally,
+and 1 GiB for native checks in either environment.

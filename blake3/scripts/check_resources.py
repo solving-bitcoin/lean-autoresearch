@@ -1,4 +1,5 @@
 """The disk budget includes the shared sibling, without changing child cwd."""
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -7,6 +8,17 @@ from unittest.mock import patch
 import resources
 from resources import guarded
 from verify_submission import run_limited
+
+# Capture configuration only: never start an 8 GiB process on the local host.
+for marker in ('', 'false', '1', 'true'):
+    for native in (False, True):
+        with patch.dict(os.environ, {'GITHUB_ACTIONS': marker}), \
+                patch.object(resources, 'run_limited', return_value={}) as run:
+            guarded(['fixture'], native=native)
+        expected = 1024**3 if native else (8 if marker == 'true' else 4) * 1024**3
+        assert run.call_args.args[3] == expected
+        assert run.call_args.args[2] == (300 if native else 1800)
+        assert run.call_args.args[6] == (32 if native else 64)
 
 for project_name in ('blake3','g1-release'):
     with tempfile.TemporaryDirectory(prefix='secret-release-quota-') as directory:
@@ -33,3 +45,4 @@ for project_name in ('blake3','g1-release'):
         else:
             raise AssertionError('shared-package bytes escaped the disk quota')
 print('PASS: original child cwd and combined shared-package disk accounting')
+print('PASS: 8 GiB CI builds, 4 GiB local builds, and 1 GiB native checks')

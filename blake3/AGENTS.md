@@ -22,8 +22,9 @@ Record its exact bound and assumptions. Never claim the SHA-256 instantiation
 is proved secure by the ideal-oracle theorem. Never admit a candidate's own
 security claim as an assumption or let it choose its adversary class.
 
-Use setup.sh, benchmark.sh, and scripts/baseline.py. They enforce 4 GiB build
-and 1 GiB native aggregate RSS caps, timeouts, one Lean thread, and nice 10.
+Use setup.sh, benchmark.sh, and scripts/baseline.py. They enforce 8 GiB CI /
+4 GiB local build and 1 GiB native aggregate RSS caps, timeouts, one Lean
+thread, and nice 10. Never set GITHUB_ACTIONS=true for a local build.
 Run one build/test at a time. Never use an uncapped compilation or benchmark.
 
 No proof gaps, local axioms, native_decide, unsafe/partial definitions, FFI,
