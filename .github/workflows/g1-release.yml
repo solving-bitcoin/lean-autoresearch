@@ -1,0 +1,52 @@
+# PR-owned authoring preview. Never use this workflow as submission acceptance.
+name: g1-release-authoring-preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'g1-release/**'
+      - 'secret-release/**'
+      - '.github/workflows/g1-release*.yml'
+      - 'scripts/**'
+      - 'GarblingPrize/Protected/**'
+      - 'blake3/scripts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  preview-g1-release:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install pinned Lean toolchain
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          lake-package-directory: g1-release
+          auto-config: false
+          use-mathlib-cache: false
+          use-github-cache: false
+          build: false
+          test: false
+          lint: false
+      - name: Prepare trusted dependencies with RAM cap
+        run: ./g1-release/setup.sh
+      - name: Preview contract changes without accepting a score
+        run: ./g1-release/benchmark.sh --authoring-preview
+      - name: Publish certificate status and byte measurements
+        run: python3 g1-release/scripts/summary.py "$GITHUB_STEP_SUMMARY"
+      - name: Publish preview executable and report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: g1-release-authoring-preview
+          path: |
+            g1-release/.yukon/bin/g1-release
+            g1-release/.yukon/g1-release-score.json
+          if-no-files-found: error
+      - name: Check whitespace
+        run: git diff --check

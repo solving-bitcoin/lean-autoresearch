@@ -246,10 +246,3 @@ digests and pinned dependency revisions.
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
-
-## Shared challenge library
-
-[SecretRelease](secret-release/README.md) is an independent Lake package for
-Lamport, HORS, preimage, and other conditional-release contracts, with the
-`ClassicalBoundedQueryROM` profile and optional VCVio simulation/cost imports.
-The existing G1 acceptance predicate remains unchanged.

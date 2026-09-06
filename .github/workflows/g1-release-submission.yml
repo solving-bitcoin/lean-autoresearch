@@ -1,0 +1,75 @@
+name: g1-release-trusted-submission
+
+# This workflow and every executable verifier file come from the base revision.
+# Candidate code is never used for workflow, setup, configuration, or auditing.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'g1-release/**'
+      - 'secret-release/**'
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'GarblingPrize/Protected/**'
+      - 'blake3/scripts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-g1-release-submission:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out immutable trusted base
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+      - name: Check out candidate as data only
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Admit only submission blobs against trusted base
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          python3 -I trusted/g1-release/scripts/overlay.py
+          --base trusted --candidate candidate
+          --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA"
+          --output admitted-submission
+      - name: Install base-pinned Lean toolchain
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          lake-package-directory: trusted/g1-release
+          auto-config: false
+          use-mathlib-cache: false
+          use-github-cache: false
+          build: false
+          test: false
+          lint: false
+      - name: Prepare only base-pinned dependencies with RAM cap
+        working-directory: trusted
+        run: ./g1-release/setup.sh
+      - name: Verify admitted submission with base-owned rules
+        working-directory: trusted
+        run: ./g1-release/benchmark.sh --submission "$GITHUB_WORKSPACE/admitted-submission"
+      - name: Publish base-owned certification result
+        working-directory: trusted
+        run: python3 g1-release/scripts/summary.py "$GITHUB_STEP_SUMMARY"
+      - name: Publish checked executable and certificate report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: g1-release-certified-executable
+          path: |
+            trusted/g1-release/.yukon/bin/g1-release
+            trusted/g1-release/.yukon/g1-release-score.json
+          if-no-files-found: error

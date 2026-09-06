@@ -15,6 +15,13 @@ The BLAKE3 example additionally requires withholding every input/output label
 before either disclosure channel arrives. The existing ranked BLAKE3 predicate
 still specifies only its original post-release recovery experiment.
 
+The separate [`g1-release` challenge](../g1-release/README.md) now instantiates
+`Certified` for BN254 `Q + [r]A`, with proved canonical codecs, plaintext output,
+post-release opposite-label recovery, and equal-result private-map privacy. Its
+verifier builds and exports a certificate-gated native executable using a trusted
+C SHA-256 runtime. Its checked-in entry is unranked; the old ideal-pad challenge
+and BLAKE3 acceptance predicates remain separate.
+
 ## Use the shared package
 
 From a sibling challenge's `lakefile.lean`:
@@ -236,13 +243,16 @@ migration and C-backend trust boundary remain the work below.
    to the old post-release certificate.
    This is manageable plumbing. Certifying its half-gates baseline still needs
    complete lowering/transport correctness and its correlated-label ROM proof.
-3. **G1 migration:** supply the codecs/reference and preserve function privacy.
+3. **G1 challenge declared:** `g1-release` supplies the codecs/reference, preserves
+   function privacy, and checks complete shared certificates. Certifying a
+   construction remains open.
    The example also requires opposite-input-label recovery security, which the
    old `FunctionPrivate` predicate does not separately assert. Existing G1
    correctness/ideal-law proofs remain useful, but do not directly certify
    finite-key expansion through the public ROM. Keep its 5,940,480-byte result
    under its existing rules until that additional argument is established.
-4. **Executable packaging:** a protected generic CLI should execute a
+4. **Generic executable packaging:** `g1-release` already builds its own
+   certificate-gated binary. A protected generic CLI for all challenges should execute a
    certificate's exact scheme, link the chosen pinned C SHA-256 backend, and
    publish the binary plus contract/source/dependency hashes and proof profile.
    The new `secret-release-checks` executable tests compilation; it is not a

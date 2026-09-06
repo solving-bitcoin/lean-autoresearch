@@ -20,8 +20,8 @@ def guarded(command, cwd=ROOT, *, native=False, timeout=None):
     cwd=Path(cwd).resolve()
     # The local library now builds in a sibling directory. Monitor both packages
     # for disk usage while preserving the command's original working directory.
-    scope=cwd.parent if (cwd.name in ('blake3','secret-release') and
-                         (cwd.parent/'blake3').is_dir() and
+    scope=cwd.parent if (cwd.name in ('blake3','secret-release','g1-release') and
+                         ((cwd.parent/'blake3').is_dir() or (cwd.parent/'g1-release').is_dir()) and
                          (cwd.parent/'secret-release').is_dir()) else cwd
     enter='import os,sys; os.chdir(sys.argv[1]); os.execvp(sys.argv[2],sys.argv[2:])'
     result=run_limited(
