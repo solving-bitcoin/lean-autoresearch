@@ -1,7 +1,9 @@
 """Regression checks for the submission-only overlay and canonical score."""
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
 
+import policy
 from policy import check_source,score_value,git_dependencies,dependency_entries,shared_source_files
 from render_benchmark_challenge import parse_score
 
@@ -90,9 +92,22 @@ def main():
         root=Path(directory)
         (root/'SecretRelease.lean').write_text('-- protected fixture\n')
         (root/'.lake').mkdir(); (root/'.lake/cache').write_text('ignored')
+        (root/'.DS_Store').write_bytes(b'local desktop metadata')
         assert shared_source_files(root) == [root/'SecretRelease.lean']
         (root/'Alias').symlink_to(root/'.lake',target_is_directory=True)
         rejected(lambda: shared_source_files(root))
+    with tempfile.TemporaryDirectory(prefix='protected-metadata-',dir=policy.REPO) as directory:
+        root=Path(directory)
+        source=root/'Protected/Fixture.lean';source.parent.mkdir()
+        source.write_text('-- protected fixture\n')
+        with patch.object(policy,'ROOT',root), \
+                patch.object(policy,'shared_source_files',return_value=[]):
+            original=policy.digest()
+            for p in (root/'.DS_Store',source.parent/'.DS_Store'):
+                p.write_bytes(b'local desktop metadata')
+            assert policy.digest() == original
+            source.write_text('-- changed protected fixture\n')
+            assert policy.digest() != original
     print('PASS: canonical scores, proof-gap/import/namespace/file-inclusion policy, and submission file boundary')
 
 

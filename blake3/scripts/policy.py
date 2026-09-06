@@ -59,7 +59,8 @@ def shared_source_files(directory=SHARED):
         if any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(directory).parts):
             continue
         if p.is_symlink():raise SystemExit('symlink in shared protected sources')
-        if p.is_file():paths.append(p)
+        # Finder metadata is not package source and is absent from Git checkouts.
+        if p.is_file() and p.name != '.DS_Store':paths.append(p)
     return paths
 
 
@@ -97,7 +98,7 @@ def protected_files():
     paths=[p for p in ROOT.rglob('*') if p.is_file()
            and not any(part in ('.lake','.yukon','__pycache__') for part in p.relative_to(ROOT).parts)
            and 'Submission' not in p.relative_to(ROOT).parts
-           and p.name!='protected.sha256']
+           and p.name not in ('protected.sha256','.DS_Store')]
     paths.extend(shared_source_files())
     paths.extend(REPO/'scripts'/name for name in (
         'run_with_rss.py','verify_submission.py','check_submission.py','lean_source_policy.py',

@@ -24,7 +24,7 @@ REUSED_FILES = MATH_FILES
 def protected_files():
     paths = [p for p in ROOT.rglob('*')
              if not any(x in ('.lake','.yukon','__pycache__','Submission') for x in p.relative_to(ROOT).parts)
-             and p.name != 'protected.sha256']
+             and p.name not in ('protected.sha256','.DS_Store')]
     paths += shared_source_files(SHARED) + REUSED_FILES
     paths += [REPO/'blake3/scripts'/n for n in ('resources.py','policy.py','check_overlay.py')]
     paths += [REPO/'scripts'/n for n in ('run_with_rss.py','verify_submission.py',

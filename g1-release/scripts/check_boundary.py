@@ -1,6 +1,8 @@
 """No candidate-controlled rule, import side effect, or fake score is admitted."""
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
+import boundary
 from boundary import check_source, score_value, dependency_entries
 import overlay
 
@@ -57,6 +59,18 @@ def main():
         'g1-release/protected.sha256':changed, 'g1-release/scripts/boundary.py':changed}))
     rejected(lambda: admission.admitted_entries(base, {**base,
         admission.PREFIX+'Solution.lean':('120000','blob','a'*40)}))
+    with tempfile.TemporaryDirectory(prefix='g1-release-metadata-') as directory:
+        root=Path(directory);shared=root/'shared';shared.mkdir()
+        source=root/'Protected/Fixture.lean';source.parent.mkdir()
+        source.write_text('-- protected fixture\n')
+        with patch.object(boundary,'ROOT',root), patch.object(boundary,'REPO',root), \
+                patch.object(boundary,'SHARED',shared), patch.object(boundary,'REUSED_FILES',[]):
+            original=boundary.digest()
+            for p in (root/'.DS_Store',source.parent/'.DS_Store',shared/'.DS_Store'):
+                p.write_bytes(b'local desktop metadata')
+            assert boundary.digest() == original
+            source.write_text('-- changed protected fixture\n')
+            assert boundary.digest() != original
     print('PASS: immutable rules, source/namespace/import restrictions, and canonical scores')
 
 if __name__ == '__main__': main()
