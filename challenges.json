@@ -8,6 +8,14 @@
       "direction": "minimize",
       "metric": "universal_artifact_byte_bound",
       "unit": "bytes"
+    },
+    {
+      "slug": "blake3-64-labeled-hash",
+      "version": "blake3-64-labeled-hash-v2",
+      "status": "active",
+      "direction": "minimize",
+      "metric": "universal_serialized_artifact_byte_bound",
+      "unit": "bytes"
     }
   ]
 }

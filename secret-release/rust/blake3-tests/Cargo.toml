@@ -1,0 +1,8 @@
+[package]
+name = "blake3-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+[dev-dependencies]
+secret-release.workspace = true
+blake3 = "1.8"

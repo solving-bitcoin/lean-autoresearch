@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 2,
+  "slug": "blake3-64-labeled-hash",
+  "status": "active",
+  "direction": "minimize",
+  "metric": "universal_serialized_artifact_byte_bound",
+  "unit": "bytes",
+  "inputBytes": 64,
+  "outputBytes": 32,
+  "inputBits": 512,
+  "outputBits": 256,
+  "labelBytes": 32,
+  "labelProvider": "caller-supplied-independent-distinct-pairs",
+  "mode": "unkeyed-single-block-root",
+  "flags": 11,
+  "inputBitOrder": "byte-major-lsb-first",
+  "outputBitOrder": "byte-major-lsb-first",
+  "editablePaths": [
+    "Blake3Prize/Submission"
+  ],
+  "candidate": "Blake3Prize.Submission.entry",
+  "claim": "SecretRelease.Certificate",
+  "allowedAxioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "scorePath": ".yukon/blake3-64-labeled-hash-score.json",
+  "compilerMemoryLimitBytes": 8589934592,
+  "nativeMemoryLimitBytes": 1073741824,
+  "compilerTimeoutSeconds": 1800,
+  "nativeTimeoutSeconds": 300,
+  "referenceModule": "Clean.Specs.BLAKE3",
+  "referenceLicense": "MIT",
+  "cleanRevision": "93c9d1ef45be9f687214625d7857889cf2485504",
+  "evaluatorKnowsMessage": true,
+  "protectedOppositeLabels": 768,
+  "vcvioRevision": "ffd0ca198fe6e640c0dd7f0f9c599943caacbf64",
+  "vcvioLicense": "Apache-2.0",
+  "leanToolchain": "leanprover/lean4:v4.33.1",
+  "securityProfiles": [
+    {
+      "name": "ClassicalBoundedQueryROM",
+      "id": "classical-bounded-query-rom-v1",
+      "oracleDomain": "finite-byte-strings",
+      "oracleOutputBits": 256,
+      "maxQueries": 18446744073709551616,
+      "failureBound": "(q + 1) / 2^128 for every 0 <= q <= 2^64",
+      "labelDistribution": "independent uniform ordered distinct pairs",
+      "assumption": "shared ideal random oracle; arbitrary local computation; bounded classical queries",
+      "inputSelection": "known message fixed independently of sampled labels, coins, and oracle"
+    }
+  ],
+  "implementationProfile": {
+    "oracle": "SHA-256",
+    "source": "SecretRelease.NativeHash + trusted C SHA-256",
+    "bridgeStatus": "heuristic / unproved"
+  },
+  "currentSubmissionStatus": "uncertified",
+  "optionalBaseline": {
+    "artifactBytes": 707680,
+    "status": "uncertified"
+  },
+  "wireModule": "Blake3Prize.Protected.Wire",
+  "wire": "Blake3Prize.Protected.wire",
+  "submissionModule": "Blake3Prize.Submission.Solution",
+  "entry": "Blake3Prize.Submission.entry",
+  "fixtureModule": "Blake3Prize.Protected.RunnerTest",
+  "fixtureEntry": "Blake3Prize.Protected.RunnerTest.entry",
+  "rustPackage": "blake3-tests",
+  "namespace": "Blake3Prize",
+  "report": "blake3-64-labeled-hash-score.json",
+  "candidateAudit": "scripts/Audit.lean",
+  "policyTests": [
+    "scripts/check_policy.py",
+    "scripts/check_overlay_tests.py",
+    "scripts/check_resources.py"
+  ],
+  "audits": [
+    "scripts/BoundaryAudit.lean",
+    "scripts/MigrationAudit.lean"
+  ],
+  "proofModules": [
+    "Blake3Prize.Migration.Transport"
+  ],
+  "localCompilerMemoryLimitBytes": 4294967296,
+  "authoringChecks": [
+    "scripts/baseline.py"
+  ]
+}

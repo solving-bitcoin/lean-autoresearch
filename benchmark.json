@@ -11,6 +11,26 @@
       "setupCommand": ["bash", "-lc", "./setup.sh"],
       "benchmarkCommand": ["bash", "-lc", "./benchmark.sh"],
       "scorePath": ".yukon/bn254-g1-hidden-affine-map-score.json"
+    },
+    {
+      "name": "blake3-64-labeled-hash",
+      "description": "Minimize the complete serialized artifact for known-input labeled BLAKE3 with independent 32-byte label pairs, submission-owned algorithms/codecs, and correctness, secrecy, and universal size proofs under a reviewed profile.",
+      "category": "lean",
+      "direction": "-",
+      "editablePaths": [
+        "blake3/Blake3Prize/Submission"
+      ],
+      "setupCommand": [
+        "bash",
+        "-lc",
+        "./blake3/setup.sh"
+      ],
+      "benchmarkCommand": [
+        "bash",
+        "-lc",
+        "./blake3/benchmark.sh"
+      ],
+      "scorePath": "blake3/.yukon/blake3-64-labeled-hash-score.json"
     }
   ]
 }

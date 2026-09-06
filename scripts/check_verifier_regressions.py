@@ -15,7 +15,7 @@ from unittest import mock
 
 import run_with_rss
 from dependency_builds import verify_snapshot, write_snapshot
-from verify_submission import artifact_within_bound, audit_submission_symbols
+from verify_submission import artifact_within_bound, audit_submission_symbols, run_limited
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,6 +141,25 @@ def check_resource_wrapper() -> None:
 
     with mock.patch.object(run_with_rss.sys, "platform", "unsupported-test"):
         assert run_with_rss.process_group_metrics(os.getpgrp()) is None
+
+    # Even a zero exit status must be rejected when the monitor found a memory
+    # overrun. Retain the recent compiler context without flooding the log.
+    measurement = {"returnCode": 0, "memoryLimitExceeded": True,
+                   "peakMemoryBytes": 65, "memoryLimitBytes": 64,
+                   "stdout": "old-prefix" + "x" * 8192 + "last-module",
+                   "stderr": "compiler context"}
+    helper = subprocess.CompletedProcess([], 0, json.dumps(measurement), "")
+    with mock.patch("verify_submission.subprocess.run", return_value=helper):
+        try:
+            run_limited([PYTHON], ROOT, 5, 64, 65536, 65536, 8, 65536,
+                        HELPER, "diagnostic regression")
+        except SystemExit as error:
+            message = str(error)
+            assert "exceeded its memory limit (peak 65, limit 64)" in message
+            assert "last-module" in message and "compiler context" in message
+            assert "old-prefix" not in message and len(message) < 17000
+        else:
+            raise AssertionError("memory overrun was accepted")
 
     print("ok — fail-closed resource wrapper regressions")
 
