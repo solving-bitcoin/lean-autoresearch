@@ -35,25 +35,6 @@ structure Codec (A : Type) where
   decode_encode : ∀ a, decode (encode a) = some a
   encode_decode : ∀ b a, decode b = some a → encode a = b
 
-def Codec.bits (n : Nat) : Codec (Vector Bool n) :=
-  ⟨n, id, some, fun _ => rfl, fun _ _ h => (Option.some.inj h).symm⟩
-def Codec.unit : Codec Unit :=
-  ⟨0, fun _ => #v[], fun _ => some (), fun a => by cases a; rfl,
-    fun b a _ => by apply Vector.ext; intro i hi; omega⟩
-
-/-- A checksum/shape predicate becomes part of the value type itself. -/
-def Codec.checked (n : Nat) (valid : Vector Bool n → Bool) :
-    Codec {bits : Vector Bool n // valid bits = true} where
-  width := n
-  encode := Subtype.val
-  decode := fun bits => if h : valid bits = true then some ⟨bits, h⟩ else none
-  decode_encode := fun a => by simp [a.property]
-  encode_decode := by
-    intro bits a h
-    split at h
-    · exact (congrArg Subtype.val (Option.some.inj h)).symm
-    · contradiction
-
 /-- Keys are sampled uniformly from this finite nonempty space, independently
 of the oracle, the other disclosure's keys, and construction coins. A custom
 space can express distinct pairs or correlated derived credentials; the
@@ -279,11 +260,5 @@ structure Certified (c : Challenge) where
 
 def Candidate.certified (candidate : Candidate c) : Option (Certified c) :=
   candidate.certificate.map fun proof => ⟨candidate.scheme, candidate.maxBytes, proof⟩
-
-/-- An optional hard cap, fixed by the challenge's trusted acceptance layer.
-Without this wrapper, `maxBytes` is a certified score, not a threshold check. -/
-structure SizeAccepted (c : Challenge) (limit : Nat) where
-  certified : Certified c
-  withinLimit : certified.maxBytes ≤ limit
 
 end SecretRelease

@@ -1,6 +1,6 @@
-import Blake3Prize.Baselines.HalfGates.Expression
+import Blake3Prize.Submission.HalfGatesExpression
 
-namespace Blake3Prize.Baselines.HalfGates
+namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
 
 /-- Literals 0/1 are public constants. A wire i has literal 2*(i+1);
@@ -122,4 +122,4 @@ theorem artifactBytes_eq (circuit : Circuit) :
   unfold artifactBytes
   omega
 
-end Blake3Prize.Baselines.HalfGates
+end Blake3Prize.Submission.HalfGates

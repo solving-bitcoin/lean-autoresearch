@@ -1,9 +1,11 @@
-import Blake3Prize.Protected.NativeHash
+import Blake3Prize.Tests.ReferenceFixtures
+import SecretRelease.NativeHash
 import Lean.Data.Json.FromToJson
 import Lean.Data.Json.Printer
 
-namespace Blake3Prize.Protected.NativeChecks
+namespace Blake3Prize.Tests.ReferenceChecks
 open Blake3Prize.Protected
+open SecretRelease (nativeHash)
 
 def messages : Array (Vector UInt8 64) :=
   #[Vector.replicate 64 0, Vector.replicate 64 255,
@@ -35,4 +37,4 @@ def runChecks : IO Unit := do
   IO.println (Lean.Json.mkObj [
     ("references", Lean.toJson references), ("hashes", Lean.toJson hashes)]).compress
 
-end Blake3Prize.Protected.NativeChecks
+end Blake3Prize.Tests.ReferenceChecks

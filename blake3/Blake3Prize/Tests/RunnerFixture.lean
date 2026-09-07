@@ -2,8 +2,8 @@ import Blake3Prize.Protected.Wire
 
 /-! Deliberately insecure generic transport fixture: discloses every label.
 Its custom framing and coins must all count towards the artifact size. -/
-namespace Blake3Prize.Protected.RunnerTest
-open SecretRelease
+namespace Blake3Prize.Tests.RunnerFixture
+open SecretRelease Blake3Prize.Protected
 
 def fixture : SecretRelease.Scheme challenge where
   Artifact := ByteArray
@@ -18,4 +18,4 @@ def fixture : SecretRelease.Scheme challenge where
       some (challenge.outputs.reveal h ok (reference x)) else none
 
 def entry : Option (SecretRelease.Candidate challenge) := some ⟨fixture,49162,none⟩
-end Blake3Prize.Protected.RunnerTest
+end Blake3Prize.Tests.RunnerFixture

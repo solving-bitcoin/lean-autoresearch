@@ -65,8 +65,8 @@
   "wire": "Blake3Prize.Protected.wire",
   "submissionModule": "Blake3Prize.Submission.Solution",
   "entry": "Blake3Prize.Submission.entry",
-  "fixtureModule": "Blake3Prize.Protected.RunnerTest",
-  "fixtureEntry": "Blake3Prize.Protected.RunnerTest.entry",
+  "fixtureModule": "Blake3Prize.Tests.RunnerFixture",
+  "fixtureEntry": "Blake3Prize.Tests.RunnerFixture.entry",
   "rustPackage": "blake3-tests",
   "namespace": "Blake3Prize",
   "report": "blake3-64-labeled-hash-score.json",
@@ -77,14 +77,9 @@
     "scripts/check_resources.py"
   ],
   "audits": [
-    "scripts/BoundaryAudit.lean",
-    "scripts/MigrationAudit.lean"
+    "scripts/BoundaryAudit.lean"
   ],
-  "proofModules": [
-    "Blake3Prize.Migration.Transport"
-  ],
+  "proofModules": [],
   "localCompilerMemoryLimitBytes": 4294967296,
-  "authoringChecks": [
-    "scripts/baseline.py"
-  ]
+  "authoringChecks": []
 }

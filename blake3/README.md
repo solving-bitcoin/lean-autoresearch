@@ -125,15 +125,18 @@ The reference calls `Clean.Specs.BLAKE3.compress` from the MIT-licensed
 It uses the standard IV, counter 0, block length 64, flags
 `CHUNK_START | CHUNK_END | ROOT = 11`, and the first eight output words.
 This is the standard 32-byte hash of a 64-byte message. The official BLAKE3
-vector and 516 direct Clean byte/bit cases cross-check the specialization.
+vector and optional 516 direct Clean byte/bit cases cross-check the specialization.
 Attributions for Clean and Apache-2.0 VCVio are retained in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The previous implementation is now an **optional, uncertified baseline** in
-[Baselines/HalfGates](Blake3Prize/Baselines/HalfGates) and
-[examples/half_gates](examples/half_gates). Its expression proofs and local
-half-gates identity remain available as optional libraries. Neither the core
-contract nor its secrecy profile imports those modules.
+The previous implementation is now an **ordinary, uncertified submission** in
+[Submission/HalfGatesScheme.lean](Blake3Prize/Submission/HalfGatesScheme.lean) and
+adjacent `HalfGates*.lean` modules. Its expression proofs and local half-gates
+identity belong to the submission and face the normal source and axiom audits.
+There is no special protected-library import allowance. Neither the core
+contract nor its secrecy profile imports those modules. Author I/O and native
+reference checks live under `Tests`; the optional Python comparison remains in
+[examples/half_gates](examples/half_gates).
 
 Its executable Lean port declares and tests **707,680 bytes**:
 `32 + 512×65 + 10,281×64 + 256×64 = 707,680`.
@@ -161,7 +164,10 @@ all 512 one-bit messages, and checks selected labels through the real binaries.
 
 BLAKE3 now uses the same accepted predicate as G1 release. Historical definitions
 live only under `Blake3Prize/Migration` for checked distribution/view/claim
-transport and are excluded from the accepted import graph. The original
+transport and are excluded from the accepted import graph and mandatory
+verification. Run `python3 blake3/scripts/migration.py` for that historical
+evidence, or `python3 blake3/scripts/baseline.py` for the optional half-gates
+comparison. Neither is an obligation on other submissions. The original
 post-release game is preserved; the stronger withholding example is not imposed.
 
 Contestants edit only flat `Blake3Prize/Submission/*.lean` and `score.txt`.

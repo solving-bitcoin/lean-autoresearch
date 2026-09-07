@@ -100,12 +100,12 @@ theorem reveal_labels (hash : Hash) (keys : Fin 512 → Pair) (input : Input)
 theorem encodeInput_bit_x (input : Input) (i : Fin 254) :
     (inputCodec.encode input)[i.val] = xBits input i := by
   have hi : i.val < 256 := Nat.lt_trans i.isLt (by decide)
-  simp [inputCodec, checkedCodec, encodeInput, xBits, hi]
+  simp [BoundaryFacts.input_encode, encodeInput, xBits, hi]
 
 theorem encodeInput_bit_y (input : Input) (i : Fin 254) :
     (inputCodec.encode input)[256 + i.val] = yBits input i := by
   have hi : ¬ (256 + i.val < 256) := by omega
-  simp [inputCodec, checkedCodec, encodeInput, yBits, hi]
+  simp [BoundaryFacts.input_encode, encodeInput, yBits, hi]
 
 theorem evalXLabels_reveal (hash : Hash) (keys : Fin 512 → Pair) (input : Input)
     (i : Fin 254) :

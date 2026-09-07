@@ -5,8 +5,9 @@ open Lean Elab Command in
 run_cmd do
   let env ← getEnv
   for mod in env.header.moduleNames do
-    for forbidden in [`Blake3Prize.Baselines, `Blake3Prize.Protected.NativeHash,
+    for forbidden in [`Blake3Prize.Baselines, `Blake3Prize.Submission, `Blake3Prize.Tests,
                       `Clean.Specs.SHA256, `SecretRelease.NativeHash, `SecretRelease.CLI,
+                      `SecretRelease.Examples, `SecretRelease.Simulation,
                       `Blake3Prize.Migration, `Challenge] do
       if forbidden.isPrefixOf mod then
         throwError "implementation leaked into neutral target: {mod}"

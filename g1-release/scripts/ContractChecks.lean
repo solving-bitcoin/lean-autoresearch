@@ -1,3 +1,5 @@
+import G1Release.Tests.Contract
+import G1Release.Tests.Encoding
 import G1Release.Protected.Target
 
 open SecretRelease G1Release.Protected

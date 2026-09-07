@@ -1,7 +1,8 @@
-import Blake3Prize.Baselines.HalfGates.Runner
+import Blake3Prize.Tests.ReferenceFixtures
+import Blake3Prize.Tests.HalfGates.Runner
 
-namespace Blake3Prize.Baselines.HalfGates.NativeChecks
-open Blake3Prize.Protected
+namespace Blake3Prize.Tests.HalfGates.NativeChecks
+open Blake3Prize.Protected Blake3Prize.Submission.HalfGates
 
 def messages : Array (Vector UInt8 64) :=
   #[Vector.replicate 64 0, Vector.replicate 64 255,
@@ -19,7 +20,7 @@ def bytesOfBits (bits : Output) : Vector Nat 32 :=
 
 /-- Exercise carry propagation, overflow, XOR, every boundary rotation,
 oversized literals, arbitrary word indices, and mixed bit/word expressions. -/
-def wordFixture (lastWord : Bool) : Candidate :=
+def wordFixture (lastWord : Bool) : Blake3Prize.Submission.HalfGates.Candidate :=
   let x := WordExpr.inputWord (if lastWord then 15 else 0)
   let y := WordExpr.inputWord 1
   let w : Vector WordExpr 8 := #v[
@@ -49,4 +50,4 @@ def runChecks : IO Unit := do
   IO.println (Lean.Json.mkObj [
     ("references", Lean.toJson references), ("wordFixtures", Lean.toJson fixtures)]).compress
 
-end Blake3Prize.Baselines.HalfGates.NativeChecks
+end Blake3Prize.Tests.HalfGates.NativeChecks

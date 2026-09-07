@@ -7,6 +7,40 @@ import Batteries.Data.Fin.Lemmas
 or a cryptographic primitive; the mathematical contract remains byte-agnostic. -/
 namespace SecretRelease
 
+def Codec.bits (n : Nat) : Codec (Vector Bool n) :=
+  ⟨n, id, some, fun _ => rfl, fun _ _ h => (Option.some.inj h).symm⟩
+def Codec.unit : Codec Unit :=
+  ⟨0, fun _ => #v[], fun _ => some (), fun a => by cases a; rfl,
+    fun b a _ => by apply Vector.ext; intro i hi; omega⟩
+
+/-- A checksum/shape predicate becomes part of the value type itself. -/
+def Codec.checked (n : Nat) (valid : Vector Bool n → Bool) :
+    Codec {bits : Vector Bool n // valid bits = true} where
+  width := n
+  encode := Subtype.val
+  decode := fun bits => if h : valid bits = true then some ⟨bits, h⟩ else none
+  decode_encode := fun a => by simp [a.property]
+  encode_decode := by
+    intro bits a h
+    split at h
+    · exact (congrArg Subtype.val (Option.some.inj h)).symm
+    · contradiction
+/-- The final equality check rejects every noncanonical encoding, including
+unused padding. Only the honest parse/encode round trip needs a separate proof. -/
+abbrev Codec.ofParser (n : Nat) (encode : A → Vector Bool n) (parse : Vector Bool n → Option A)
+    (roundtrip : ∀ a, parse (encode a) = some a) : Codec A where
+  width := n
+  encode := encode
+  decode := fun b => (parse b).bind fun a => if encode a = b then some a else none
+  decode_encode := by intro a; simp [roundtrip a]
+  encode_decode := by
+    intro b a h
+    simp only [Option.bind_eq_some_iff] at h
+    obtain ⟨a', _, h⟩ := h
+    split at h
+    · cases Option.some.inj h; assumption
+    · contradiction
+
 structure ByteCodec (A : Type) where
   encode : A → ByteArray
   decode : ByteArray → Option A

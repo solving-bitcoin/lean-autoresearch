@@ -1,4 +1,4 @@
-import SecretRelease.Examples
+import SecretRelease.Profiles
 import SecretRelease.Runtime
 import Lean
 
@@ -77,7 +77,7 @@ private def redacted : Challenge where
   Claim := Label
   wins := fun _ _ x ik _ guess => guess = (ik ⟨0, by decide⟩).get (!x[0])
   privateLeakage := some fun _ _ => ByteArray.empty
-  rom := Examples.rom128
+  rom := Profiles.rom128
 
 private def redactedLeak : Scheme redacted where
   Artifact := ByteArray
@@ -117,7 +117,7 @@ private def constantOutput : Challenge where
   Claim := ByteArray
   wins := fun _ _ _ _ ok guess => guess = pack [(ok ⟨0, by decide⟩).get true]
   withholding := some fun _ _ _ _ ok guess => guess = pack [(ok ⟨0, by decide⟩).get false]
-  rom := Examples.rom128
+  rom := Profiles.rom128
 
 private def earlyRelease : Scheme constantOutput where
   Artifact := ByteArray
@@ -150,11 +150,12 @@ run_cmd liftTermElabM do
     ``secretRelease_redacted_rejected, ``secretRelease_early_correct,
     ``secretRelease_early_rejected,
     ``SecretRelease.Codec.bits, ``SecretRelease.Codec.unit, ``SecretRelease.Codec.checked,
-    ``SecretRelease.Examples.rom128,
-    ``SecretRelease.Examples.privateMap, ``SecretRelease.Certified, ``SecretRelease.SizeAccepted, ``SecretRelease.Certificate, ``SecretRelease.Candidate,
+    ``SecretRelease.Codec.ofParser,
+    ``SecretRelease.Profiles.rom128,
+    ``SecretRelease.Certified, ``SecretRelease.Certificate, ``SecretRelease.Candidate,
     ``SecretRelease.Runtime.pipeline_correct, ``SecretRelease.Codec.pi,
     ``SecretRelease.Codec.bytes, ``SecretRelease.pairCodec] do
     for ax in ← collectAxioms decl do
       unless [``propext, ``Classical.choice, ``Quot.sound].contains ax do
         throwError "SecretRelease contract has forbidden axiom: {ax}"
-  IO.println "PASS: SecretRelease sampling, nonvacuity, examples, and axiom closure"
+  IO.println "PASS: SecretRelease sampling, nonvacuity, codecs, and axiom closure"

@@ -4,6 +4,9 @@ The user authorized this new challenge. The protected predicate is
 SecretRelease.Certified G1Release.Protected.challenge, never the old ideal-pad
 RankedClaim. Do not import a legacy score as a ROM certificate. Keep the
 shared core thin; challenge-specific codec/math proofs belong here.
+Only codec validity/round-trip obligations belong in the protected codec layer.
+Derived reference/leakage facts belong in Submission; author regressions and
+transport fixtures belong in Tests, outside the target import graph.
 
 Private Q is any canonical BN254 point (including infinity), r is canonical
 modulo the scalar modulus, and A is a valid finite-affine point. Inputs are

@@ -15,6 +15,9 @@ Submissions own construction, evaluation, artifact type, serialization, and
 proofs. Do not prescribe Yao, half-gates, circuits, expressions, a lowerer, or
 any gate-based byte formula. The optional half-gates baseline is uncertified;
 its 707,680-byte measurement is not a ranked score under the neutral contract.
+Its implementation and proofs are ordinary Submission/HalfGates*.lean files,
+with no special import allowance. Author I/O/reference checks live in Tests.
+Historical migration and optional baseline checks are not acceptance obligations.
 
 The common secret-release rule is separate from proof profiles. Initially the
 profile is ClassicalBoundedQueryROM, using VCVio and a shared ideal oracle.

@@ -64,12 +64,8 @@ def verify(boundary, guarded):
             r=guarded(command,project);builds.append(r['peakMemoryBytes'])
             print(f"PASS: {' '.join(command)}; peak {r['peakMemoryBytes']} bytes",flush=True)
         shared=tree/'secret-release'
-        for audit in ('Audit.lean','SimulationAudit.lean'):
-            # Simulation is an explicit optional facade, with no extra certificate claims.
-            if audit=='SimulationAudit.lean':
-                r=guarded(['lake','build','SecretRelease.Simulation'],project);builds.append(r['peakMemoryBytes'])
-            r=guarded(['lake','env','lean','-j1',shared/'SecretReleaseTests'/audit],project)
-            builds.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)
+        r=guarded(['lake','env','lean','-j1',shared/'SecretReleaseTests/Audit.lean'],project)
+        builds.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)
         for audit in config.get('audits',[]):
             r=guarded(['lake','env','lean','-j1',project/audit],project)
             builds.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)

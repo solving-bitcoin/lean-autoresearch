@@ -1,7 +1,7 @@
-import Blake3Prize.Baselines.HalfGates.Expression
-import Blake3Prize.Baselines.HalfGates.WordProgram
+import Blake3Prize.Submission.HalfGatesExpression
+import Blake3Prize.Submission.HalfGatesWordProgram
 
-namespace Blake3Prize.Baselines.HalfGates
+namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
 
 /-- Evaluation preserves the three word operations in Clean's BLAKE3 spec. -/
@@ -65,7 +65,8 @@ theorem initialExpressions_eval (input : Input) :
   apply Vector.ext
   intro i hi
   have h : WordProgram.initialWords[i] < 2^32 := by
-    interval_cases i <;> norm_num [WordProgram.initialWords, chainingValue, Specs.BLAKE3.iv]
+    delta WordProgram.initialWords chainingValue Specs.BLAKE3.iv
+    interval_cases i <;> norm_num
     all_goals exact UInt32.toNat_lt _
   simpa only [initialExpressions, Vector.getElem_map, WordExpr.eval_literal]
     using Nat.mod_eq_of_lt h
@@ -98,6 +99,7 @@ theorem referenceExpressions_correct (input : Input) :
   intro i hi
   have hv := congrArg (fun v : Vector Nat 8 => v[i / 32]'(by omega)) h
   simp only [Vector.getElem_map] at hv
-  simp [referenceExpressions, reference, outputBits, hv]
+  delta reference outputBits
+  simp [referenceExpressions, hv]
 
-end Blake3Prize.Baselines.HalfGates
+end Blake3Prize.Submission.HalfGates

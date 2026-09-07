@@ -6,6 +6,7 @@ import Blake3Prize.Protected.Wire
 and output key spaces. The oracle and coins are unchanged. -/
 namespace Blake3Prize.Migration
 open Blake3Prize.Protected MeasureTheory ProbabilityTheory
+open Blake3Prize.Protected.Legacy (Label DistinctPairs activeInput activeOutput)
 
 abbrev IK := Fin 512 → SecretRelease.Pair
 abbrev OK := Fin 256 → SecretRelease.Pair
@@ -159,7 +160,7 @@ example : challenge.privateLeakage = none := rfl
 example : challenge.correctness = .exact := rfl
 
 theorem bound_preserved (q : Nat) : (challenge.rom.error q : ENNReal) = Legacy.ROM.successBound q := by
-  simp only [challenge, SecretRelease.Examples.rom128, Legacy.ROM.successBound]
+  simp only [challenge, SecretRelease.Profiles.rom128, Legacy.ROM.successBound]
   rw [← ENNReal.coe_nnratCast]
   push_cast
   rfl

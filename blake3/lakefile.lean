@@ -21,11 +21,11 @@ lean_exe "secret-release-tools" where
   root := `SRTools
 
 lean_exe "blake3-trusted" where
-  root := `Blake3Prize.Protected.TrustedMain
+  root := `Blake3Prize.Tests.ReferenceMain
 
 -- Optional baseline: these executables are never called by acceptance.
 lean_exe "blake3-half-gates" where
-  root := `Blake3Prize.Baselines.HalfGates.Main
+  root := `Blake3Prize.Tests.HalfGates.Main
 
 lean_exe "blake3-half-gates-checks" where
-  root := `Blake3Prize.Baselines.HalfGates.TrustedMain
+  root := `Blake3Prize.Tests.HalfGates.TrustedMain

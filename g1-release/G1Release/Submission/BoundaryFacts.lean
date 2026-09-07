@@ -11,6 +11,8 @@ theorem scalar_modulus : GarblingPrize.Protected.scalarFieldModulus =
 theorem get_false (pair : Pair) : pair.get false = pair.val.1 := rfl
 theorem get_true (pair : Pair) : pair.get true = pair.val.2 := rfl
 
+theorem input_encode (a : Input) : inputCodec.encode a = encodeInput a := rfl
+
 theorem profile_error (q : Nat) : challenge.rom.error q = (q+1 : ℚ≥0) / 2^128 := rfl
 
 end G1Release.Submission.BoundaryFacts

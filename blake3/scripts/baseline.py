@@ -4,9 +4,9 @@ from pathlib import Path
 import sys
 import tempfile
 from resources import ROOT,guarded
-from policy import check_protected,dependencies
+from policy import check_protected,check_source,dependencies
 
-check_protected();dependencies()
+check_protected();check_source(ROOT/'Blake3Prize/Submission');dependencies()
 peaks=[]
 for target in ('blake3-half-gates-checks','blake3-half-gates'):
     r=guarded(['lake','build',target]);peaks.append(r['peakMemoryBytes'])

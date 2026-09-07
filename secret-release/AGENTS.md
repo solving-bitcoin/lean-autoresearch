@@ -3,6 +3,8 @@
 This is author-owned code shared by challenges. Keep SecretRelease.lean thin,
 construction-independent, and free of reusable construction/security reductions.
 Lamport, HORS, OnesOnly, Preimage and ClassicalBoundedQueryROM stay in the core.
+Codec constructors belong in Encoding; numerical presets belong in Profiles.
+Examples and simulation integration audits are optional author checks.
 SecretRelease.Simulation is an optional import facade for pinned VCVio APIs;
 imports alone do not establish simulator efficiency or real/ideal security.
 Do not weaken an acceptance predicate or claim the G1 ideal-pad theorem is a

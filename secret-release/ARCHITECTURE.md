@@ -3,14 +3,17 @@
 The original plan is implemented as a shared mathematical contract, canonical
 byte/key adapters, generated tools, runnable candidates, a Rust SDK, and a
 shared verifier/CI workflow. This document describes the resulting interfaces.
-No complete finite-label ROM certificate is claimed for either current entry.
+G1 includes a complete finite-label ROM certificate at 28,789,376 bytes.
+BLAKE3 remains an executable, uncertified 707,680-byte baseline.
 
 ## Mathematical contract: one file
 
 `SecretRelease.lean` contains `Codec`, `Disclosure`, Lamport, HORS, OnesOnly,
 Preimage, Plain, `ClassicalBoundedQueryROM`, `Challenge`, `Scheme`, correctness,
 serialized size, security games, and certification. It imports neither a
-construction nor an executable hash backend.
+construction nor an executable hash backend. Codec constructors live in
+`Encoding.lean`; the reviewed numerical `rom128` preset lives in `Profiles.lean`.
+Examples and the optional hard-cap wrapper live in `Examples.lean`.
 
 `Certificate scheme maxBytes` contains every existing obligation: exact or
 reviewed statistical correctness, both artifact-codec laws, universal byte
@@ -113,9 +116,12 @@ OS randomness is silently added to the mathematical contract.
 
 G1 uses the shared contract directly: private canonical `(Q,r)`, valid affine
 `A`, 512 Lamport input bits, canonical plaintext `Q + [r]A`, opposite-input-label
-recovery, and equal-result private-map privacy. Its entry is absent; an explicitly
-insecure transport fixture is used to test all roles. Arkworks independently
+recovery, and equal-result private-map privacy. Its certified entry uses 161
+balanced-ternary projective maps and claims 28,789,376 bytes. Arkworks independently
 checks 21 arithmetic cases, canonical encodings, cancellation and infinity.
+`Submission/ReferenceFacts.lean` owns derived leakage/reference lemmas; they are
+not challenge requirements. `Tests` holds transport fixtures, zero-scalar checks
+and proofs that the shared byte adapters preserve the previous encoding.
 
 BLAKE3 now accepts `SecretRelease.Certificate`, specialized in
 `Blake3Prize/Protected/Challenge.lean`. It keeps the original GF(2) reference,
@@ -123,7 +129,10 @@ BLAKE3 now accepts `SecretRelease.Certificate`, specialized in
 game. Withholding is not added. Its executable half-gates baseline is ported
 from the existing Python implementation and is runnable but uncertified, with
 a 707,680-byte claim. The official Rust BLAKE3 crate checks the reference and
-selected-output pipeline. Gate proofs alone do not certify this candidate.
+selected-output pipeline. All half-gates implementation and proof modules are
+ordinary flat `Submission/HalfGates*.lean` files, subject to the same source and
+axiom audits as any candidate. Author I/O and reference checks live in `Tests`.
+Gate proofs alone do not certify this candidate.
 
 `Blake3Prize/Migration` retains historical definitions exclusively for migration
 evidence, outside the accepted import graph. Checked transport covers the
@@ -131,7 +140,19 @@ evidence, outside the accepted import graph. Checked transport covers the
 bit/label order, public views, winning rule and query bound. Legacy bounds on
 all pair functions imply bounds on the new valid distinct-pair domain. Invalid
 pairs are no longer values of the key type; they are rejected by the wire codec.
-The old root G1 ideal-pad challenge remains separate.
+The old root G1 ideal-pad challenge remains separate. Migration evidence and
+VCVio simulation/example integration audits are optional author checks, not
+prerequisites for verifying an unrelated submission:
+
+```sh
+python3 blake3/scripts/migration.py
+python3 blake3/scripts/baseline.py
+python3 secret-release/scripts/check_optional.py blake3
+```
+
+These files remain frozen author-owned harness code. Neither challenge target
+imports tests, examples, simulation infrastructure or a construction. Boundary
+audits enforce that separation; the required security games are unchanged.
 
 ## Ownership and CI
 

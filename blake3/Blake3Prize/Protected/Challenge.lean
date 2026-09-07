@@ -1,6 +1,6 @@
 import Blake3Prize.Protected.Reference
 import SecretRelease.Encoding
-import SecretRelease.Examples
+import SecretRelease.Profiles
 
 namespace Blake3Prize.Protected
 
@@ -37,6 +37,6 @@ def challenge : SecretRelease.Challenge where
       (ik ⟨guess.1.val,h⟩).get (!(inputBit input ⟨guess.1.val,h⟩))
     else
       (ok ⟨guess.1.val-512,by change guess.1.val-512 < 256; omega⟩).get (!((reference input)[guess.1.val-512].val == 1))
-  rom := SecretRelease.Examples.rom128
+  rom := SecretRelease.Profiles.rom128
 
 end Blake3Prize.Protected

@@ -45,7 +45,13 @@ def main():
             'import SecretRelease.NativeHash\n' + original,
             'import SecretRelease.CLI\n' + original,
             'import Blake3Prize.Baselines.HalfGates.Runner\n' + original,
+            'import Blake3Prize.Baselines.HalfGates.Scheme\n' + original,
+            'import Blake3Prize.Tests.RunnerFixture\n' + original,
+            'import Blake3Prize.Tests.ReferenceFixtures\n' + original,
+            'import Blake3Prize.Migration.Transport\n' + original,
             original + '\nnamespace Blake3Prize.Protected\ndef extra := 0\nend Blake3Prize.Protected\n',
+            original + '\nnamespace Blake3Prize.Tests\ndef extra := 0\nend Blake3Prize.Tests\n',
+            original + '\nnamespace Blake3Prize.Migration\ndef extra := 0\nend Blake3Prize.Migration\n',
             original + '\nnamespace SecretRelease\ndef extra := 0\nend SecretRelease\n',
             # Policy-only input: never elaborate it or read any file.
             original.replace('def policyExample : Nat := 0',
@@ -66,6 +72,8 @@ def main():
         solution.write_text('import SecretRelease.Encoding\nimport SecretRelease.Runtime\n' + original)
         check_source(submission)
         solution.write_text('import SecretRelease.Simulation\n' + original)
+        check_source(submission)
+        solution.write_text('import SecretRelease.Profiles\n' + original)
         check_source(submission)
         # Documentation can name the forbidden feature without executing it.
         solution.write_text(original + '\n-- include_str is forbidden\n'

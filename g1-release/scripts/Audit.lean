@@ -12,8 +12,7 @@ run_cmd liftTermElabM do
   let mut declarations := [``G1Release.Submission.entry,
     ``G1Release.Protected.challenge, ``G1Release.Protected.wire, ``G1Release.Protected.CertifiedScheme,
     ``G1Release.Protected.inputCodec, ``G1Release.Protected.outputCodec,
-    ``G1Release.Protected.privateCodec, ``G1Release.Protected.reference_toPoint,
-    ``G1Release.Protected.same_leakage_iff, ``G1Release.Protected.same_leakage_zero_map, ``G1Release.Protected.bytesToBits_bitsToBytes,
+    ``G1Release.Protected.privateCodec,
     ``SecretRelease.Certified, ``SecretRelease.Certificate, ``SecretRelease.Candidate]
   for (name, info) in env.constants.toList do
     if let some index := env.getModuleIdxFor? name then

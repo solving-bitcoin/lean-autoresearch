@@ -26,6 +26,6 @@ def blake3 : Challenge where
       | .inl i => ik i
       | .inr i => ok i
     guess.2 = pair.get false ∨ guess.2 = pair.get true
-  rom := rom128
+  rom := Profiles.rom128
 
 end SecretRelease.Examples

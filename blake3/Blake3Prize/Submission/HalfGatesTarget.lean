@@ -1,9 +1,9 @@
-import Blake3Prize.Baselines.HalfGates.Morphism
-import Blake3Prize.Baselines.HalfGates.Lowering
-import Blake3Prize.Baselines.HalfGates.HalfGate
-import Blake3Prize.Baselines.HalfGates.Codec
+import Blake3Prize.Submission.HalfGatesMorphism
+import Blake3Prize.Submission.HalfGatesLowering
+import Blake3Prize.Submission.HalfGatesHalfGate
+import Blake3Prize.Submission.HalfGatesCodec
 
-namespace Blake3Prize.Baselines.HalfGates
+namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
 
 abbrev Candidate := Vector BitExpr 256
@@ -18,4 +18,4 @@ structure ExpressionCertificate (candidate : Candidate) (maxBytes : Nat) : Prop 
   correct : Correct candidate
   artifact_bound : artifactBytes (Lowering.compile candidate) ≤ maxBytes
 
-end Blake3Prize.Baselines.HalfGates
+end Blake3Prize.Submission.HalfGates

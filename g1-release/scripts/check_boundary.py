@@ -32,7 +32,10 @@ def main():
             original.replace('def fixture', '@[implemented_by f] def fixture'),
             original + '\nnamespace SecretRelease\ndef evil := 0\nend SecretRelease\n',
             original + '\nnamespace G1Release.Protected\ndef evil := 0\nend G1Release.Protected\n',
+            original + '\nnamespace G1Release.Tests\ndef evil := 0\nend G1Release.Tests\n',
             'import G1Release.Protected.Runner\n' + original,
+            'import G1Release.Tests.RunnerFixture\n' + original,
+            'import G1Release.Tests.Contract\n' + original,
             'import SecretRelease.NativeHash\n' + original,
             'import SecretRelease.CLI\n' + original,
             'import GarblingPrize.Protected.SHA256\n' + original,
@@ -40,6 +43,9 @@ def main():
             original + '\n#eval IO.println "untrusted"\n',
         ):
             source.write_text(text); rejected(lambda: check_source(root))
+        source.write_text(original)
+        source.write_text('import SecretRelease.Profiles\n' + original)
+        check_source(root)
         source.write_text(original)
         for raw in (b'-1\n',b'01\n',b'1 2\n',b' 1\n',b'1\r\n',b'1\n\n',b'1e6\n'):
             score.write_bytes(raw); rejected(lambda: score_value(score))

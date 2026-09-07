@@ -48,11 +48,11 @@ def check_protected():
 
 def check_source(submission):
     policy = common.source_policy
-    policy.VERIFIER_OWNED_NAMESPACES = (('G1Release','Protected'),('GarblingPrize',),('SecretRelease',))
+    policy.VERIFIER_OWNED_NAMESPACES = (('G1Release','Protected'),('G1Release','Tests'),('GarblingPrize',),('SecretRelease',))
     pure_math = {'GarblingPrize.Protected.'+n for n in ('BN254','G1','PrimeCertificates.Base','Bytes')}
     policy.allowed_import = lambda m: (m in pure_math or m in {
         'G1Release.Protected.Target','G1Release.Protected.Codecs',
-        'SecretRelease','SecretRelease.Encoding','SecretRelease.Runtime','SecretRelease.Simulation','SecretRelease.Examples'} or
+        'SecretRelease','SecretRelease.Encoding','SecretRelease.Profiles','SecretRelease.Runtime','SecretRelease.Simulation','SecretRelease.Examples'} or
         m.startswith(('G1Release.Submission.','Mathlib.','CompPoly.','VCVio.OracleComp.QueryTracking.',
                       'VCVio.OracleComp.SimSemantics.','VCVio.EvalDist.')) or m == 'Mathlib')
     policy.FORBIDDEN_IDENTIFIERS |= {'attribute','csimp','wf_preprocess','native_decide',

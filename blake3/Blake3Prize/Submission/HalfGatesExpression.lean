@@ -1,7 +1,7 @@
-import Blake3Prize.Baselines.HalfGates.WordExpression
-import Lean
+import Blake3Prize.Submission.HalfGatesWordExpression
+import Mathlib.Lean.Expr.Basic
 
-namespace Blake3Prize.Baselines.HalfGates
+namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
 
 /-- Boolean expressions use Lean's immutable, hash-cached syntax tree. Only
@@ -62,4 +62,4 @@ def eval (input : Input) (e : BitExpr) : Bit := evalTerm input e.term
 def inputs : Vector BitExpr 512 := Vector.ofFn inputExpr
 
 end BitExpr
-end Blake3Prize.Baselines.HalfGates
+end Blake3Prize.Submission.HalfGates

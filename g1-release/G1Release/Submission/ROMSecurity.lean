@@ -1,3 +1,4 @@
+import G1Release.Submission.ReferenceFacts
 import G1Release.Submission.SampleBridge
 import G1Release.Submission.FunctionReduction
 import G1Release.Submission.NumericBounds

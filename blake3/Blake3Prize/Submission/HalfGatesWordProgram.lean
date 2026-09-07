@@ -1,10 +1,10 @@
-import Blake3Prize.Baselines.HalfGates.WordExpression
+import Blake3Prize.Submission.HalfGatesWordExpression
 import Mathlib.Tactic.IntervalCases
 
 /- The operation-parametric program below follows Clean/Specs/BLAKE3.lean
 at the pinned revision. See THIRD_PARTY_NOTICES.md for its MIT notice.
 The Nat specialization is proved equal to Clean's actual imported compress. -/
-namespace Blake3Prize.Baselines.HalfGates.WordProgram
+namespace Blake3Prize.Submission.HalfGates.WordProgram
 open Blake3Prize.Protected
 
 structure Ops (α : Type) where
@@ -62,16 +62,19 @@ def initialWords : Vector Nat 16 := #v[
 /-- Reassociate modular sums to retain the existing circuit's constant folding.
 This is an algebraic equality for all Nat operands, including overflow. -/
 theorem add32_assoc (x y z : Nat) : add32 (add32 x y) z = add32 x (add32 y z) := by
-  simp [add32, Nat.add_assoc]
+  delta add32
+  simp [Nat.add_assoc]
 
 theorem mix_nat (v : Vector Nat 16) (a b c d : Fin 16) (mx my : Nat) :
     mix natOps v a b c d mx my = Specs.BLAKE3.g v a b c d mx my := by
-  simp only [mix, Specs.BLAKE3.g, natOps, add32_assoc]
+  delta Specs.BLAKE3.g
+  simp only [mix, natOps, add32_assoc]
   rfl
 
 theorem round_nat (v m : Vector Nat 16) :
     round natOps v m = Specs.BLAKE3.round v m := by
-  simp only [round, Specs.BLAKE3.round, mix_nat]
+  delta Specs.BLAKE3.round
+  simp only [round, mix_nat]
 
 theorem rounds_nat (m : Vector Nat 16) :
     rounds natOps initialWords m = Specs.BLAKE3.applyRounds chainingValue m 0 64 11 := by
@@ -92,4 +95,4 @@ theorem digest_nat (m : Vector Nat 16) :
   rw [rounds_nat, finish_nat _ chainingValue]
   rfl
 
-end Blake3Prize.Baselines.HalfGates.WordProgram
+end Blake3Prize.Submission.HalfGates.WordProgram

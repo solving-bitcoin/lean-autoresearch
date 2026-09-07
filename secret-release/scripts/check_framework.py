@@ -58,6 +58,9 @@ def main():
             head={p:('100644','blob','new') for p in base}
             assert len(overlay.admitted_entries(base,head))==2
             for protected in ['secret-release/SecretRelease.lean','secret-release/rust/Cargo.lock',
+                              'secret-release/SecretRelease/Profiles.lean',
+                              'g1-release/G1Release/Tests/Contract.lean',
+                              'blake3/Blake3Prize/Tests/RunnerFixture.lean',
                               'secret-release/rust/secret-release/src/lib.rs','blake3/protected.sha256',
                               '.github/workflows/secret-release-submission.yml']:
                 reject(lambda:overlay.admitted_entries(base,head|{protected:('100644','blob','new')}))

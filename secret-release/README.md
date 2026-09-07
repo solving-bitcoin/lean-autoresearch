@@ -14,7 +14,9 @@ or optional proof libraries, not this contract.
 
 Require the shared Lake package and define a `Challenge` with its reference,
 private/input codecs, disclosures, forbidden claim, permitted leakage and ROM
-bound. A codec includes both round trips; checked subtypes express on-curve,
+bound. Import `SecretRelease.Encoding` for codec constructors and
+`SecretRelease.Profiles` for the reviewed `Profiles.rom128` preset. Neither
+requires importing examples. A codec includes both round trips; checked subtypes express on-curve,
 checksum and other validity preconditions. Invalid encodings are outside honest
 correctness, never a restriction on the attacker's computations.
 
@@ -58,8 +60,9 @@ The certificate is indexed by the exact executable scheme and byte bound.
 
 Missing and uncertified entries have **no accepted score**. Their `score.txt`
 remains `unranked`; only an audited complete certificate permits a numeric score.
-Executable tests never become a security assumption. `SizeAccepted c limit`
-can additionally enforce an author-owned hard cap.
+Executable tests never become a security assumption. The optional
+`SecretRelease.Examples.SizeAccepted c limit` wrapper can enforce an author-owned
+hard cap; it is not part of the core or either current challenge.
 
 ## Four tools and Rust tests
 
@@ -117,7 +120,10 @@ construction security or side-channel resistance. Enable the separate
 withholding predicate when needed. Private-map privacy compares ordered pairs
 with equal explicitly permitted leakage; this is not a bounded-simulator theorem.
 The optional `SecretRelease.Simulation` facade exposes pinned VCVio UC and cost
-infrastructure but adds no proof or security assumption by itself.
+infrastructure but adds no proof or security assumption by itself. Run its
+optional integration audit and declaration-example audit with
+`python3 secret-release/scripts/check_optional.py blake3`. They are separate from
+submission verification.
 
 The current ROM profile intentionally excludes relying solely on computational
 hardness against unlimited local computation. Future reviewed profiles may

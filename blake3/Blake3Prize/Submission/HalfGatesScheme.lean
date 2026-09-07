@@ -1,12 +1,13 @@
 import Blake3Prize.Protected.Target
-import Blake3Prize.Baselines.HalfGates.Morphism
-import Blake3Prize.Baselines.HalfGates.Lowering
+import Blake3Prize.Submission.HalfGatesMorphism
+import Blake3Prize.Submission.HalfGatesLowering
 
 /-! Executable port of examples/half_gates/garble.py. This is a runnable
 candidate, not a finite-key ROM certificate. The common contract does not
 import this module or require any of its circuit/half-gate machinery. -/
-namespace Blake3Prize.Baselines.HalfGates.Executable
+namespace Blake3Prize.Submission.HalfGates.Executable
 open Blake3Prize.Protected
+open SecretRelease (Label)
 
 private instance : Inhabited Gate := ⟨⟨false,0,0⟩⟩
 
@@ -102,4 +103,4 @@ def scheme : SecretRelease.Scheme challenge where
 
 /-- Explicitly uncertified: size is measured; no proof field is fabricated. -/
 def candidate : SecretRelease.Candidate challenge := ⟨scheme, 707680, none⟩
-end Blake3Prize.Baselines.HalfGates.Executable
+end Blake3Prize.Submission.HalfGates.Executable

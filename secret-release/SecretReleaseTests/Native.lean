@@ -1,4 +1,4 @@
-import SecretRelease.Examples
+import SecretRelease.Profiles
 import SecretRelease.Runtime
 
 /-! Executability/selection tests only. These known fixture keys and dummy
@@ -28,8 +28,8 @@ def main : IO Unit := do
       (checked.decode #v[true, true]).isNone &&
       (checked.decode bits).isSome do
     throw (IO.userError "valid encoding boundary")
-  unless Examples.rom128.maxQueries == 2^64 &&
-      Examples.rom128.error 0 == (1 : ℚ≥0) / 2^128 do
+  unless Profiles.rom128.maxQueries == 2^64 &&
+      Profiles.rom128.error 0 == (1 : ℚ≥0) / 2^128 do
     throw (IO.userError "executable challenge metadata")
   -- Non-byte-aligned widths accept canonical padding only.
   let bitWire := (Codec.bits 2).bytes

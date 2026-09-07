@@ -1,7 +1,7 @@
-import Blake3Prize.Protected.Reference
-import Lean
+import Blake3Prize.Protected.Target
+import Mathlib.Lean.Expr.Basic
 
-namespace Blake3Prize.Baselines.HalfGates
+namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
 
 /-- Hash-cached syntax for bounded word expressions. It is interpreted as data,
@@ -53,4 +53,4 @@ def eval (input : Input) (e : WordExpr) : Nat := evalTerm input e.term
 def inputs : Vector WordExpr 16 := Vector.ofFn inputWord
 
 end WordExpr
-end Blake3Prize.Baselines.HalfGates
+end Blake3Prize.Submission.HalfGates

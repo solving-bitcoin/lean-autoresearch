@@ -3,8 +3,8 @@
   "wire": "G1Release.Protected.wire",
   "submissionModule": "G1Release.Submission.Solution",
   "entry": "G1Release.Submission.entry",
-  "fixtureModule": "G1Release.Protected.RunnerFixture",
-  "fixtureEntry": "G1Release.Protected.fixtureEntry",
+  "fixtureModule": "G1Release.Tests.RunnerFixture",
+  "fixtureEntry": "G1Release.Tests.fixtureEntry",
   "rustPackage": "g1-release-tests",
   "namespace": "G1Release",
   "report": "g1-release-score.json",
@@ -13,7 +13,11 @@
     "scripts/check_boundary.py"
   ],
   "audits": [
+    "scripts/BoundaryAudit.lean",
     "scripts/ContractChecks.lean"
   ],
-  "proofModules": []
+  "proofModules": [
+    "G1Release.Tests.Contract",
+    "G1Release.Tests.Encoding"
+  ]
 }
