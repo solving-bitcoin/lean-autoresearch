@@ -97,7 +97,7 @@ theorem rowTransport_row (source target : Params) (index : RowIndex)
     rw [rowTransport_false_apply]
     apply congrArg (fun ciphertext => pack ciphertext (stateHint state))
     funext position
-    simp only [payload, stateMask, stateHint, HintPayload.encrypt]
+    simp only [payload, stateMask, stateHint, HintPayload.encrypt_eq]
     rw [HintPayloadPrivacy.payload_xor_translatePad]
   · have hpayload : payload target index (rowTransport source target index true state) =
         payload source index state := by
@@ -127,7 +127,7 @@ theorem garble_eq_tableFromState (purpose : Purpose) (pairs : RowIndex → Bool 
     (params : Params) (coins : RowIndex → Coin) :
     garble purpose pairs params coins = tableFromState params
       (fun index => ((pairs index false purpose, coins index), pairs index true purpose)) := by
-  simp only [garble, prependWord_eq_cases]
+  simp only [garble_eq, prependWord_eq_cases]
   rfl
 
 noncomputable def tableTransport (source target : Params) (bits : RowIndex → Bool) :

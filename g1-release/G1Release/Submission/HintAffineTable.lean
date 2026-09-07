@@ -136,19 +136,46 @@ def row (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
       (pairs index true purpose))
     (padHint (pairs index false purpose) (coins index))
 
+/-- Store the mask with its row, sharing each oracle answer and sampled coin
+between the correction sum and the ciphertext. -/
+def rowData (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
+    (params : Params) (coins : RowIndex → Coin) (index : RowIndex) : Word × WordBytes :=
+  let falsePad := pairs index false purpose
+  let truePad := pairs index true purpose
+  let hint := padHint falsePad (coins index)
+  let mask := maskFromPad falsePad hint
+  (mask, pack (HintPayload.encrypt
+    (HintPayload.encodeWord (HintPayload.share params mask index true)) truePad) hint)
+
+@[simp] theorem rowData_mask (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
+    (params : Params) (coins : RowIndex → Coin) (index : RowIndex) :
+    (rowData purpose pairs params coins index).1 = rowMask purpose pairs coins index := rfl
+
+@[simp] theorem rowData_row (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
+    (params : Params) (coins : RowIndex → Coin) (index : RowIndex) :
+    (rowData purpose pairs params coins index).2 = row purpose pairs params coins index := rfl
+
 /-- The leading word makes the independently sampled row masks sum to the
 desired constant.  It is the only additional field element in a table. -/
 def garble (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
     (params : Params) (coins : RowIndex → Coin) : Table :=
+  let rows := Vector.ofFn (rowData purpose pairs params coins)
   let constant := HintPayload.encodeWord
-    (params.constant - ∑ i, rowMask purpose pairs coins i)
-  Table.ofWords (prependWord constant (row purpose pairs params coins))
+    (params.constant - ∑ i, (rows.get i).1)
+  Table.ofWords (prependWord constant fun i => (rows.get i).2)
+
+theorem garble_eq (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
+    (params : Params) (coins : RowIndex → Coin) :
+    garble purpose pairs params coins = Table.ofWords
+      (prependWord (HintPayload.encodeWord (params.constant - ∑ i, rowMask purpose pairs coins i))
+        (row purpose pairs params coins)) := by
+  simp only [garble, Vector.get_ofFn, rowData_mask, rowData_row]
 
 @[simp] theorem garble_first (purpose : Purpose) (pairs : RowIndex → Bool → PadFamily)
     (params : Params) (coins : RowIndex → Coin) :
     (garble purpose pairs params coins).words ⟨0, by decide⟩ =
       HintPayload.encodeWord (params.constant - ∑ i, rowMask purpose pairs coins i) := by
-  unfold garble
+  rw [garble_eq]
   rw [Table.words_ofWords_apply]
   rw [prependWord_eq_cases]
   rfl
@@ -182,7 +209,7 @@ theorem openShare_garble (purpose : Purpose) (pairs : RowIndex → Bool → PadF
       some (HintPayload.share params (rowMask purpose pairs coins index) index (bits index)) := by
   have hrow : (garble purpose pairs params coins).words index.succ =
       row purpose pairs params coins index := by
-    unfold garble
+    rw [garble_eq]
     rw [Table.words_ofWords_apply]
     simp only [prependWord_eq_cases, Fin.cases_succ]
   cases hb : bits index <;>

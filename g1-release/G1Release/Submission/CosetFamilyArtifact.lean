@@ -4,8 +4,37 @@ namespace G1Release.Submission.CosetFamilyArtifact
 
 open GarblingPrize.Protected
 
-@[ext] structure Artifact (count : Nat) where
-  maps : Fin count → CosetHintMap.Artifact
+/-- A concrete vector prevents the compiler from eta-expanding the garbler
+into a per-map/per-table sampler. The function view below preserves the
+mathematical family and its exact serialized bytes. -/
+structure Artifact (count : Nat) where
+  storage : Vector CosetHintMap.Artifact count
+
+def Artifact.maps (artifact : Artifact count) : Fin count → CosetHintMap.Artifact :=
+  artifact.storage.get
+
+def Artifact.ofMaps (maps : Fin count → CosetHintMap.Artifact) : Artifact count :=
+  ⟨Vector.ofFn maps⟩
+
+@[simp] theorem Artifact.maps_ofMaps (maps : Fin count → CosetHintMap.Artifact) :
+    (Artifact.ofMaps maps).maps = maps := by
+  funext index
+  simp only [Artifact.maps, Artifact.ofMaps, Vector.get_ofFn]
+
+@[ext] theorem Artifact.ext (left right : Artifact count) (h : left.maps = right.maps) :
+    left = right := by
+  cases left with
+  | mk left =>
+    cases right with
+    | mk right =>
+      congr 1
+      apply Vector.ext
+      intro index hindex
+      exact congrFun h ⟨index, hindex⟩
+
+@[simp] theorem Artifact.ofMaps_maps (artifact : Artifact count) :
+    Artifact.ofMaps artifact.maps = artifact :=
+  Artifact.ext _ _ (Artifact.maps_ofMaps artifact.maps)
 
 def byteCount (count : Nat) : Nat :=
   count * CosetHintMap.byteCount
@@ -32,7 +61,7 @@ def encode (artifact : Artifact count) : ByteArray :=
 def decodeCore (count : Nat) (input : ByteArray) :
     Except WireDecodeError (Artifact count) := do
   let maps ← FixedCodec.decodeFin mapCodec count input
-  pure ⟨maps⟩
+  pure (Artifact.ofMaps maps)
 
 def decode (count : Nat) (input : ByteArray) :
     Except WireDecodeError (Artifact count) :=
@@ -42,7 +71,7 @@ def decode (count : Nat) (input : ByteArray) :
     decodeCore count (encode artifact) = .ok artifact := by
   unfold decodeCore encode
   rw [FixedCodec.decodeFin_encode]
-  rfl
+  exact congrArg Except.ok (Artifact.ofMaps_maps artifact)
 
 @[simp] theorem decode_encode (artifact : Artifact count) :
     decode count (encode artifact) = .ok artifact :=
@@ -54,11 +83,12 @@ theorem encode_decode {bytes : ByteArray} {artifact : Artifact count}
   cases hmaps : FixedCodec.decodeFin mapCodec count bytes with
   | error error => simp [hmaps, Except.bind, bind] at h
   | ok maps =>
-      have hartifact : ({ maps := maps } : Artifact count) = artifact := by
+      have hartifact : Artifact.ofMaps maps = artifact := by
         simp only [hmaps, Except.bind, bind] at h
         exact Except.ok.inj h
       rw [← hartifact]
-      exact FixedCodec.encodeFin_decode mapCodec hmaps
+      simpa only [encode, Artifact.maps_ofMaps] using
+        FixedCodec.encodeFin_decode mapCodec hmaps
 
 theorem ninetyOne_byteCount : byteCount 91 = 5940480 := by decide
 

@@ -30,7 +30,8 @@ theorem evaluateMap_garble (hash : Hash) (hidden : Private) (random : Randomness
         (challenge.inputs.reveal hash keys input) =
       some (runtimeOfGroup (EisensteinFullWidth.mapOutput (offsetAt random.offsets index)
         (digitAt hidden index) (-inputG1 input))) := by
-  unfold evaluateMap garble
+  rw [garble_maps]
+  unfold evaluateMap
   rw [evaluate_openings]
   exact CosetGLV.decode_openings _ _ input (random.states index)
 

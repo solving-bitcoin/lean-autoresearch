@@ -81,6 +81,7 @@ theorem artifact_preserved (hash : Hash) (input : Input) (active : Fin 512 → L
       CosetIdealView.garble hash input source state.1 active state.2 := by
   apply congrArg CosetScheme.encode
   apply CosetFamilyArtifact.Artifact.ext
+  simp only [CosetFamilyArtifact.Artifact.maps_ofMaps]
   funext index
   apply CosetHintMap.Artifact.ext
   funext kind

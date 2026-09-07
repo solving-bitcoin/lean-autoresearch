@@ -78,6 +78,7 @@ theorem maps_programmed (hidden : Hidden) (random : Randomness hidden)
       hidden random.1 random.2 keys).maps =
       CosetIdealView.maps (ROM.hash (baseOracle oracle)) input hidden random
         (selected keys input) (fakePads oracle) := by
+  rw [CosetScheme.garble_maps]
   funext index
   apply CosetHintMap.Artifact.ext
   funext kind
@@ -95,6 +96,7 @@ theorem garble_programmed (hidden : Hidden) (random : Randomness hidden)
         (selected keys input) (fakePads oracle) := by
   apply congrArg CosetScheme.encode
   apply CosetFamilyArtifact.Artifact.ext
-  exact maps_programmed hidden random keys input oracle
+  simpa only [CosetFamilyArtifact.Artifact.maps_ofMaps] using
+    maps_programmed hidden random keys input oracle
 
 end G1Release.Submission.CosetRealIdeal

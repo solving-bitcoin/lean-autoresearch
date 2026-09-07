@@ -24,6 +24,7 @@ def maps (hash : Hash) (input : Input) (hidden : Private) (random : Randomness h
 
 def garble (hash : Hash) (input : Input) (hidden : Private) (random : Randomness hidden)
     (active : Fin 512 → Label) (inactive : InactivePads) : ByteArray :=
-  CosetScheme.encode ⟨maps hash input hidden random active inactive⟩
+  CosetScheme.encode (CosetFamilyArtifact.Artifact.ofMaps
+    (maps hash input hidden random active inactive))
 
 end G1Release.Submission.CosetIdealView

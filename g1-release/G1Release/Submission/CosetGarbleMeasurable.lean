@@ -8,10 +8,10 @@ open CosetSampler CosetSlots CosetRealIdeal MeasureTheory
 abbrev Pads := Slot × Bool → Label
 
 def fromPads (hidden : Hidden) (random : Randomness hidden) (pads : Pads) : ByteArray :=
-  CosetScheme.encode ⟨fun index => ⟨fun kind =>
+  CosetScheme.encode (CosetFamilyArtifact.Artifact.ofMaps fun index => ⟨fun kind =>
     HintAffineTablePrivacy.tableFromState (CosetScheme.mapParams hidden random.1 index kind)
       (fun row => ((pads ((index,kind,row),false), random.2 index kind row),
-        pads ((index,kind,row),true)))⟩⟩
+        pads ((index,kind,row),true)))⟩)
 
 def realPads (hash : Hash) (keys : Fin 512 → Pair) : Pads := fun coordinate =>
   AffineTable.pad hash ((keys (wire coordinate.1)).get coordinate.2)
@@ -29,6 +29,7 @@ theorem real_eq (hash : Hash) (hidden : Hidden) (random : Randomness hidden) (ke
       fromPads hidden random (realPads hash keys) := by
   apply congrArg CosetScheme.encode
   apply CosetFamilyArtifact.Artifact.ext
+  simp only [CosetScheme.garble_maps, CosetFamilyArtifact.Artifact.maps_ofMaps]
   funext index
   apply CosetHintMap.Artifact.ext
   funext kind
@@ -45,6 +46,7 @@ theorem ideal_eq (hash : Hash) (hidden : Hidden) (random : Randomness hidden) (i
       fromPads hidden random (idealPads hash input active inactive) := by
   apply congrArg CosetScheme.encode
   apply CosetFamilyArtifact.Artifact.ext
+  simp only [CosetFamilyArtifact.Artifact.maps_ofMaps]
   funext index
   apply CosetHintMap.Artifact.ext
   funext kind

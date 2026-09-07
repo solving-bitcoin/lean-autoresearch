@@ -38,9 +38,17 @@ def mapParams (hidden : Private) (random : Randomness hidden)
   CosetHintMap.params (mapBase hidden random index) (random.states index) kind
 
 def garble (hash : Hash) (hidden : Private) (random : Randomness hidden)
-    (coins : Coins) (keys : Keys) : Artifact where
-  maps := fun index => CosetHintMap.garble index.val (xPads hash keys) (yPads hash keys)
-    (mapBase hidden random index) (random.states index) (coins index)
+    (coins : Coins) (keys : Keys) : Artifact :=
+  CosetFamilyArtifact.Artifact.ofMaps fun index =>
+    CosetHintMap.garble index.val (xPads hash keys) (yPads hash keys)
+      (mapBase hidden random index) (random.states index) (coins index)
+
+@[simp] theorem garble_maps (hash : Hash) (hidden : Private) (random : Randomness hidden)
+    (coins : Coins) (keys : Keys) :
+    (garble hash hidden random coins keys).maps = fun index =>
+      CosetHintMap.garble index.val (xPads hash keys) (yPads hash keys)
+        (mapBase hidden random index) (random.states index) (coins index) :=
+  CosetFamilyArtifact.Artifact.maps_ofMaps _
 
 def finish (x : Word) (opened : Option (Opened K)) : Option Point := do
   let values ← opened
