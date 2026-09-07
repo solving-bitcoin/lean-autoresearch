@@ -25,9 +25,9 @@ theorem same_leakage_iff (p₀ p₁ : Private) (a : Input) :
   constructor
   · intro h
     have := congrArg BN254.CanonicalOutput.toPoint (encodeOutput_injective h)
-    simpa only [reference_toPoint] using this
+    exact (reference_toPoint p₀ a).symm.trans (this.trans (reference_toPoint p₁ a))
   · intro h
     delta reference
-    rw [h]
+    exact congrArg (fun point => encodeOutput (BN254.CanonicalOutput.ofPoint point)) h
 
 end G1Release.Submission
