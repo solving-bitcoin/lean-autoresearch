@@ -18,6 +18,10 @@ os.environ['MIMALLOC_ALLOW_LARGE_OS_PAGES']='0'
 LOCAL_BUILD_RSS = 4 * 1024**3
 CI_BUILD_RSS = 8 * 1024**3
 NATIVE_RSS = 1024**3
+LOCAL_NATIVE_TIMEOUT = 300
+# Hosted runners measured the selected BLAKE3 and G1 candidates at 345 and 381
+# seconds. Keep local machine protection at five minutes and give CI headroom.
+CI_NATIVE_TIMEOUT = 600
 
 
 def guarded(command, cwd=ROOT, *, native=False, timeout=None):
@@ -31,10 +35,12 @@ def guarded(command, cwd=ROOT, *, native=False, timeout=None):
     # The author approved a larger build budget on GitHub's CI runners only.
     # Local invocations retain the machine-protecting 4 GiB budget, while
     # executable checks use 1 GiB in both environments.
-    build_rss = CI_BUILD_RSS if os.environ.get('GITHUB_ACTIONS') == 'true' else LOCAL_BUILD_RSS
+    is_ci = os.environ.get('GITHUB_ACTIONS') == 'true'
+    build_rss = CI_BUILD_RSS if is_ci else LOCAL_BUILD_RSS
+    native_timeout = CI_NATIVE_TIMEOUT if is_ci else LOCAL_NATIVE_TIMEOUT
     result=run_limited(
         ['nice','-n','10',sys.executable,'-c',enter,str(cwd),*map(str,command)],scope,
-        timeout or (300 if native else 1800),
+        timeout or (native_timeout if native else 1800),
         NATIVE_RSS if native else build_rss,
         16*1024*1024,2*1024**3,32 if native else 64,64*1024**3,
         REPO/'scripts/run_with_rss.py','BLAKE3 native check' if native else 'BLAKE3 build')
