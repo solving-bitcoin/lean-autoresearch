@@ -19,9 +19,9 @@ LOCAL_BUILD_RSS = 4 * 1024**3
 CI_BUILD_RSS = 8 * 1024**3
 NATIVE_RSS = 1024**3
 LOCAL_NATIVE_TIMEOUT = 300
-# Give GitHub Actions enough room to measure the selected candidates. Once the
-# observed runtime is known, this diagnostic ceiling can be tightened again.
-CI_NATIVE_TIMEOUT = 1800
+# Hosted runners measured the selected BLAKE3 and G1 candidates at 345 and 381
+# seconds. Keep local machine protection at five minutes and give CI headroom.
+CI_NATIVE_TIMEOUT = 600
 
 
 def guarded(command, cwd=ROOT, *, native=False, timeout=None):

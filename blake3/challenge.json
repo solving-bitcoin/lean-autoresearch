@@ -29,7 +29,7 @@
   "compilerMemoryLimitBytes": 8589934592,
   "nativeMemoryLimitBytes": 1073741824,
   "compilerTimeoutSeconds": 1800,
-  "nativeTimeoutSeconds": 1800,
+  "nativeTimeoutSeconds": 600,
   "referenceModule": "Clean.Specs.BLAKE3",
   "referenceLicense": "MIT",
   "cleanRevision": "93c9d1ef45be9f687214625d7857889cf2485504",
