@@ -38,3 +38,7 @@ venv/
 .DS_Store
 *.swp
 *~
+
+# Shared Rust test build outputs
+/secret-release/rust/target/
+!secret-release/native/sha256.c

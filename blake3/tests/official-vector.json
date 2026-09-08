@@ -1,0 +1,5 @@
+{
+  "source": "https://github.com/BLAKE3-team/BLAKE3/blob/5a1edfd7abb5c3ce65070a851dff4f276a619cae/test_vectors/test_vectors.json",
+  "inputHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "digestHex": "4eed7141ea4a5cd4b788606bd23f46e212af9cacebacdc7d1f4c6dc7f2511b98"
+}
