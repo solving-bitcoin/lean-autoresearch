@@ -17,7 +17,8 @@ for marker in ('', 'false', '1', 'true'):
             guarded(['fixture'], native=native)
         expected = 1024**3 if native else (8 if marker == 'true' else 4) * 1024**3
         assert run.call_args.args[3] == expected
-        assert run.call_args.args[2] == (300 if native else 1800)
+        expected_timeout = (1800 if marker == 'true' else 300) if native else 1800
+        assert run.call_args.args[2] == expected_timeout
         assert run.call_args.args[6] == (32 if native else 64)
 
 for project_name in ('blake3','g1-release'):
@@ -45,4 +46,5 @@ for project_name in ('blake3','g1-release'):
         else:
             raise AssertionError('shared-package bytes escaped the disk quota')
 print('PASS: original child cwd and combined shared-package disk accounting')
+print('PASS: 30-minute CI and 5-minute local native timeouts')
 print('PASS: 8 GiB CI builds, 4 GiB local builds, and 1 GiB native checks')
