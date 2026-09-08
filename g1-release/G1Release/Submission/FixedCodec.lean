@@ -387,7 +387,11 @@ def decodeFin (codec : FixedCodec α width) (count : Nat) (input : ByteArray) :
   let (values, rest) ← decodeFinListPrefix codec count input []
   if rest.size = 0 then
     if hlength : values.length = count then
-      .ok (listFunction values hlength)
+      -- Construct the array before returning the function in `Except.ok`.
+      -- A function-valued helper is eta-expanded by native compilation and
+      -- would otherwise rebuild the whole array on every indexed lookup.
+      let packed := values.toArray
+      .ok (fun index => packed[index.val]'(by simpa [packed, hlength] using index.isLt))
     else
       .error .invalidLength
   else
