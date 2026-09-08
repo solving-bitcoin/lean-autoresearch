@@ -47,12 +47,7 @@ def message (input : Input) : Vector (BitVec 32) 16 :=
   (inputWords input).map (BitVec.ofNat 32)
 
 theorem inputWords_lt (input : Input) (i : Fin 16) : (inputWords input).get i < 2^32 := by
-  delta inputWords
-  simp only [Vector.get_ofFn]
-  have h := (BitVec.ofBoolListLE
-    ((Vector.ofFn fun j : Fin 32 => inputBit input
-      ⟨32*i.val+j.val,by omega⟩).toList)).isLt
-  simpa using h
+  exact ReferenceEncoding.word_lt input i
 
 theorem message_nat (input : Input) : (message input).map BitVec.toNat = inputWords input := by
   ext i hi

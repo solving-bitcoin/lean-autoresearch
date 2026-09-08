@@ -9,7 +9,8 @@ open Blake3Prize.Protected
 abbrev Candidate := Vector BitExpr 256
 
 def Correct (candidate : Candidate) : Prop :=
-  ∀ input : Input, candidate.map (BitExpr.eval input) = reference input
+  ∀ input : Input, candidate.map (BitExpr.eval input) =
+    ((SecretRelease.Codec.byteVector 32).encode (reference input)).map bitOfBool
 
 /-- An optional expression-level certificate, not the challenge acceptance claim.
 Cryptographic security relies on its documented random-oracle assumptions;

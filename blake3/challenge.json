@@ -56,7 +56,7 @@
     "source": "SecretRelease.NativeHash + trusted C SHA-256",
     "bridgeStatus": "heuristic / unproved"
   },
-  "currentSubmissionStatus": "uncertified",
+  "currentSubmissionStatus": "certified",
   "optionalBaseline": {
     "artifactBytes": 707680,
     "status": "uncertified"

@@ -5,7 +5,9 @@ Blake3Prize/Submission/*.lean and its score.txt. Challenge-authoring changes
 require explicit user authorization; this PR is authorized to redesign the
 protected contract and use VCVio on Lean 4.33.1.
 
-The reference is Clean's MIT-licensed standard unkeyed 64-byte BLAKE3 hash.
+The reference is Clean's MIT-licensed standard unkeyed 64-byte BLAKE3 hash,
+with the interface `Bytes 64 → Bytes 32` and shared `Codec.byteVector` label bits.
+Keep byte/word bridge proofs in submissions and historical transport in Migration.
 Every bit has two independently supplied distinct 32-byte labels. Evaluation
 gets the known plaintext message, 512 active labels, and the artifact. It must
 return the 256 selected output labels and protect every opposite input and

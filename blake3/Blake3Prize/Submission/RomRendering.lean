@@ -80,7 +80,7 @@ theorem selected_input (input : Input) (coins : Bytes 3915904)
 theorem selected_output (input : Input) (coins : Bytes 3915904)
     (inputs : Fin 512 → Pair) (outputs : Fin 256 → Pair) (i : Fin 256) :
     activeLabel (RomModelData.selected input (assemble coins inputs outputs)) (out i) =
-      (outputs i).get (((bitCodec 256).encode (reference input)).get i) := by
+      (outputs i).get (((SecretRelease.Codec.byteVector 32).encode (reference input)).get i) := by
   rw [RomModelData.active_selected,out_bit]
   exact assembled_output coins inputs outputs i _
 

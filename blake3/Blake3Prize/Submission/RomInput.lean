@@ -25,12 +25,7 @@ theorem message_bit (input : Input) (i : Fin 16) (j : Fin 32) :
   simp only [Vector.get_map] at h
   change (((RomWordSemantics.message input).get i).toNat.testBit j.val) = _
   rw [h]
-  delta inputWords
-  simp only [Vector.get_ofFn]
-  change (BitVec.ofBoolListLE ((Vector.ofFn fun k : Fin 32 =>
-    inputBit input ⟨32*i.val+k.val,by omega⟩).toList)).getLsbD j.val = _
-  rw [BitVec.getLsbD_ofBoolListLE]
-  simp [List.getD_eq_getElem,Vector.get_eq_getElem,j.isLt]
+  exact ReferenceEncoding.word_bit input i j
 
 def prepare : RomProgram.Program 514 1025 := .done (Vector.ofFn fun i : Fin 1025 =>
   if h : i.val < 512 then

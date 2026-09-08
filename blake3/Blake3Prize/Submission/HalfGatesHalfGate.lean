@@ -1,4 +1,4 @@
-import Blake3Prize.Protected.Target
+import Blake3Prize.Submission.HalfGatesExpression
 import Mathlib.Tactic.Ring
 
 namespace Blake3Prize.Submission.HalfGates.HalfGate

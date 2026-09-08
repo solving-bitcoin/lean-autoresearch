@@ -7,7 +7,7 @@ open SecretRelease RomMixedKeys RomMixedGuessing Blake3Prize.Protected
 
 def externalBits (input : Input) (i : Fin 768) : Bool :=
   if h : i.val < 512 then inputBit input ⟨i.val,h⟩
-  else ((reference input).get ⟨i.val-512,by omega⟩).val == 1
+  else ((Codec.byteVector 32).encode (reference input)).get (⟨i.val-512,by omega⟩ : Fin 256)
 
 theorem external_input (input : Input) (i : Fin 512) :
     externalBits input ⟨i.val,by omega⟩ = inputBit input i := by
@@ -31,11 +31,11 @@ theorem wire_bit (input : Input) (n : Nat) (hn : n < 61698) :
       ⟨i.val,by omega⟩).trans (input_bit input i)).symm
 
 theorem out_bit (input : Input) (i : Fin 256) :
-    keyBit input (out i) = ((bitCodec 256).encode (reference input)).get i := by
+    keyBit input (out i) = ((SecretRelease.Codec.byteVector 32).encode (reference input)).get i := by
   change externalBits input ⟨512+i.val,by omega⟩ = _
   rw [externalBits,dif_neg (by omega : ¬512+i.val < 512)]
-  change (((reference input).get ⟨512+i.val-512,by omega⟩).val == 1) =
-    (((reference input).map (fun b : Bit => b.val == 1)).get i)
+  change (((Codec.byteVector 32).encode (reference input)).get (⟨512+i.val-512,by omega⟩ : Fin 256)) =
+    (((Codec.byteVector 32).encode (reference input)).get i)
   simp
 
 theorem assembled_input (coins : Bytes 3915904) (inputs : Fin 512 → Pair)

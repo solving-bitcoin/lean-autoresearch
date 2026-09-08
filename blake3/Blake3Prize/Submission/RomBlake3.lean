@@ -34,37 +34,29 @@ theorem finish_correct (v m : Vector (BitVec 32) 16) :
     BitVec.getLsbD_eq_getElem (by omega : i%32 < 32)]
 
 theorem reference_encoded (input : Input) (i : Fin 256) :
-    ((bitCodec 256).encode (reference input)).get i =
-      ((referenceWords (inputWords input)).get ⟨i.val/32,by omega⟩).testBit (i.val%32) := by
-  change ((reference input).map (fun b : Bit => b.val == 1)).get i = _
-  rw [Vector.get_map]
-  delta reference outputBits
-  rw [Vector.get_ofFn]
-  exact bool_roundtrip _
+    ((SecretRelease.Codec.byteVector 32).encode (reference input)).get i =
+      ((referenceWords (inputWords input)).get ⟨i.val/32,by omega⟩).testBit (i.val%32) :=
+  ReferenceEncoding.reference_encoded input i
 
 theorem digest_bits (input : Input) :
-    wordBits (RomWordSemantics.digest input) = (bitCodec 256).encode (reference input) := by
-  change wordBits (RomWordSemantics.digest input) =
-    (reference input).map (fun b : Bit => b.val == 1)
+    wordBits (RomWordSemantics.digest input) = (SecretRelease.Codec.byteVector 32).encode (reference input) := by
   apply Vector.ext
   intro i hi
   have hw := congrArg (fun words : Vector Nat 8 => words.get ⟨i/32,by omega⟩)
     (RomWordSemantics.digest_nat input)
   simp only [Vector.get_map] at hw
   change (wordBits (RomWordSemantics.digest input)).get ⟨i,hi⟩ =
-    ((reference input).map (fun b : Bit => b.val == 1)).get ⟨i,hi⟩
+    ((SecretRelease.Codec.byteVector 32).encode (reference input)).get ⟨i,hi⟩
   have he := reference_encoded input ⟨i,hi⟩
-  change ((reference input).map (fun b : Bit => b.val == 1)).get ⟨i,hi⟩ = _ at he
-  rw [he]
-  simp only [wordBits,Vector.get_ofFn]
-  change (((RomWordSemantics.digest input).get ⟨i/32,by omega⟩).toNat.testBit (i%32)) = _
-  rw [hw]
+  exact (show (wordBits (RomWordSemantics.digest input)).get ⟨i,hi⟩ =
+      ((referenceWords (inputWords input)).get ⟨i/32,by omega⟩).testBit (i%32) from
+    (by simp only [wordBits,Vector.get_ofFn]; exact congrArg (fun n => n.testBit (i%32)) hw)).trans he.symm
 
 @[irreducible] def program : RomProgram.Program 514 256 :=
   RomInput.prepare.comp (RomRounds.rounds.program.comp finish)
 
 theorem program_correct (input : Input) :
-    program.eval (RomInput.known input) = (bitCodec 256).encode (reference input) := by
+    program.eval (RomInput.known input) = (SecretRelease.Codec.byteVector 32).encode (reference input) := by
   rw [program,eval_comp,RomInput.prepare_correct,eval_comp,RomRounds.rounds.correct,
     RomRounds.run_rounds,finish_correct]
   exact digest_bits input

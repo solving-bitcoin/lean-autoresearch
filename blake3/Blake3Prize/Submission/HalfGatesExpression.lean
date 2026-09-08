@@ -1,8 +1,15 @@
 import Blake3Prize.Submission.HalfGatesWordExpression
 import Mathlib.Lean.Expr.Basic
+import Mathlib.Data.ZMod.Basic
 
 namespace Blake3Prize.Submission.HalfGates
 open Blake3Prize.Protected
+
+abbrev Bit := ZMod 2
+def bitOfBool (b : Bool) : Bit := if b then 1 else 0
+
+@[simp] theorem bool_roundtrip (b : Bool) : ((bitOfBool b).val == 1) = b := by
+  cases b <;> rfl
 
 /-- Boolean expressions use Lean's immutable, hash-cached syntax tree. Only
 natural literals, Boolean operators, and word-bit projections are interpreted; other
@@ -30,7 +37,7 @@ def wordBit (word : WordExpr) (i : Fin 32) : BitExpr :=
 def evalTerm (input : Input) : Lean.Expr → Bit
   | .lit (.natVal n) =>
       if n = 0 then 0 else if n = 1 then 1
-      else input[(n - 2) % 512]'(Nat.mod_lt _ (by decide))
+      else bitOfBool (inputBit input ⟨(n - 2) % 512,Nat.mod_lt _ (by decide)⟩)
   | .app (.app (.const name _) a) b =>
       if name = `Blake3Prize.xorBit then evalTerm input a + evalTerm input b
       else if name = `Blake3Prize.andBit then evalTerm input a * evalTerm input b
@@ -55,7 +62,7 @@ def eval (input : Input) (e : BitExpr) : Bit := evalTerm input e.term
 @[simp] theorem eval_mul (input : Input) (a b : BitExpr) :
     eval input (a * b) = eval input a * eval input b := rfl
 @[simp] theorem eval_variable (input : Input) (i : Fin 512) :
-    eval input (inputExpr i) = input[i] := by
+    eval input (inputExpr i) = bitOfBool (inputBit input i) := by
   simp [eval, inputExpr, literal, evalTerm,
     Nat.mod_eq_of_lt i.isLt]
 

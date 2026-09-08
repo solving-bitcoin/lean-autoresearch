@@ -1,5 +1,5 @@
 import Blake3Prize.Migration.Legacy.ROM
-import Blake3Prize.Protected.Wire
+import Blake3Prize.Migration.ByteInterface
 
 /-! Migration evidence, outside the accepted import graph. The historical
 768-fold independent pair law is exactly the shared product of uniform input
@@ -98,25 +98,49 @@ theorem pairs_distinct {n : Nat} (keys : Fin n → SecretRelease.Pair) : Distinc
 
 /-- Vector-to-byte views use the same sequence of labels as the old game. -/
 theorem input_disclosure (h : SecretRelease.Hash) (keys : IK) (input : Input) :
-    challenge.inputs.reveal h keys input = SecretRelease.pack (activeInput (pairs keys) input).toList := by
-  simp only [challenge, SecretRelease.Lamport, bitCodec, activeInput, inputBit, pairs,
-    Vector.toList_ofFn, List.ofFn_eq_map, Vector.getElem_map]
-  rfl
+    challenge.inputs.reveal h keys input = SecretRelease.pack (activeInput (pairs keys) (toLegacy input)).toList := by
+  change SecretRelease.pack ((List.finRange 512).map fun i =>
+    (keys i).get (((SecretRelease.Codec.byteVector 64).encode input).get i)) = _
+  simp only [activeInput, pairs, Vector.toList_ofFn, List.ofFn_eq_map,
+    input_bit_preserved]
+
+private theorem bit_value (bits : Vector Bool n) (i : Fin n) :
+    decide ((bits.map Legacy.bitOfBool)[i].val = 1) = bits.get i := by
+  simp only [Fin.getElem_fin, Vector.getElem_map, Vector.get_eq_getElem]
+  cases h : bits[i.val] <;> rfl
+
+private theorem output_bit_preserved (output : Output) (i : Fin 256) :
+    decide ((toLegacy output)[i].val = 1) =
+      ((SecretRelease.Codec.byteVector 32).encode output).get i := bit_value _ i
 
 theorem output_disclosure (h : SecretRelease.Hash) (keys : OK) (output : Output) :
-    challenge.outputs.reveal h keys output = SecretRelease.pack (activeOutput (pairs keys) output).toList := by
-  simp only [challenge, SecretRelease.Lamport, bitCodec, activeOutput, pairs,
-    Vector.toList_ofFn, List.ofFn_eq_map, Vector.getElem_map]
-  rfl
+    challenge.outputs.reveal h keys output =
+      SecretRelease.pack (activeOutput (pairs keys) (toLegacy output)).toList := by
+  change SecretRelease.pack ((List.finRange 256).map fun i =>
+    (keys i).get (((SecretRelease.Codec.byteVector 32).encode output).get i)) = _
+  simp only [activeOutput, pairs, Vector.toList_ofFn, List.ofFn_eq_map]
+  apply congrArg SecretRelease.pack
+  apply List.map_congr_left
+  intro i _
+  exact congrArg (keys i).get (output_bit_preserved output i).symm
 
 theorem wins_preserved (h : SecretRelease.Hash) (input : Input) (ik : IK) (ok : OK)
     (guess : Fin 768 × Label) :
-    challenge.wins h () input ik ok guess ↔ Legacy.SecretRelease.Wins (pairs ik) (pairs ok) input guess := by
-  rfl
+    challenge.wins h () input ik ok guess ↔
+      Legacy.SecretRelease.Wins (pairs ik) (pairs ok) (toLegacy input) guess := by
+  unfold Legacy.SecretRelease.Wins Legacy.SecretRelease.oppositeLabel
+  rw [← reference_preserved]
+  simp only [challenge, pairs, input_bit_preserved]
+  by_cases hi : guess.1.val < 512
+  · simp only [dif_pos hi]
+    rfl
+  · simp only [dif_neg hi]
+    have hb := output_bit_preserved (reference input) ⟨guess.1.val-512,by omega⟩
+    exact (congrArg (fun b => guess.2 = (ok ⟨guess.1.val-512,by omega⟩).get (!b)) hb).symm.to_iff
 
 /-- Public vector labels are transported to the exact byte channels. -/
 def viewBytes (v : Legacy.SecretRelease.View) : SecretRelease.View challenge :=
-  ⟨v.inputValue,v.artifact,SecretRelease.pack v.inputs.toList,SecretRelease.pack v.outputs.toList⟩
+  ⟨fromLegacy v.inputValue,v.artifact,SecretRelease.pack v.inputs.toList,SecretRelease.pack v.outputs.toList⟩
 
 /-- Any new scheme with the same serialized garbler has the same observations.
 No evaluator implementation or gate representation appears in this equality. -/
@@ -125,7 +149,7 @@ theorem views_preserved (old : Legacy.Scheme) (new : SecretRelease.Scheme challe
     (garbles : ∀ h coins ik ok,
       new.garbleBytes h coins () ik ok = old.garbleBytes h (coins.cast sameCoins)
         (pairs ik) (pairs ok)) (x : Input) (sample : SecretRelease.ROM.Sample new) :
-    SecretRelease.ROM.view new () x sample = viewBytes (Legacy.ROM.view old x
+    SecretRelease.ROM.view new () x sample = viewBytes (Legacy.ROM.view old (toLegacy x)
       (splitKeys.symm (sample.1,sample.2.1),sample.2.2.1.cast sameCoins,sample.2.2.2)) := by
   have hi : Legacy.ROM.inputPairs (splitKeys.symm (sample.1,sample.2.1)) = pairs sample.1 := by
     funext i b
@@ -134,7 +158,7 @@ theorem views_preserved (old : Legacy.Scheme) (new : SecretRelease.Scheme challe
     funext i b
     simp [Legacy.ROM.outputPairs, splitKeys, pairs, SecretRelease.Pair.get]
   unfold SecretRelease.ROM.view Legacy.ROM.view viewBytes
-  simp only [hi, ho, garbles]
+  simp only [hi, ho, garbles, from_to, ← reference_preserved]
   exact congrArg₂ (fun a b => (⟨x,
     old.garbleBytes (SecretRelease.ROM.hash sample.2.2.2)
       (sample.2.2.1.cast sameCoins) (pairs sample.1) (pairs sample.2.1),a,b⟩ :

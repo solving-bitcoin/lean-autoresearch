@@ -33,7 +33,7 @@ theorem wins_iff (hash : Hash) (p : Unit) (input : Input) (coins : Bytes 3915904
   change (claim.2 = if h : claim.1.val < 512 then
     (inputs ⟨claim.1.val,h⟩).get (!(inputBit input ⟨claim.1.val,h⟩)) else
     (outputs ⟨claim.1.val-512,by omega⟩).get
-      (!(((reference input).get ⟨claim.1.val-512,by omega⟩).val == 1))) ↔ _
+      (!((Codec.byteVector 32).encode (reference input)).get (⟨claim.1.val-512,by omega⟩ : Fin 256))) ↔ _
   change _ ↔ ((externalEquiv (inputs,outputs)) claim.1).get (!(externalBits input claim.1)) = claim.2
   by_cases h : claim.1.val < 512
   · simp only [dif_pos h,externalEquiv,Equiv.coe_fn_mk,externalBits,dif_pos h,eq_comm]

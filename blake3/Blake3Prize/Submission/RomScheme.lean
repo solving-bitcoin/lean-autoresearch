@@ -54,17 +54,13 @@ def scheme : SecretRelease.Scheme challenge where
   evaluate := evaluate
 
 theorem input_encoded (input : Input) (i : Fin 512) :
-    ((bitCodec 512).encode input).get i = inputBit input i := by
-  delta bitCodec inputBit
-  simp only [Vector.get_map,Vector.get_eq_getElem]
-  apply Bool.eq_iff_iff.mpr
-  simp
+    ((SecretRelease.Codec.byteVector 64).encode input).get i = inputBit input i := rfl
 
 theorem input_reveal (hash : Hash) (inputs : Fin 512 → Pair) (input : Input) :
     challenge.inputs.reveal hash inputs input =
       pack ((List.finRange 512).map fun i => (inputs i).get (inputBit input i)) := by
   change pack ((List.finRange 512).map fun i =>
-    (inputs i).get (((bitCodec 512).encode input).get i)) = _
+    (inputs i).get (((SecretRelease.Codec.byteVector 64).encode input).get i)) = _
   apply congrArg pack
   apply List.map_congr_left
   intro i _
@@ -107,7 +103,7 @@ def inputBytes (inputs : Fin 512 → Pair) (input : Input) : ByteArray :=
 
 def outputBytes (outputs : Fin 256 → Pair) (input : Input) : ByteArray :=
   pack ((List.finRange 256).map fun i =>
-    (outputs i).get (((bitCodec 256).encode (reference input)).get i))
+    (outputs i).get (((SecretRelease.Codec.byteVector 32).encode (reference input)).get i))
 
 theorem unpack_inputBytes (inputs : Fin 512 → Pair) (input : Input) :
     RomPacking.unpack 512 (inputBytes inputs input) =
@@ -139,17 +135,14 @@ theorem evaluate_honest (hash : Hash) (coins : Bytes 3915904) (p : Unit)
     (by rw [tables_spec]; exact RomCells.read_garble _ _ _ _ _ _),unpack_inputBytes,initial_selected]
   rw [tables_spec,RomExecution.evaluate_garble,RomBlake3.program_correct]
   change some (pack (Vector.ofFn (fun i : Fin 256 =>
-    outKeys (assemble coins inputs outputs) i (((bitCodec 256).encode (reference input)).get i))).toList) = _
+    outKeys (assemble coins inputs outputs) i (((SecretRelease.Codec.byteVector 32).encode (reference input)).get i))).toList) = _
   simp only [assembled_output,Vector.toList_ofFn]
   rfl
 
 theorem correct : SecretRelease.Correct scheme := by
-  change ∀ (hash : Hash) (coins : Bytes 3915904) (p : Unit) (inputs : Fin 512 → Pair)
-    (outputs : Fin 256 → Pair) (input : Input),
-    (RomBytes.decode 7848000 (RomBytes.encode (garble hash coins p inputs outputs))).bind
-      (fun artifact => evaluate hash artifact input (challenge.inputs.reveal hash inputs input)) =
-        some (challenge.outputs.reveal hash outputs (reference input))
   intro hash coins p inputs outputs input
+  delta SecretRelease.Scheme.evaluateBytes SecretRelease.Scheme.garbleBytes
+  dsimp only [scheme]
   rw [RomBytes.decode_encode,Option.bind_some]
   exact (congrArg (evaluate hash (garble hash coins p inputs outputs) input)
     (input_reveal hash inputs input)).trans

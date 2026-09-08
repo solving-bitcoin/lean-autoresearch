@@ -93,13 +93,19 @@ def referenceExpressions : Vector BitExpr 256 :=
     ⟨i.val % 32, Nat.mod_lt _ (by decide)⟩
 
 theorem referenceExpressions_correct (input : Input) :
-    referenceExpressions.map (BitExpr.eval input) = reference input := by
+    referenceExpressions.map (BitExpr.eval input) =
+      ((SecretRelease.Codec.byteVector 32).encode (reference input)).map bitOfBool := by
   have h := referenceWordExpressions_correct input
   apply Vector.ext
   intro i hi
   have hv := congrArg (fun v : Vector Nat 8 => v[i / 32]'(by omega)) h
   simp only [Vector.getElem_map] at hv
-  delta reference outputBits
-  simp [referenceExpressions, hv]
+  change (referenceExpressions.map (BitExpr.eval input)).get ⟨i,hi⟩ =
+    (((SecretRelease.Codec.byteVector 32).encode (reference input)).map bitOfBool).get ⟨i,hi⟩
+  exact (show (referenceExpressions.map (BitExpr.eval input)).get ⟨i,hi⟩ =
+      bitOfBool (((referenceWords (inputWords input)).get ⟨i/32,by omega⟩).testBit (i%32)) from
+    (by simp [referenceExpressions, hv, Vector.get_eq_getElem])).trans
+      ((congrArg bitOfBool (ReferenceEncoding.reference_encoded input ⟨i,hi⟩)).symm.trans
+        (Vector.get_map _ _ _).symm)
 
 end Blake3Prize.Submission.HalfGates

@@ -124,8 +124,16 @@ The reference calls `Clean.Specs.BLAKE3.compress` from the MIT-licensed
 [Clean revision 93c9d1e](https://github.com/Verified-zkEVM/clean/blob/93c9d1ef45be9f687214625d7857889cf2485504/Clean/Specs/BLAKE3.lean).
 It uses the standard IV, counter 0, block length 64, flags
 `CHUNK_START | CHUNK_END | ROOT = 11`, and the first eight output words.
-This is the standard 32-byte hash of a 64-byte message. The official BLAKE3
-vector and optional 516 direct Clean byte/bit cases cross-check the specialization.
+The Lean interface is `SecretRelease.Bytes 64 → SecretRelease.Bytes 32`.
+Clean's `bytesToWords` parses the input directly; the shared `Codec.byteVector`
+supplies all label bits in byte-major, LSB-first order. The protected contract
+has no GF(2) codec or circuit-specific conversion proofs. The optional
+[byte-interface migration](Blake3Prize/Migration/ByteInterface.lean) proves
+reference equality, codec round trips, and identical wire bytes for every input;
+[Transport.lean](Blake3Prize/Migration/Transport.lean) preserves label selection,
+the winning predicate, and the experiment law.
+The official BLAKE3 vector and optional 516 direct reference cases cross-check
+the specialization.
 Attributions for Clean and Apache-2.0 VCVio are retained in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
@@ -142,14 +150,18 @@ Its executable Lean port declares and tests **707,680 bytes**:
 `32 + 512×65 + 10,281×64 + 256×64 = 707,680`.
 That is a measurement of this particular implementation. It lacks the full
 serialized-correctness and secrecy certificates required by the new contract,
-so **there is currently no ranked submission**. CI executes it through the generated tools and reports its measured bytes
-without turning that measurement into a ranked score.
+so that baseline remains uncertified. The current
+[submission](Blake3Prize/Submission/Solution.lean) instead supplies a complete
+correctness, serialization, size, and bounded-query ROM certificate for a
+**7,848,000-byte** four-row construction. The byte-interface migration preserves
+that certificate and bound. Changes to protected rules receive a non-ranking
+authoring preview until those rules are reviewed and merged.
 
 ## Generated tools and verification
 
 ```sh
 ./blake3/setup.sh
-./blake3/benchmark.sh --allow-unranked  # authoring only
+./blake3/benchmark.sh --authoring-preview  # when changing protected rules
 blake3/.yukon/bundle/challenge describe
 blake3/.yukon/bundle/garble coins.bin empty.bin input-keys.bin output-keys.bin artifact.bin
 blake3/.yukon/bundle/encode message.bin input-keys.bin known.bin active.bin
@@ -157,7 +169,8 @@ blake3/.yukon/bundle/evaluate artifact.bin known.bin active.bin output.bin
 ```
 
 The private-value file is empty. Input keys contain 512 ordered label pairs;
-output keys contain 256 ordered pairs. The baseline takes 16,448 coin bytes.
+output keys contain 256 ordered pairs. The certified submission takes 3,915,904
+coin bytes; the optional half-gates baseline takes 16,448.
 All fields use the [shared canonical byte protocol](../secret-release/ARCHITECTURE.md).
 The Rust SDK tests the reference against the official BLAKE3 crate, including
 all 512 one-bit messages, and checks selected labels through the real binaries.

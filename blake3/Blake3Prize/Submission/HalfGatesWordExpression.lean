@@ -1,4 +1,4 @@
-import Blake3Prize.Protected.Target
+import Blake3Prize.Submission.ReferenceEncoding
 import Mathlib.Lean.Expr.Basic
 
 namespace Blake3Prize.Submission.HalfGates

@@ -14,18 +14,11 @@ def messages : Array (Vector UInt8 64) :=
   (Array.range 512).map fun bit => Vector.ofFn fun i =>
     UInt8.ofNat (if i.val = bit / 8 then 2^(bit % 8) else 0)
 
-def inputOfBytes (message : Vector UInt8 64) : Input :=
-  Vector.ofFn fun i => bitOfBool (message[i.val / 8].toNat.testBit (i.val % 8))
-
-def bytesOfBits (bits : Output) : Vector Nat 32 :=
-  Vector.ofFn fun i => (List.finRange 8).foldl
-    (fun n j => n + bits[8*i.val+j.val].val * 2^j.val) 0
-
 def runChecks : IO Unit := do
   let references ← messages.mapM fun message => do
     let bytes := referenceBytes message
-    let bits := bytesOfBits (reference (inputOfBytes message))
-    unless bytes == bits do throw (IO.userError "Clean byte/bit packing mismatch")
+    let bits := (reference message).map UInt8.toNat
+    unless bytes == bits do throw (IO.userError "Clean reference byte packing mismatch")
     pure <| Lean.Json.mkObj [
       ("input", Lean.toJson (message.map UInt8.toNat).toArray),
       ("digest", Lean.toJson bytes.toArray)]

@@ -1,4 +1,4 @@
-import Blake3Prize.Protected.Reference
+import Blake3Prize.Migration.Legacy.Reference
 
 namespace Blake3Prize.Protected.Legacy
 
