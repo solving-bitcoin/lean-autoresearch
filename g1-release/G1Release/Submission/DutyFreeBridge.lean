@@ -1,4 +1,4 @@
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 import G1Release.Submission.DutyFreeOneHot
 
 /-! Four known bits are converted to a one-hot disclosure pattern. A fresh
@@ -7,7 +7,7 @@ each input label for a bit that differs from j. Thus every cell except the
 selected one can be opened. This bridge uses independent keys and fixed
 oracle addresses; it does not need a global Free-XOR correlation. -/
 namespace G1Release.Submission.DutyFreeBridge
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Label := Bytes 32
 abbrev Cell := Fin 16

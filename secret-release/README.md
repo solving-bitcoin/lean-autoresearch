@@ -149,9 +149,8 @@ Builds/tests are sequential: **8 GiB CI / 4 GiB local** aggregate build RSS,
 limits. Never set `GITHUB_ACTIONS=true` locally. Use the shared scripts rather
 than naked Lean, Lake or Cargo test invocations.
 
-The original root G1 ideal-pad challenge remains separate. Its 5,940,480-byte
-bound is not a shared finite-key ROM certificate. The runnable BLAKE3
-707,680-byte half-gates baseline likewise still lacks its complete certificate.
+The runnable BLAKE3 707,680-byte half-gates baseline still lacks its complete
+certificate.
 
 CI publishes `bundle.tar.gz`; extract it with `tar -xzf bundle.tar.gz` and set
 `SECRET_RELEASE_BUNDLE` to the resulting `bundle` directory. The tar preserves

@@ -33,19 +33,22 @@ def main():
             original + '\nnamespace SecretRelease\ndef evil := 0\nend SecretRelease\n',
             original + '\nnamespace G1Release.Protected\ndef evil := 0\nend G1Release.Protected\n',
             original + '\nnamespace G1Release.Tests\ndef evil := 0\nend G1Release.Tests\n',
+            original + '\nnamespace G1Release.Math\ndef evil := 0\nend G1Release.Math\n',
             'import G1Release.Protected.Runner\n' + original,
             'import G1Release.Tests.RunnerFixture\n' + original,
             'import G1Release.Tests.Contract\n' + original,
             'import SecretRelease.NativeHash\n' + original,
             'import SecretRelease.CLI\n' + original,
-            'import GarblingPrize.Protected.SHA256\n' + original,
-            'import GarblingPrize.Submission.Solution\n' + original,
+            'import G1Release.Math.SHA256\n' + original,
             original + '\n#eval IO.println "untrusted"\n',
         ):
             source.write_text(text); rejected(lambda: check_source(root))
         source.write_text(original)
         source.write_text('import SecretRelease.Profiles\n' + original)
         check_source(root)
+        for module in ('BN254','G1','PrimeCertificates.Base','Bytes'):
+            source.write_text(f'import G1Release.Math.{module}\n' + original)
+            check_source(root)
         source.write_text(original)
         for raw in (b'-1\n',b'01\n',b'1 2\n',b' 1\n',b'1\r\n',b'1\n\n',b'1e6\n'):
             score.write_bytes(raw); rejected(lambda: score_value(score))
@@ -60,7 +63,7 @@ def main():
     assert admission.admitted_entries(base, {**base, admission.PREFIX+'Solution.lean':changed})
     for path in ('g1-release/protected.sha256','secret-release/SecretRelease.lean',
                  'g1-release/scripts/boundary.py','.github/workflows/g1-release.yml',
-                 'GarblingPrize/Protected/G1.lean','g1-release/lakefile.lean'):
+                 'g1-release/G1Release/Math/G1.lean','g1-release/lakefile.lean'):
         rejected(lambda: admission.admitted_entries(base, {**base,path:changed}))
     # Recomputing the candidate digest along with replacement rules never helps.
     rejected(lambda: admission.admitted_entries(base, {**base,
@@ -72,7 +75,7 @@ def main():
         source=root/'Protected/Fixture.lean';source.parent.mkdir()
         source.write_text('-- protected fixture\n')
         with patch.object(boundary,'ROOT',root), patch.object(boundary,'REPO',root), \
-                patch.object(boundary,'SHARED',shared), patch.object(boundary,'REUSED_FILES',[]):
+                patch.object(boundary,'SHARED',shared):
             original=boundary.digest()
             for p in (root/'.DS_Store',source.parent/'.DS_Store',shared/'.DS_Store'):
                 p.write_bytes(b'local desktop metadata')

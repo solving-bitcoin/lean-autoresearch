@@ -1,7 +1,7 @@
 import CompPoly.Fields.PrattCertificate
-import GarblingPrize.Protected.BN254
+import G1Release.Math.BN254
 
-namespace GarblingPrize.Protected.BN254Certificates
+namespace G1Release.Math.BN254Certificates
 
 /-!
 # BN254 base-field certificate
@@ -15,4 +15,4 @@ by one particular projective formula belong to that submission.
 theorem baseFieldModulus_prime : baseFieldModulus.Prime := by
   unfold baseFieldModulus
   pratt
-end GarblingPrize.Protected.BN254Certificates
+end G1Release.Math.BN254Certificates

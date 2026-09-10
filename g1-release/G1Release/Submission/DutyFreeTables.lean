@@ -8,7 +8,7 @@ evaluation cache each row's pad values so hashing is not repeated by sums. -/
 namespace G1Release.Submission.DutyFreeTables
 open scoped BigOperators
 open DutyFreeOneHot
-open GarblingPrize.Protected
+open G1Release.Math
 set_option maxRecDepth 4096
 set_option maxHeartbeats 1000000
 

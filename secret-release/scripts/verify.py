@@ -35,8 +35,10 @@ def verify(boundary, guarded):
     score=boundary.score_value(args.submission/'score.txt')
     builds=[]; natives=[]
     from lean_source_policy import import_modules, code_without_comments_or_strings
-    r=guarded([sys.executable,repo/'secret-release/scripts/check_framework.py'],root,native=True)
-    natives.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)
+    for script in (repo/'secret-release/scripts/check_framework.py',
+                   repo/'scripts/check_verifier_regressions.py'):
+        r=guarded([sys.executable,script],root,native=True)
+        natives.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)
     for script in config.get('policyTests',[]):
         r=guarded([sys.executable,root/script],root,native=True)
         natives.append(r['peakMemoryBytes']);print(r['stdout'],end='',flush=True)

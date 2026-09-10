@@ -3,7 +3,7 @@ import G1Release.Submission.TernaryFullWidth
 
 namespace G1Release.Submission.RuntimeG1
 
-open GarblingPrize.Protected
+open G1Release.Math
 open WeierstrassCurve
 open WeierstrassCurve.Jacobian
 

@@ -2,7 +2,7 @@ import G1Release.Submission.BoundaryFacts
 
 namespace G1Release.Submission.G1Endomorphism
 
-open GarblingPrize.Protected
+open G1Release.Math
 open WeierstrassCurve
 
 abbrev Field := BN254.Fq

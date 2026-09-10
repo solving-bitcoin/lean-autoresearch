@@ -3,7 +3,7 @@ import G1Release.Submission.GLVFamilyFacts
 
 namespace G1Release.Submission.CosetGLV
 
-open GarblingPrize.Protected
+open G1Release.Math
 open EisensteinRadix GLVDigits
 open G1Release.Protected
 open Scheme (runtimeOfGroup toPoint_runtimeOfGroup inputAffine inputAffine_onCurve inputG1)

@@ -2,7 +2,7 @@ import G1Release.Submission.AffineTable
 import G1Release.Submission.PackedBits
 
 namespace G1Release.Submission.HintPayload
-open GarblingPrize.Protected
+open G1Release.Math
 open scoped BigOperators
 abbrev Word := AffineTable.Word
 abbrev WordBytes := Bytes 32

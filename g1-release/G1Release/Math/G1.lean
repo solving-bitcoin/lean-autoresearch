@@ -1,7 +1,7 @@
-import GarblingPrize.Protected.PrimeCertificates.Base
+import G1Release.Math.PrimeCertificates.Base
 import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 
-namespace GarblingPrize.Protected
+namespace G1Release.Math
 
 open WeierstrassCurve
 
@@ -116,4 +116,4 @@ def bn254 : Profile where
 
 end BN254
 
-end GarblingPrize.Protected
+end G1Release.Math

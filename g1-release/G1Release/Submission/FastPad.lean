@@ -26,7 +26,7 @@ def table (hash : Hash) (purpose : Nat) (packed : Fin 254 → Bool → ByteArray
   let rows := Vector.ofFn fun index : Fin 254 =>
     (FastPacking.encrypt (FastGarble.share params (masks.1 index) index false).val (pad hash (packed index false) purposeBytes index),
      FastPacking.encrypt (FastGarble.share params (masks.1 index) index true).val (pad hash (packed index true) purposeBytes index))
-  GarblingPrize.Protected.Bytes.ofFn fun k =>
+  G1Release.Math.Bytes.ofFn fun k =>
     let index : Fin 254 := ⟨k.val/64,by omega⟩
     let bit := decide (32 ≤ k.val%64)
     let j : Fin 32 := ⟨k.val%32,Nat.mod_lt _ (by decide)⟩
@@ -57,7 +57,7 @@ def encodeMap (hash : Hash) (index : Nat) (packed : Fin 512 → Bool → ByteArr
     let kind := ProjectiveMap.tableKindAt i
     table hash (ProjectiveMap.purpose index kind) (fun row b => packed (inputIndex kind row) b)
       (hidden.params kind) (masks kind)
-  GarblingPrize.Protected.Bytes.toByteArray (GarblingPrize.Protected.Bytes.ofFn fun k : Fin 178816 =>
+  G1Release.Math.Bytes.toByteArray (G1Release.Math.Bytes.ofFn fun k : Fin 178816 =>
     let ti : Fin 11 := ⟨k.val/16256,by omega⟩
     let off : Fin 16256 := ⟨k.val%16256,Nat.mod_lt _ (by decide)⟩
     (tables.get ti).get off)

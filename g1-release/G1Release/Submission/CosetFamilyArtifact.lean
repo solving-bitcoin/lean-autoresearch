@@ -2,7 +2,7 @@ import G1Release.Submission.CosetHintMap
 
 namespace G1Release.Submission.CosetFamilyArtifact
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-- A concrete vector prevents the compiler from eta-expanding the garbler
 into a per-map/per-table sampler. The function view below preserves the

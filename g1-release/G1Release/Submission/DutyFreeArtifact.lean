@@ -4,7 +4,7 @@ import G1Release.Submission.DutyFreeChunkParameters
 /-! The complete artifact is 8,192 bridge words followed by 728 affine
 tables of 65 words. Every stored word participates in the fixed serializer. -/
 namespace G1Release.Submission.DutyFreeArtifact
-open GarblingPrize.Protected
+open G1Release.Math
 set_option maxRecDepth 4096
 set_option maxHeartbeats 1000000
 

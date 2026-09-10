@@ -1,13 +1,13 @@
 import SecretRelease.Encoding
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 import Batteries.Data.Nat.Lemmas
 
 set_option maxHeartbeats 800000
 
 namespace G1Release.Protected
 open SecretRelease
-open GarblingPrize.Protected
-open GarblingPrize.Protected (CanonicalFq CanonicalScalar baseFieldModulus scalarFieldModulus)
+open G1Release.Math
+open G1Release.Math (CanonicalFq CanonicalScalar baseFieldModulus scalarFieldModulus)
 
 abbrev Input := {xy : CanonicalFq × CanonicalFq // BN254.OnCurve xy.1 xy.2}
 abbrev Output := BN254.CanonicalOutput

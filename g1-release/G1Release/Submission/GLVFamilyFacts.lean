@@ -1,7 +1,7 @@
 import G1Release.Submission.GLVDigits
 
 namespace G1Release.Submission.GLVDigits
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 open Scheme (inputG1)
 
 theorem map_get_finRange {α : Type*} (values : List α) (h : values.length = count) :

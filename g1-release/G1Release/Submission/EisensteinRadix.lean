@@ -138,19 +138,19 @@ def latticeB : Int := EisensteinKernel.kernelB
 
 def babaiC (scalar : Nat) : Int :=
   roundDiv (scalar * (EisensteinKernel.kernelA -
-    EisensteinKernel.kernelB)) GarblingPrize.Protected.scalarFieldModulus
+    EisensteinKernel.kernelB)) G1Release.Math.scalarFieldModulus
 
 def babaiD (scalar : Nat) : Int :=
   -roundDiv (scalar * EisensteinKernel.kernelB)
-    GarblingPrize.Protected.scalarFieldModulus
+    G1Release.Math.scalarFieldModulus
 
 def errorU (scalar : Nat) : Int :=
   scalar * (EisensteinKernel.kernelA - EisensteinKernel.kernelB) -
-    babaiC scalar * GarblingPrize.Protected.scalarFieldModulus
+    babaiC scalar * G1Release.Math.scalarFieldModulus
 
 def errorV (scalar : Nat) : Int :=
   scalar * EisensteinKernel.kernelB +
-    babaiD scalar * GarblingPrize.Protected.scalarFieldModulus
+    babaiD scalar * G1Release.Math.scalarFieldModulus
 
 def babai (scalar : Nat) : Value :=
   let c := babaiC scalar
@@ -197,17 +197,17 @@ theorem innerTwice_sq_le (left right : Value) :
   nlinarith [sq_nonneg (left.re * right.im - left.im * right.re)]
 
 theorem babai_error_bounds (scalar : Nat) :
-    -(GarblingPrize.Protected.scalarFieldModulus : Int) ≤ 2 * errorU scalar ∧
-      2 * errorU scalar < GarblingPrize.Protected.scalarFieldModulus ∧
-    -(GarblingPrize.Protected.scalarFieldModulus : Int) ≤ 2 * errorV scalar ∧
-      2 * errorV scalar < GarblingPrize.Protected.scalarFieldModulus := by
-  have hmod : 0 < GarblingPrize.Protected.scalarFieldModulus := by
+    -(G1Release.Math.scalarFieldModulus : Int) ≤ 2 * errorU scalar ∧
+      2 * errorU scalar < G1Release.Math.scalarFieldModulus ∧
+    -(G1Release.Math.scalarFieldModulus : Int) ≤ 2 * errorV scalar ∧
+      2 * errorV scalar < G1Release.Math.scalarFieldModulus := by
+  have hmod : 0 < G1Release.Math.scalarFieldModulus := by
     norm_num [BoundaryFacts.scalar_modulus]
   have hu := roundDiv_error
     (scalar * (EisensteinKernel.kernelA - EisensteinKernel.kernelB))
-    GarblingPrize.Protected.scalarFieldModulus hmod
+    G1Release.Math.scalarFieldModulus hmod
   have hv := roundDiv_error (scalar * EisensteinKernel.kernelB)
-    GarblingPrize.Protected.scalarFieldModulus hmod
+    G1Release.Math.scalarFieldModulus hmod
   simp only [errorU, errorV, babaiC, babaiD]
   constructor
   · exact hu.1
@@ -219,7 +219,7 @@ theorem babai_error_bounds (scalar : Nat) :
 
 private theorem lattice_norm :
     latticeA * latticeA - latticeA * latticeB + latticeB * latticeB =
-      (GarblingPrize.Protected.scalarFieldModulus : Int) := by
+      (G1Release.Math.scalarFieldModulus : Int) := by
   norm_num [latticeA, latticeB, EisensteinKernel.kernelA,
     EisensteinKernel.kernelB, BoundaryFacts.scalar_modulus]
 
@@ -241,11 +241,11 @@ theorem babai_errorV_coordinates (scalar : Nat) :
   ring
 
 theorem babai_norm_scaled (scalar : Nat) :
-    (GarblingPrize.Protected.scalarFieldModulus : Int) * norm (babai scalar) =
+    (G1Release.Math.scalarFieldModulus : Int) * norm (babai scalar) =
       errorU scalar ^ 2 + errorU scalar * errorV scalar + errorV scalar ^ 2 := by
   rw [babai_errorU_coordinates, babai_errorV_coordinates]
   simp only [norm]
-  rw [show (GarblingPrize.Protected.scalarFieldModulus : Int) =
+  rw [show (G1Release.Math.scalarFieldModulus : Int) =
     latticeA * latticeA - latticeA * latticeB + latticeB * latticeB by
       exact lattice_norm.symm]
   ring
@@ -344,26 +344,26 @@ private theorem error_cover (u v modulus : Int) (hmodulus : 0 ≤ modulus)
           (by omega : 0 ≤ u + v), sq_nonneg v]
 
 theorem shiftFirst_norm_scaled (scalar : Nat) (direction : Int) :
-    (GarblingPrize.Protected.scalarFieldModulus : Int) *
+    (G1Release.Math.scalarFieldModulus : Int) *
         norm (shiftFirst (babai scalar) direction) =
       errorNorm
-        (errorU scalar + direction * GarblingPrize.Protected.scalarFieldModulus)
+        (errorU scalar + direction * G1Release.Math.scalarFieldModulus)
         (errorV scalar) := by
   rw [babai_errorU_coordinates, babai_errorV_coordinates]
   simp only [shiftFirst, norm, errorNorm]
-  rw [show (GarblingPrize.Protected.scalarFieldModulus : Int) =
+  rw [show (G1Release.Math.scalarFieldModulus : Int) =
     latticeA * latticeA - latticeA * latticeB + latticeB * latticeB by
       exact lattice_norm.symm]
   ring
 
 theorem shiftSecond_norm_scaled (scalar : Nat) (direction : Int) :
-    (GarblingPrize.Protected.scalarFieldModulus : Int) *
+    (G1Release.Math.scalarFieldModulus : Int) *
         norm (shiftSecond (babai scalar) direction) =
       errorNorm (errorU scalar)
-        (errorV scalar - direction * GarblingPrize.Protected.scalarFieldModulus) := by
+        (errorV scalar - direction * G1Release.Math.scalarFieldModulus) := by
   rw [babai_errorU_coordinates, babai_errorV_coordinates]
   simp only [shiftSecond, norm, errorNorm]
-  rw [show (GarblingPrize.Protected.scalarFieldModulus : Int) =
+  rw [show (G1Release.Math.scalarFieldModulus : Int) =
     latticeA * latticeA - latticeA * latticeB + latticeB * latticeB by
       exact lattice_norm.symm]
   ring
@@ -425,18 +425,18 @@ theorem reduceScalar_norm_le_babai (scalar : Nat) :
         ((better_norm_le_right _ _).trans (le_refl _))))
 
 private theorem norm_le_third_of_scaled {candidate : Value} {scaled : Int}
-    (heq : (GarblingPrize.Protected.scalarFieldModulus : Int) *
+    (heq : (G1Release.Math.scalarFieldModulus : Int) *
       norm candidate = scaled)
     (hscaled : 3 * scaled ≤
-      (GarblingPrize.Protected.scalarFieldModulus : Int) ^ 2) :
-    3 * norm candidate ≤ GarblingPrize.Protected.scalarFieldModulus := by
-  have hmod : (0 : Int) < GarblingPrize.Protected.scalarFieldModulus := by
+      (G1Release.Math.scalarFieldModulus : Int) ^ 2) :
+    3 * norm candidate ≤ G1Release.Math.scalarFieldModulus := by
+  have hmod : (0 : Int) < G1Release.Math.scalarFieldModulus := by
     norm_num [BoundaryFacts.scalar_modulus]
   rw [← heq] at hscaled
   have hproduct :
-      (GarblingPrize.Protected.scalarFieldModulus : Int) * (3 * norm candidate) ≤
-        (GarblingPrize.Protected.scalarFieldModulus : Int) *
-          GarblingPrize.Protected.scalarFieldModulus := by
+      (G1Release.Math.scalarFieldModulus : Int) * (3 * norm candidate) ≤
+        (G1Release.Math.scalarFieldModulus : Int) *
+          G1Release.Math.scalarFieldModulus := by
     nlinarith
   exact (Int.mul_le_mul_left hmod).mp hproduct
 
@@ -444,12 +444,12 @@ private theorem norm_le_third_of_scaled {candidate : Value} {scaled : Int}
 hexagonal covering radius `r / 3`. -/
 theorem reduceScalar_norm_bound (scalar : Nat) :
     3 * norm (reduceScalar scalar) ≤
-      GarblingPrize.Protected.scalarFieldModulus := by
+      G1Release.Math.scalarFieldModulus := by
   have herrors := babai_error_bounds scalar
-  have hmodnonneg : (0 : Int) ≤ GarblingPrize.Protected.scalarFieldModulus := by
+  have hmodnonneg : (0 : Int) ≤ G1Release.Math.scalarFieldModulus := by
     norm_num [BoundaryFacts.scalar_modulus]
   have hcover := error_cover (errorU scalar) (errorV scalar)
-    GarblingPrize.Protected.scalarFieldModulus hmodnonneg
+    G1Release.Math.scalarFieldModulus hmodnonneg
     herrors.1 (by omega) herrors.2.2.1 (by omega)
   rcases hcover with hbase | hfirstNeg | hfirstPos | hsecondPos | hsecondNeg
   · have hcandidate := norm_le_third_of_scaled

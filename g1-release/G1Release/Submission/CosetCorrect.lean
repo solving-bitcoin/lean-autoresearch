@@ -1,7 +1,7 @@
 import G1Release.Submission.CosetScheme
 
 namespace G1Release.Submission.CosetScheme
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open GLVDigits CosetCoordinates FourAffineQuotient
 open Scheme (runtimeOfGroup toPoint_runtimeOfGroup inputG1 xBits yBits)
 set_option maxRecDepth 4096

@@ -2,7 +2,7 @@ import G1Release.Submission.ProjectiveMap
 
 namespace G1Release.Submission.ProjectiveMapPrivacy
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Submission
 
 abbrev Word := ProjectiveMap.Word

@@ -3,7 +3,7 @@ import G1Release.Submission.SchemeCorrect
 namespace G1Release.Submission.Scheme
 open SecretRelease
 open G1Release.Protected
-open GarblingPrize.Protected
+open G1Release.Math
 
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

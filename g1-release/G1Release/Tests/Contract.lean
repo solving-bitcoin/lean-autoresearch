@@ -1,7 +1,7 @@
 import G1Release.Protected.Target
 
 namespace G1Release.Tests
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 
 /-- At one fixed input, every map has a representative with zero scalar and
 an offset equal to the disclosed result. The privacy comparison is therefore

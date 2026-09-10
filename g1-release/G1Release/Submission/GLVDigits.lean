@@ -2,7 +2,7 @@ import G1Release.Submission.Scheme
 import G1Release.Submission.GLVOffsetFamily
 
 namespace G1Release.Submission.GLVDigits
-open GarblingPrize.Protected G1Release.Protected EisensteinRadix
+open G1Release.Math G1Release.Protected EisensteinRadix
 open Scheme (runtimeOfGroup toPoint_runtimeOfGroup inputAffine inputAffine_onCurve
   inputRuntime inputG1)
 abbrev Word := BN254.Fq

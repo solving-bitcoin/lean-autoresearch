@@ -2,7 +2,7 @@ import G1Release.Submission.GLVOffsetFamily
 import G1Release.Submission.SamplingEquivalences
 
 namespace G1Release.Submission.GLVSampling
-open GarblingPrize.Protected
+open G1Release.Math
 abbrev Hidden := G1Release.Protected.Private
 def offsetAlpha (point : BN254.G1) : BN254.G1 :=
   3 • point + G1Endomorphism.phi point

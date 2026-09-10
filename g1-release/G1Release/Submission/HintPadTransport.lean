@@ -6,7 +6,7 @@ namespace G1Release.Submission.HintPadTransport
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 4096
 
-open GarblingPrize.Protected
+open G1Release.Math
 open HintAffineTable
 
 abbrev MaskKey := BinaryFieldHint.Key BinaryFieldHint.modulus BinaryFieldHint.remainder

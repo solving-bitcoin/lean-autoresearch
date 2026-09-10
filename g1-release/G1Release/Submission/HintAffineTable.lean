@@ -3,7 +3,7 @@ import G1Release.Submission.HintPayload
 
 namespace G1Release.Submission.HintAffineTable
 
-open GarblingPrize.Protected
+open G1Release.Math
 open scoped BigOperators
 
 abbrev Purpose := Nat

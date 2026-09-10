@@ -6,7 +6,7 @@ namespace G1Release.Submission.CosetCorePrivacy
 quotient equivalence then transports each independent K state. Their skew
 product is a finite bijection on the entire constrained core randomness. -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Protected
 open GLVDigits (Hidden offsetAt digitAt)
 open CosetSlots (bitsFor)

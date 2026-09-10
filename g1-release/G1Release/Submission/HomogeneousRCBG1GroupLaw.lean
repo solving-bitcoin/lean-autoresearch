@@ -1,6 +1,6 @@
 import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.Tactic.NormNum.Parity
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 import G1Release.Submission.BaseFieldCharacters
 import G1Release.Submission.HomogeneousRCB
 import G1Release.Submission.JacobianAffineAddMap
@@ -30,7 +30,7 @@ doubling and inverse branches.  The executable conversion canonicalizes the
 inverse branch to Jacobian infinity.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open WeierstrassCurve
 open WeierstrassCurve.Jacobian
 
@@ -47,7 +47,7 @@ directly keeps polynomial normalization aligned with `BN254.curve`. -/
 abbrev curveB : Field := 3
 
 theorem curveB_eq_fromNat :
-    curveB = (GarblingPrize.Protected.curveB : BN254.Fq) := rfl
+    curveB = (G1Release.Math.curveB : BN254.Fq) := rfl
 
 abbrev Homogeneous := HomogeneousRCB.Point Field
 abbrev JacobianCoordinates := Fin 3 → Field

@@ -3,7 +3,7 @@ import G1Release.Submission.CosetSampler
 import G1Release.Submission.ProductSampling
 
 namespace G1Release.Submission.CosetSampler
-open GarblingPrize.Protected G1Release.Protected SecretRelease
+open G1Release.Math G1Release.Protected SecretRelease
 open MeasureTheory ProbabilityTheory
 open scoped BigOperators
 

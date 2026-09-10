@@ -3,7 +3,7 @@ import G1Release.Submission.AffineTable
 namespace G1Release.Submission.AffineTablePrivacy
 
 open scoped BigOperators
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Submission.AffineTable
 
 abbrev LocalPairs := Fin 254 → Bool → Label

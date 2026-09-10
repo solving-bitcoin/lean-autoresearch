@@ -3,7 +3,7 @@ import G1Release.Submission.RepresentativeAlignment
 
 namespace G1Release.Submission.FormulaSemantics
 
-open GarblingPrize.Protected
+open G1Release.Math
 open WeierstrassCurve
 open WeierstrassCurve.Jacobian
 

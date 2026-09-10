@@ -5,7 +5,7 @@ namespace G1Release.Submission.G1OrderCertificates
 set_option maxRecDepth 1000000
 set_option maxHeartbeats 10000000
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1CertificateBase
 open G1GeneratorCertificateBase
 

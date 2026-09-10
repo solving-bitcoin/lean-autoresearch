@@ -2,7 +2,7 @@ import G1Release.Submission.CosetIdealView
 import G1Release.Submission.OracleLaw
 
 namespace G1Release.Submission.CosetRealIdeal
-open SecretRelease GarblingPrize.Protected G1Release.Protected
+open SecretRelease G1Release.Math G1Release.Protected
 open CosetSlots CosetSampler
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

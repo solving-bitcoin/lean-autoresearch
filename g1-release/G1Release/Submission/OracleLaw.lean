@@ -1,12 +1,12 @@
 import G1Release.Submission.FiniteProbability
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 
 /-! Random-function facts for the protected countable-product ROM.
 Injective coordinate selection followed by fixed XOR masks preserves the
 ideal random-function law, without a finite-domain/lazy-oracle assumption. -/
 namespace G1Release.Submission.OracleLaw
 open SecretRelease MeasureTheory ProbabilityTheory
-open GarblingPrize.Protected
+open G1Release.Math
 
 noncomputable def law (D : Type*) : Measure (D → Label) :=
   Measure.infinitePi fun _ : D => uniformOn (Set.univ : Set Label)

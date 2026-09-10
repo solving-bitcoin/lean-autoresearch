@@ -17,19 +17,15 @@ prepare_generated_cache_excludes = common.prepare_generated_cache_excludes
 shared_source_files = common.shared_source_files
 score_value = common.score_value
 
-MATH_FILES = [REPO/'GarblingPrize/Protected'/name for name in
-              ('BN254.lean','PrimeCertificates/Base.lean','G1.lean','Bytes.lean')]
-REUSED_FILES = MATH_FILES
-
 def protected_files():
     paths = [p for p in ROOT.rglob('*')
              if not any(x in ('.lake','.yukon','__pycache__','Submission') for x in p.relative_to(ROOT).parts)
              and p.name not in ('protected.sha256','.DS_Store')]
-    paths += shared_source_files(SHARED) + REUSED_FILES
+    paths += shared_source_files(SHARED)
     paths += [REPO/'blake3/scripts'/n for n in ('resources.py','policy.py','check_overlay.py')]
-    paths += [REPO/'scripts'/n for n in ('run_with_rss.py','verify_submission.py',
+    paths += [REPO/'scripts'/n for n in ('run_with_rss.py','verifier_common.py',
               'check_submission.py','lean_source_policy.py','dependency_builds.py',
-              'protected_tree.py','render_benchmark_challenge.py')]
+              'check_verifier_regressions.py')]
     paths += list((REPO/'.github/workflows').glob('secret-release*.yml'))
     for p in paths:
         if p.is_symlink(): raise SystemExit('G1_RELEASE_PROTECTED_REJECTED: symlink')
@@ -48,8 +44,8 @@ def check_protected():
 
 def check_source(submission):
     policy = common.source_policy
-    policy.VERIFIER_OWNED_NAMESPACES = (('G1Release','Protected'),('G1Release','Tests'),('GarblingPrize',),('SecretRelease',))
-    pure_math = {'GarblingPrize.Protected.'+n for n in ('BN254','G1','PrimeCertificates.Base','Bytes')}
+    policy.VERIFIER_OWNED_NAMESPACES = (('G1Release','Protected'),('G1Release','Tests'),('G1Release','Math'),('SecretRelease',))
+    pure_math = {'G1Release.Math.'+n for n in ('BN254','G1','PrimeCertificates.Base','Bytes')}
     policy.allowed_import = lambda m: (m in pure_math or m in {
         'G1Release.Protected.Target','G1Release.Protected.Codecs',
         'SecretRelease','SecretRelease.Encoding','SecretRelease.Profiles','SecretRelease.Runtime','SecretRelease.Simulation','SecretRelease.Examples'} or

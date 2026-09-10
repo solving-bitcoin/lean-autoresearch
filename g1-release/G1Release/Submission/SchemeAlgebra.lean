@@ -1,7 +1,7 @@
 import G1Release.Submission.Scheme
 
 namespace G1Release.Submission.Scheme
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Protected
 open G1Release.Submission.BalancedTernary
 

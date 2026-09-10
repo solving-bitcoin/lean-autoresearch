@@ -13,7 +13,7 @@ those digits directly in BN254 G1, where `omega` is the checked coordinate
 endomorphism and the Horner multiplier is `3 + omega`.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Submission.EisensteinRadix
 
 noncomputable section

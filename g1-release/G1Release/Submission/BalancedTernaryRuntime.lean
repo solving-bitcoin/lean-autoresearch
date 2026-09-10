@@ -1,4 +1,4 @@
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 
 namespace G1Release.Submission.BalancedTernary
 
@@ -16,7 +16,7 @@ the low digit is `(n + 1) % 3` and the remaining balanced word encodes
 `(n + 1) / 3`.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-- One signed radix-three digit. -/
 inductive Digit where

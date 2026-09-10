@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 import re
 
@@ -28,10 +27,9 @@ FORBIDDEN_DIRECTIVES = (
     re.compile(r"\bset_option\s+(debug\.skipKernelTC|trustLevel)\b"),
 )
 
-VERIFIER_OWNED_NAMESPACES = (
-    ("GarblingPrize", "Protected"),
-    ("GarblingPrize", "Executable"),
-)
+# Each challenge configures its protected namespaces and allowed imports before
+# checking a submission. Direct use without that configuration fails closed.
+VERIFIER_OWNED_NAMESPACES: tuple[tuple[str, ...], ...] = ((),)
 
 
 def namespace_is_verifier_owned(parts: tuple[str, ...]) -> bool:
@@ -43,7 +41,7 @@ def check_namespace_ownership(code: str, path: Path) -> None:
 
     This is defense in depth: the runner is independently elaborated before a
     submission is imported. The lightweight command-stack handling covers both
-    `namespace GarblingPrize.Executable` and nested namespace spelling.
+    qualified and nested namespace spelling.
     """
     current: tuple[str, ...] = ()
     command_stack: list[tuple[str, tuple[str, ...]]] = []
@@ -89,14 +87,7 @@ def reject(message: str) -> None:
 
 
 def allowed_import(module: str) -> bool:
-    return (
-        module == "GarblingPrize.Protected.Target"
-        or module.startswith("GarblingPrize.Submission.")
-        or module == "Mathlib"
-        or module.startswith("Mathlib.")
-        or module == "CompPoly"
-        or module.startswith("CompPoly.")
-    )
+    return False
 
 
 def check_submission(submission: Path) -> None:
@@ -152,11 +143,7 @@ def check_submission(submission: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("submission", type=Path)
-    args = parser.parse_args()
-    check_submission(args.submission.resolve())
-    print("ok — submission source policy")
+    raise SystemExit("Use the challenge's source checker to configure its policy.")
 
 
 if __name__ == "__main__":

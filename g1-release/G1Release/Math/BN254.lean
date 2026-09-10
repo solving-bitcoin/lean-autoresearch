@@ -2,7 +2,7 @@ import Mathlib.Algebra.Group.Defs
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.ZMod.Defs
 
-namespace GarblingPrize.Protected
+namespace G1Release.Math
 
 /-!
 # Self-contained BN254 challenge profile boundary
@@ -46,4 +46,4 @@ structure Profile where
 
 end BN254
 
-end GarblingPrize.Protected
+end G1Release.Math

@@ -6,7 +6,7 @@ labels and the base oracle. Offset/quotient transport and independent row
 transports form a bijection of core randomness, row coins, and inactive
 oracle answers. The resulting artifact is unchanged pointwise. -/
 namespace G1Release.Submission.CosetViewCoupling
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open CosetSlots CosetIdealView
 abbrev Core := CosetRandomness.Randomness
 abbrev Answers := Slot → Label

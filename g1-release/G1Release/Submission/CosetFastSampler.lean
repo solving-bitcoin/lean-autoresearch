@@ -5,7 +5,7 @@ import G1Release.Submission.FixedBase
 blocks with machine words and sharing one fixed-base multiplication table
 changes neither the sampled values nor their proved distribution. -/
 namespace G1Release.Submission.CosetFastSampler
-open SecretRelease G1Release.Protected GarblingPrize.Protected CosetSampler
+open SecretRelease G1Release.Protected G1Release.Math CosetSampler
 
 def coordinates (coins : SecretRelease.Bytes coinBytes) : RawValues := fun c =>
   ModuloSampling.sample (2^512) (rawModulus c) (rawModulus_pos c)

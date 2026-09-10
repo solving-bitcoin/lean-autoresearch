@@ -5,7 +5,7 @@ import G1Release.Submission.ModuloSampling
 a short seed is deliberately not an unproved extra cryptographic step. The
 modulo-sampling approximation remains an explicit probability obligation. -/
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected SecretRelease
+open G1Release.Math G1Release.Protected SecretRelease
 
 def coordinateCount : Nat := 449672
 def coinBytes : Nat := coordinateCount * 64

@@ -2,7 +2,7 @@ import G1Release.Submission.HomogeneousRCB
 
 namespace G1Release.Submission.RepresentativeAlignment
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Word := BN254.Fq
 abbrev Point := HomogeneousRCB.Point Word

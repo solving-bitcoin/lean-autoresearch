@@ -11,7 +11,7 @@ SHARED=REPO/'secret-release'
 sys.path.insert(0,str(REPO/'scripts'))
 import check_submission as source_policy
 from dependency_builds import write_snapshot,verify_snapshot
-from verify_submission import verify_dependency_sources
+from verifier_common import verify_dependency_sources
 
 SNAPSHOT=ROOT/'.lake/trusted-dependency-builds.json'
 CONFIG_SNAPSHOT=ROOT/'.lake/trusted-dependency-configs.sha256'
@@ -101,8 +101,8 @@ def protected_files():
            and p.name not in ('protected.sha256','.DS_Store')]
     paths.extend(shared_source_files())
     paths.extend(REPO/'scripts'/name for name in (
-        'run_with_rss.py','verify_submission.py','check_submission.py','lean_source_policy.py',
-        'dependency_builds.py','protected_tree.py','render_benchmark_challenge.py'))
+        'run_with_rss.py','verifier_common.py','check_submission.py','lean_source_policy.py',
+        'dependency_builds.py','check_verifier_regressions.py'))
     for name in ('secret-release.yml','secret-release-submission.yml'):
         workflow=REPO/'.github/workflows'/name
         if workflow.exists():paths.append(workflow)
@@ -137,7 +137,7 @@ def check_source(submission):
 
 
 def score_value(path):
-    from render_benchmark_challenge import parse_score
+    from verifier_common import parse_score
     if Path(path).read_bytes()==b'unranked\n':return None
     return parse_score(Path(path))
 

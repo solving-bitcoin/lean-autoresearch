@@ -1,6 +1,6 @@
 import G1Release.Submission.HintPayload
 namespace G1Release.Submission.HintPayloadPrivacy
-open GarblingPrize.Protected HintPayload
+open G1Release.Math HintPayload
 def translatePad (oldPayload newPayload pad : WordBytes) : WordBytes :=
   Bytes.xor newPayload (Bytes.xor oldPayload pad)
 

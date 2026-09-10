@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "challenges": [
     {
-      "slug": "bn254-g1-hidden-affine-map",
-      "version": "bn254-g1-hidden-affine-map",
+      "slug": "g1-release",
+      "version": "g1-release",
       "status": "active",
       "direction": "minimize",
-      "metric": "universal_artifact_byte_bound",
+      "metric": "universal_serialized_artifact_byte_bound",
       "unit": "bytes"
     },
     {

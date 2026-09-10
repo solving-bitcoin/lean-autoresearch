@@ -1,5 +1,5 @@
 import G1Release.Submission.BoundaryFacts
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 import G1Release.Submission.BalancedTernaryRuntime
 
 namespace G1Release.Submission.BalancedTernary
@@ -13,7 +13,7 @@ the exact range, decode, and frozen-profile correctness theorems under their
 existing public names.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 namespace Digit
 

@@ -9,7 +9,7 @@ set_option maxHeartbeats 1000000
 set_option maxRecDepth 4096
 set_option exponentiation.threshold 1024
 open scoped BigOperators
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Chunk := Fin 64
 abbrev Cell := DutyFreeBridge.Cell

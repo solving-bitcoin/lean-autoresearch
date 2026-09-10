@@ -3,7 +3,7 @@ import G1Release.Submission.RuntimeG1
 
 namespace G1Release.Submission.RuntimeG1
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 local instance concreteGroup : AddCommGroup BN254.G1 :=
   inferInstance

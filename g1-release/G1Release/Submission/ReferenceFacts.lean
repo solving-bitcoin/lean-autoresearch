@@ -1,7 +1,7 @@
 import G1Release.Protected.Target
 
 namespace G1Release.Submission
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 
 theorem encodeOutput_injective : Function.Injective encodeOutput := by
   intro x y h

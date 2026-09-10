@@ -3,7 +3,7 @@ import SecretRelease.Profiles
 
 namespace G1Release.Protected
 open SecretRelease
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-- Exact BN254 group semantics; A is a valid finite-affine point. -/
 def reference (p : Private) (a : Input) : Output :=

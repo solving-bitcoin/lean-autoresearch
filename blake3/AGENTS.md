@@ -1,6 +1,6 @@
 # BLAKE3 challenge boundary
 
-This challenge is separate from GarblingPrize. Contestants edit only
+This challenge uses the shared SecretRelease contract. Contestants edit only
 Blake3Prize/Submission/*.lean and its score.txt. Challenge-authoring changes
 require explicit user authorization; this PR is authorized to redesign the
 protected contract and use VCVio on Lean 4.33.1.

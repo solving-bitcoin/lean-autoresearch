@@ -4,7 +4,7 @@ import G1Release.Submission.SchemeCert
 the distribution of the eventual byte-tape sampler is a separate obligation.
 In particular, the offset fiber fixes only the Horner sum, not its entries. -/
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected SecretRelease
+open G1Release.Math G1Release.Protected SecretRelease
 open G1Release.Submission.BalancedTernary
 
 abbrev Hidden := Private

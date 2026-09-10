@@ -2,7 +2,7 @@ import G1Release.Submission.G1Endomorphism
 
 namespace G1Release.Submission.EisensteinKernel
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-!
 # Checked constants behind the 7-ary BN254 GLV decomposition

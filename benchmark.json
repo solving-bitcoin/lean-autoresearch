@@ -1,16 +1,26 @@
 {
   "schemaVersion": 2,
-  "name": "bn254-g1-garbling-prize",
+  "name": "lean-autoresearch",
   "tracks": [
     {
-      "name": "bn254-g1-hidden-affine-map",
-      "description": "Minimize the universally bounded serialized artifact for a Lean-verified one-shot garbling of Q + [r]A on BN254 G1, with a protected seeded internal oracle and independently supplied labels.",
+      "name": "g1-release",
+      "description": "Minimize the universally bounded serialized artifact for BN254 Q + [r]A under the shared SecretRelease contract, with correctness, codec, opposite-label secrecy, and private-map privacy proofs.",
       "category": "lean",
       "direction": "-",
-      "editablePaths": ["GarblingPrize/Submission"],
-      "setupCommand": ["bash", "-lc", "./setup.sh"],
-      "benchmarkCommand": ["bash", "-lc", "./benchmark.sh"],
-      "scorePath": ".yukon/bn254-g1-hidden-affine-map-score.json"
+      "editablePaths": [
+        "g1-release/G1Release/Submission"
+      ],
+      "setupCommand": [
+        "bash",
+        "-lc",
+        "./g1-release/setup.sh"
+      ],
+      "benchmarkCommand": [
+        "bash",
+        "-lc",
+        "./g1-release/benchmark.sh"
+      ],
+      "scorePath": "g1-release/.yukon/g1-release-score.json"
     },
     {
       "name": "blake3-64-labeled-hash",

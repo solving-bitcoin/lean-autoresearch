@@ -6,7 +6,7 @@ coupling preserves every selected affine value. Hence its coefficient change
 is absorbed by the selected pads without changing any serialized join or
 decoder. The map on finite raw pads is a bijection, including its small tail. -/
 namespace G1Release.Submission.DutyFreeViewCoupling
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open DutyFreeLayout DutyFreeSlots DutyFreeIdeal
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

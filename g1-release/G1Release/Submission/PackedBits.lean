@@ -2,7 +2,7 @@ import G1Release.Submission.HintCodec
 
 namespace G1Release.Submission.PackedBits
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-! A linear-time, byte-aligned codec for bit functions. -/
 

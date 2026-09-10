@@ -1,4 +1,4 @@
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 import G1Release.Submission.PowCertificate
 
 namespace G1Release.Submission.BaseFieldCharacters
@@ -10,7 +10,7 @@ These are not properties required by the challenge contract. They are
 submission-owned facts used to prove totality of the official projective map.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open PowCertificate
 
 def modulus : Nat := baseFieldModulus

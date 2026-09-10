@@ -1,12 +1,12 @@
 import G1Release.Protected.Target
 import G1Release.Submission.BoundaryFacts
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 
 set_option maxRecDepth 4096
 set_option maxHeartbeats 200000
 
 namespace G1Release.Submission.FixedBase
-open GarblingPrize.Protected
+open G1Release.Math
 
 /-- Consecutive powers reuse four doublings per window. -/
 def rows (base : BN254.G1) : Nat → List (Vector BN254.G1 16)
