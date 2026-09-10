@@ -1,12 +1,12 @@
 import G1Release.Submission.DutyFreeOneHot
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 import Mathlib.Algebra.BigOperators.Ring.Finset
 
 /-! Arbitrary-precision integer accumulation followed by one field reduction
 is exactly the same ring sum. It avoids reducing every intermediate addend
 in the concrete duty-free tables. There is no machine-word overflow premise. -/
 namespace G1Release.Submission.DutyFreeNaturalSums
-open GarblingPrize.Protected
+open G1Release.Math
 open scoped BigOperators
 
 abbrev Word := BN254.Fq

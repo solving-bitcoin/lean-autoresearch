@@ -10,7 +10,7 @@ encode exactly the quotient already proved in CosetAffineMap. Their codec
 has a fixed length of 8 * 8160 = 65280 bytes and both inverse laws.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open CosetCoordinates FourAffineQuotient
 open HintAffineTable (Purpose PadFamily)
 open scoped QuadraticAlgebra

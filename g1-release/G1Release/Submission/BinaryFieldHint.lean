@@ -433,12 +433,12 @@ theorem sample_transport {p n : Nat} (hp : 0 < p) (hn : 0 < n) (hnp : n < p)
   rw [sample_coordinates_symm]
   rfl
 
-def modulus : Nat := GarblingPrize.Protected.baseFieldModulus
+def modulus : Nat := G1Release.Math.baseFieldModulus
 def binaryRange : Nat := 2 ^ 255
 def remainder : Nat := binaryRange - 2 * modulus
 
 theorem concrete_range : 2 * modulus < binaryRange ∧ binaryRange < 3 * modulus := by
-  norm_num [modulus, binaryRange, GarblingPrize.Protected.baseFieldModulus]
+  norm_num [modulus, binaryRange, G1Release.Math.baseFieldModulus]
 
 theorem concrete_remainder : 0 < remainder ∧ remainder < modulus := by
   have := concrete_range

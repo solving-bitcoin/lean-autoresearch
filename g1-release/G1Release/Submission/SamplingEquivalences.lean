@@ -2,7 +2,7 @@ import G1Release.Submission.G1Cardinality
 import G1Release.Submission.FreeRandomness
 
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 
 def standardGenerator : BN254.G1 :=
   BN254.ofAffine ⟨1, by norm_num [baseFieldModulus]⟩

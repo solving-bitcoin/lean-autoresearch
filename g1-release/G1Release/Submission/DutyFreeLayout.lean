@@ -6,7 +6,7 @@ import G1Release.Submission.CosetHintMap
 plain-field purposes start at 8,192. Both integer fields fit the already
 proved 16-bit injectivity bounds of the existing 48-byte oracle address. -/
 namespace G1Release.Submission.DutyFreeLayout
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 
 abbrev Side := Fin 2
 abbrev Chunk := Fin 64

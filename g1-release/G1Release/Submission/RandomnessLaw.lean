@@ -2,7 +2,7 @@ import G1Release.Submission.RandomnessCoupling
 import G1Release.Submission.FiniteProbability
 
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected MeasureTheory ProbabilityTheory
+open G1Release.Math G1Release.Protected MeasureTheory ProbabilityTheory
 
 private def pointCode : BN254.G1 → Option (BN254.Fq × BN254.Fq)
   | .zero => none

@@ -1,10 +1,10 @@
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 import G1Release.Submission.HomogeneousRCB
 import G1Release.Submission.AffineTable
 
 namespace G1Release.Submission.ProjectiveMap
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Word := BN254.Fq
 abbrev Table := AffineTable.Table
@@ -387,23 +387,23 @@ def tableKindAt (index : Fin 11) : TableKind :=
   interval_cases hvalue : index.val <;>
     simp [tableKindAt, TableKind.finIndex, TableKind.index, hvalue]
 
-def encodeVec (artifact : Artifact) : GarblingPrize.Protected.Bytes 178816 :=
-  GarblingPrize.Protected.Bytes.ofFn fun k =>
+def encodeVec (artifact : Artifact) : G1Release.Math.Bytes 178816 :=
+  G1Release.Math.Bytes.ofFn fun k =>
     let ti : Fin 11 := ⟨k.val / 16256, by omega⟩
     let off : Fin 16256 := ⟨k.val % 16256, Nat.mod_lt _ (by decide)⟩
     (artifact.tables (tableKindAt ti)).get off
 
 def encode (artifact : Artifact) : ByteArray :=
-  GarblingPrize.Protected.Bytes.toByteArray (encodeVec artifact)
+  G1Release.Math.Bytes.toByteArray (encodeVec artifact)
 
 @[simp] theorem encode_size (artifact : Artifact) :
     (encode artifact).size = mapByteCount := by
   simp [encode, encodeVec, mapByteCount, tableByteCount, AffineTable.tableByteCount]
 
 def decode (input : ByteArray) : Option Artifact :=
-  (GarblingPrize.Protected.Bytes.ofByteArray? 178816 input).map fun vec =>
+  (G1Release.Math.Bytes.ofByteArray? 178816 input).map fun vec =>
     { tables := fun kind =>
-        GarblingPrize.Protected.Bytes.ofFn fun off =>
+        G1Release.Math.Bytes.ofFn fun off =>
           vec.get ⟨kind.finIndex.val * 16256 + off.val, by
             have hk := kind.finIndex.isLt
             have ho := off.isLt
@@ -418,7 +418,7 @@ private theorem tableOffset_mod (kind : TableKind) (j : Nat) (hj : j < 16256) :
 theorem decode_encode (artifact : Artifact) :
     decode (encode artifact) = some artifact := by
   unfold decode encode
-  rw [GarblingPrize.Protected.Bytes.ofByteArray?_toByteArray]
+  rw [G1Release.Math.Bytes.ofByteArray?_toByteArray]
   simp only [Option.map_some]
   apply congrArg some
   apply Artifact.ext
@@ -432,26 +432,26 @@ theorem decode_encode (artifact : Artifact) :
   have hidx : (⟨(kind.finIndex.val * 16256 + j) / 16256, hlt⟩ : Fin 11) =
       kind.finIndex := Fin.ext hdiv
   have hjmod : j % 16256 = j := Nat.mod_eq_of_lt hj
-  simp [encodeVec, GarblingPrize.Protected.Bytes.ofFn, Vector.getElem_ofFn,
+  simp [encodeVec, G1Release.Math.Bytes.ofFn, Vector.getElem_ofFn,
     hidx, tableKindAt_finIndex, Vector.get_eq_getElem, hjmod]
 
 set_option maxRecDepth 4096 in
 theorem encode_decode {bytes : ByteArray} {artifact : Artifact}
     (h : decode bytes = some artifact) : encode artifact = bytes := by
   unfold decode at h
-  cases hvec : GarblingPrize.Protected.Bytes.ofByteArray? 178816 bytes with
+  cases hvec : G1Release.Math.Bytes.ofByteArray? 178816 bytes with
   | none => simp [hvec] at h
   | some vec =>
       simp only [hvec, Option.map_some, Option.some.injEq] at h
       subst artifact
-      have hb : bytes = GarblingPrize.Protected.Bytes.toByteArray vec :=
-        GarblingPrize.Protected.Bytes.ofByteArray?_eq_some_iff.mp hvec
+      have hb : bytes = G1Release.Math.Bytes.toByteArray vec :=
+        G1Release.Math.Bytes.ofByteArray?_eq_some_iff.mp hvec
       rw [hb, encode]
-      apply congrArg GarblingPrize.Protected.Bytes.toByteArray
+      apply congrArg G1Release.Math.Bytes.toByteArray
       apply Vector.ext
       intro k hk
       unfold encodeVec
-      simp only [GarblingPrize.Protected.Bytes.ofFn, Vector.getElem_ofFn,
+      simp only [G1Release.Math.Bytes.ofFn, Vector.getElem_ofFn,
         finIndex_tableKindAt, Vector.get_eq_getElem]
       congr 1
       rw [Nat.mul_comm]

@@ -5,7 +5,7 @@ set_option maxRecDepth 4096
 set_option maxHeartbeats 400000
 
 namespace G1Release.Submission.FastHintRow
-open GarblingPrize.Protected HintAffineTable
+open G1Release.Math HintAffineTable
 open scoped BigOperators
 
 /-- The last byte contains six ciphertext bits and the public hint. -/

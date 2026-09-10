@@ -7,7 +7,7 @@ namespace G1Release.Submission.CosetGroupLaw
 then makes ordinary distinct-abscissa addition complete on the coset, even
 when the corresponding base-field sum is infinity or a doubling. -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open CosetCoordinates
 open scoped QuadraticAlgebra
 

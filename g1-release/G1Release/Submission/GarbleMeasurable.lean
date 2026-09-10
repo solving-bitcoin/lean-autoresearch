@@ -5,7 +5,7 @@ set_option maxRecDepth 4096
 set_option maxHeartbeats 800000
 
 namespace G1Release.Submission.GarbleMeasurable
-open GarblingPrize.Protected SecretRelease G1Release.Protected
+open G1Release.Math SecretRelease G1Release.Protected
 open Randomized IdealView MeasureTheory MeasurableModels
 
 abbrev Halves := Slot × Bool → Label

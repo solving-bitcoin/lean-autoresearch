@@ -5,7 +5,7 @@ import G1Release.Submission.EventBounds
 two 256-bit answers. A union bound covers all 728 × 64 selected field pads;
 no independence between failure events is needed for this bound. -/
 namespace G1Release.Submission.DutyFreePadLaw
-open MeasureTheory ProbabilityTheory SecretRelease GarblingPrize.Protected
+open MeasureTheory ProbabilityTheory SecretRelease G1Release.Math
 open DutyFreeLayout DutyFreeIdeal
 set_option exponentiation.threshold 1024
 

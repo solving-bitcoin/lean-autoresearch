@@ -1,9 +1,9 @@
 import G1Release.Submission.BoundaryFacts
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 
 namespace G1Release.Submission
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 inductive WireDecodeError where
   | invalidLength | unexpectedEnd | trailingBytes

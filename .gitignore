@@ -10,10 +10,6 @@
 *.o
 *.a
 *.c
-!native/sha256.c
-
-# Generated ranked-claim binding (rendered from score.txt)
-GarblingPrize/Benchmark/Challenge.lean
 
 # Yukon local state and verifier result JSON
 .yukon/

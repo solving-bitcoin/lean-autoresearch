@@ -65,7 +65,7 @@ theorem coordinates_eq (coins : SecretRelease.Bytes coinBytes) : coordinates coi
     (FlatBlock.toFin_eq (count := coordinateCount) coins (coordinateSlot c))
 
 /-- Reuse one fixed-base table for all 160 random point coordinates. -/
-def freeValues (base : GarblingPrize.Protected.BN254.G1) (raw : RawValues) : FreeRandomness :=
+def freeValues (base : G1Release.Math.BN254.G1) (raw : RawValues) : FreeRandomness :=
   let tables := FixedBase.table base
   { offsets := offsetTailEquiv (fun i => FixedBase.multiply tables (raw (.offset i)).val)
     scales := fun i => unitFromFin (raw (.randomizer i))

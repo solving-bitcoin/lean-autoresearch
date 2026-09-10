@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import resources
 from resources import guarded
-from verify_submission import run_limited
+from verifier_common import run_limited
 
 # Capture configuration only: never start an 8 GiB process on the local host.
 for marker in ('', 'false', '1', 'true'):

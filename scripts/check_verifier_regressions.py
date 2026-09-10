@@ -15,7 +15,7 @@ from unittest import mock
 
 import run_with_rss
 from dependency_builds import verify_snapshot, write_snapshot
-from verify_submission import artifact_within_bound, audit_submission_symbols, run_limited
+from verifier_common import run_limited
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,7 +149,7 @@ def check_resource_wrapper() -> None:
                    "stdout": "old-prefix" + "x" * 8192 + "last-module",
                    "stderr": "compiler context"}
     helper = subprocess.CompletedProcess([], 0, json.dumps(measurement), "")
-    with mock.patch("verify_submission.subprocess.run", return_value=helper):
+    with mock.patch("verifier_common.subprocess.run", return_value=helper):
         try:
             run_limited([PYTHON], ROOT, 5, 64, 65536, 65536, 8, 65536,
                         HELPER, "diagnostic regression")
@@ -162,73 +162,6 @@ def check_resource_wrapper() -> None:
             raise AssertionError("memory overrun was accepted")
 
     print("ok — fail-closed resource wrapper regressions")
-
-
-def check_artifact_bound_property() -> None:
-    for score in range(64):
-        for artifact in range(96):
-            assert artifact_within_bound(artifact, score) is (artifact <= score)
-    assert not artifact_within_bound(-1, 0)
-    assert not artifact_within_bound(True, 1)
-    assert not artifact_within_bound("0", 1)
-    print("ok — inclusive variable-artifact bound property")
-
-
-def check_symbol_audit_layer() -> None:
-    compiler = shutil.which("cc")
-    if compiler is None:
-        raise SystemExit("REGRESSION_FAILED: cc is required for symbol-audit fixture")
-    with tempfile.TemporaryDirectory(prefix="g1-symbol-safe-") as temporary:
-        project = Path(temporary)
-        object_root = (
-            project / ".lake" / "build" / "ir" / "GarblingPrize" / "Submission"
-        )
-        object_root.mkdir(parents=True)
-        source = project / "safe.c"
-        source.write_text("void ordinary_submission_symbol(void) {}\n", encoding="utf-8")
-        subprocess.run(
-            [compiler, "-c", str(source), "-o", str(object_root / "Safe.c.o")],
-            check=True,
-        )
-        reference = project / "reference.c"
-        reference.write_text(
-            "extern void lean_g1_nat_le_32(void);\n"
-            "void ordinary_submission_reference(void) { lean_g1_nat_le_32(); }\n",
-            encoding="utf-8",
-        )
-        subprocess.run(
-            [compiler, "-c", str(reference),
-             "-o", str(object_root / "Reference.c.o")],
-            check=True,
-        )
-        audit_submission_symbols(project)
-
-    for symbol in (
-        "lean_g1_sha256", "lean_g1_hmac_sha256", "lean_g1_uniform_below",
-        "lean_g1_uniform_below_nat", "lean_g1_nat_le_32",
-        "lean_g1_pack_four_254"
-    ):
-        with tempfile.TemporaryDirectory(prefix="g1-symbol-hostile-") as temporary:
-            project = Path(temporary)
-            object_root = (
-                project / ".lake" / "build" / "ir" / "GarblingPrize" / "Submission"
-            )
-            object_root.mkdir(parents=True)
-            source = project / "hostile.c"
-            source.write_text(f"void {symbol}(void) {{}}\n", encoding="utf-8")
-            subprocess.run(
-                [compiler, "-c", str(source), "-o", str(object_root / "Hostile.c.o")],
-                check=True,
-            )
-            try:
-                audit_submission_symbols(project)
-            except SystemExit:
-                pass
-            else:
-                raise SystemExit(
-                    f"REGRESSION_FAILED: compiled protected symbol {symbol} was accepted"
-                )
-    print("ok — compiled native-symbol audit fixture")
 
 
 def check_dependency_snapshot_layer() -> None:
@@ -254,8 +187,6 @@ def check_dependency_snapshot_layer() -> None:
 
 def main() -> None:
     check_resource_wrapper()
-    check_artifact_bound_property()
-    check_symbol_audit_layer()
     check_dependency_snapshot_layer()
     print("ok — verifier regression suite")
 

@@ -38,7 +38,7 @@ def table (hash : Hash) (purpose : Nat) (pairs : Fin 254 → Bool → Label)
   let rows := Vector.ofFn fun index : Fin 254 =>
     (ciphertextAt hash purpose pairs params masks index false,
       ciphertextAt hash purpose pairs params masks index true)
-  GarblingPrize.Protected.Bytes.ofFn fun k =>
+  G1Release.Math.Bytes.ofFn fun k =>
     let index : Fin 254 := ⟨k.val / 64, by omega⟩
     let bit : Bool := decide (32 ≤ k.val % 64)
     let j : Fin 32 := ⟨k.val % 32, Nat.mod_lt _ (by decide)⟩
@@ -49,7 +49,7 @@ theorem table_eq (hash : Hash) (purpose : Nat) (pairs : Fin 254 → Bool → Lab
     table hash purpose pairs params masks = AffineTable.garble hash purpose pairs params masks := by
   apply Vector.ext
   intro i hi
-  simp only [table, AffineTable.garble, GarblingPrize.Protected.Bytes.ofFn,
+  simp only [table, AffineTable.garble, G1Release.Math.Bytes.ofFn,
     Vector.getElem_ofFn, Vector.get_ofFn, ciphertextAt_eq]
   cases hb : decide (32 ≤ i % 64) <;> simp [hb]
 
@@ -62,7 +62,7 @@ def encodeMap (hash : Hash) (index : Nat) (xPairs yPairs : Fin 254 → Bool → 
     let kind := ProjectiveMap.tableKindAt i
     table hash (ProjectiveMap.purpose index kind) (ProjectiveMap.pairsFor xPairs yPairs kind)
       (hidden.params kind) (masks kind)
-  GarblingPrize.Protected.Bytes.toByteArray (GarblingPrize.Protected.Bytes.ofFn fun k : Fin 178816 =>
+  G1Release.Math.Bytes.toByteArray (G1Release.Math.Bytes.ofFn fun k : Fin 178816 =>
     let ti : Fin 11 := ⟨k.val / 16256, by omega⟩
     let off : Fin 16256 := ⟨k.val % 16256, Nat.mod_lt _ (by decide)⟩
     (tables.get ti).get off)

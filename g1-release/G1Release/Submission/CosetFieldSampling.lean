@@ -12,7 +12,7 @@ ideal finite-coordinate law is uniform without an
 unbounded rejection loop in the submitted code.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open CosetCoordinates
 open MeasureTheory ProbabilityTheory
 

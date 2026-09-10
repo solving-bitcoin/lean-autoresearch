@@ -2,7 +2,7 @@ import G1Release.Submission.G1CertificateBase
 
 namespace G1Release.Submission.G1GeneratorCertificateBase
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1CertificateBase
 
 noncomputable section

@@ -5,7 +5,7 @@ set_option maxRecDepth 4096
 set_option maxHeartbeats 800000
 
 namespace G1Release.Submission.RealIdeal
-open GarblingPrize.Protected SecretRelease G1Release.Protected
+open G1Release.Math SecretRelease G1Release.Protected
 open Randomized IdealView
 
 abbrev ExtendedOracle := List (Fin 256) ⊕ Slot → Label

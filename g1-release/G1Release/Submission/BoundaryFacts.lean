@@ -5,7 +5,7 @@ inside verifier-owned namespaces. All facts are proved by kernel reduction. -/
 namespace G1Release.Submission.BoundaryFacts
 open SecretRelease G1Release.Protected
 
-theorem scalar_modulus : GarblingPrize.Protected.scalarFieldModulus =
+theorem scalar_modulus : G1Release.Math.scalarFieldModulus =
     21888242871839275222246405745257275088548364400416034343698204186575808495617 := rfl
 
 theorem get_false (pair : Pair) : pair.get false = pair.val.1 := rfl

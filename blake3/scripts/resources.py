@@ -6,7 +6,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 sys.path.insert(0,str(REPO/'scripts'))
-from verify_submission import run_limited
+from verifier_common import run_limited
 
 os.environ['LEAN_NUM_THREADS']='1'
 # Lean 4.33.1 uses mimalloc 2.2.3, which requests transparent huge pages by

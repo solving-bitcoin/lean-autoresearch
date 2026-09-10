@@ -9,7 +9,7 @@ computed by querying the supplied hash at (label, map/table purpose, row).
 No ideal-pad or modulus-oracle interface is part of this scheme. -/
 namespace G1Release.Submission.CosetScheme
 set_option maxRecDepth 4096
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open GLVDigits CosetCoordinates FourAffineQuotient
 open Scheme (runtimeOfGroup toPoint_runtimeOfGroup inputG1 xBits yBits)
 

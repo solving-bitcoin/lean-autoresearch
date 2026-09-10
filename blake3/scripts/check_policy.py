@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import policy
 from policy import check_source,score_value,git_dependencies,dependency_entries,shared_source_files
-from render_benchmark_challenge import parse_score
+from verifier_common import parse_score
 
 
 def rejected(action):

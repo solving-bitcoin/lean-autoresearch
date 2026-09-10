@@ -97,7 +97,7 @@ def verify_snapshot(path: Path, packages: Path,
                     package_entries: list[dict[str, object]],
                     toolchain: str) -> str:
     if not path.is_file() or path.is_symlink():
-        reject("run ./setup.sh to create a trusted dependency build snapshot")
+        reject("run the challenge's setup.sh to create a trusted dependency build snapshot")
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as error:

@@ -13,7 +13,7 @@ own, certify a finite-label ROM submission. At 91 maps, eight byte-aligned
 one-ciphertext tables per map would occupy 5,940,480 bytes.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open CosetCoordinates FourAffineQuotient
 
 def base (offset : Point) (selected : Bool) (scale sign : Word) : Base K :=

@@ -4,7 +4,7 @@ import G1Release.Submission.RandomnessLaw
 of each additive mask fiber is derived, so no rejection is needed to satisfy
 its defining sum. -/
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 open scoped BigOperators
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

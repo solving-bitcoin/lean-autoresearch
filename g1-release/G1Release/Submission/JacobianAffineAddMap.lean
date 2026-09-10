@@ -1,5 +1,5 @@
 import Mathlib.AlgebraicGeometry.EllipticCurve.Jacobian.Point
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 
 /-!
 # Affine `Z = 1` specializations of Jacobian `addMap`

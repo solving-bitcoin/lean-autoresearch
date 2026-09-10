@@ -1,7 +1,7 @@
 import Batteries.Data.ByteArray
 import Batteries.Data.Vector.Lemmas
 
-namespace GarblingPrize.Protected
+namespace G1Release.Math
 
 /-!
 # Fixed-size executable byte strings
@@ -119,4 +119,4 @@ theorem xor_cancel_left (left right : Bytes n) :
 
 end Bytes
 
-end GarblingPrize.Protected
+end G1Release.Math

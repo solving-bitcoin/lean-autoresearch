@@ -140,7 +140,7 @@ evidence, outside the accepted import graph. Checked transport covers the
 bit/label order, public views, winning rule and query bound. Legacy bounds on
 all pair functions imply bounds on the new valid distinct-pair domain. Invalid
 pairs are no longer values of the key type; they are rejected by the wire codec.
-The old root G1 ideal-pad challenge remains separate. Migration evidence and
+Migration evidence and
 VCVio simulation/example integration audits are optional author checks, not
 prerequisites for verifying an unrelated submission:
 

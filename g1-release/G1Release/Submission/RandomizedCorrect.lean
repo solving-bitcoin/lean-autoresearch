@@ -1,7 +1,7 @@
 import G1Release.Submission.Randomized
 
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected SecretRelease
+open G1Release.Math G1Release.Protected SecretRelease
 
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

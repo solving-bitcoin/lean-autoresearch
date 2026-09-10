@@ -6,20 +6,20 @@ import G1Release.Submission.G1OrderCertificates
 
 namespace G1Release.Submission.G1Cardinality
 
-open GarblingPrize.Protected
+open G1Release.Math
 open Polynomial
 open WeierstrassCurve
 
 noncomputable section
 
-abbrev Point := GarblingPrize.Protected.BN254.G1
-abbrev Field := GarblingPrize.Protected.BN254.Fq
+abbrev Point := G1Release.Math.BN254.G1
+abbrev Field := G1Release.Math.BN254.Fq
 
 /-- Affine points are exactly infinity or a dependent pair of finite
 coordinates satisfying nonsingularity. -/
 private def pointEquiv :
     Point ≃ Unit ⊕ (Sigma fun x : Field =>
-      { y : Field // GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y }) where
+      { y : Field // G1Release.Math.BN254.curve.toAffine.Nonsingular x y }) where
   toFun
     | .zero => Sum.inl ()
     | @WeierstrassCurve.Affine.Point.some _ _ _ x y h =>
@@ -41,27 +41,27 @@ private def ordinatePolynomial (x : Field) : Field[X] :=
   X ^ 2 - C (x ^ 3 + 3)
 
 private theorem nonsingular_mem_ordinateRoots (x y : Field)
-    (hpoint : GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y) :
+    (hpoint : G1Release.Math.BN254.curve.toAffine.Nonsingular x y) :
     y ∈ (ordinatePolynomial x).rootSet Field := by
   apply (monic_X_pow_sub_C (x ^ 3 + 3)
     (by decide : (2 : Nat) ≠ 0)).mem_rootSet.mpr
   have hequation :
-      GarblingPrize.Protected.BN254.curve.toAffine.Equation x y :=
-    (GarblingPrize.Protected.BN254.curve.toAffine.equation_iff_nonsingular_of_Δ_ne_zero
-        GarblingPrize.Protected.BN254.discriminant_ne_zero).mpr hpoint
+      G1Release.Math.BN254.curve.toAffine.Equation x y :=
+    (G1Release.Math.BN254.curve.toAffine.equation_iff_nonsingular_of_Δ_ne_zero
+        G1Release.Math.BN254.discriminant_ne_zero).mpr hpoint
   rw [WeierstrassCurve.Affine.equation_iff] at hequation
-  simpa [ordinatePolynomial, GarblingPrize.Protected.BN254.curve] using
+  simpa [ordinatePolynomial, G1Release.Math.BN254.curve] using
     sub_eq_zero.mpr hequation
 
 private theorem ordinateFiber_card_le_two (x : Field) :
     Nat.card { y : Field //
-      GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y } ≤ 2 := by
+      G1Release.Math.BN254.curve.toAffine.Nonsingular x y } ≤ 2 := by
   change Set.ncard
     { y : Field |
-      GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y } ≤ 2
+      G1Release.Math.BN254.curve.toAffine.Nonsingular x y } ≤ 2
   calc
     Set.ncard { y : Field |
-        GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y }
+        G1Release.Math.BN254.curve.toAffine.Nonsingular x y }
         ≤ Set.ncard ((ordinatePolynomial x).rootSet Field) := by
           apply Set.ncard_le_ncard
           · intro y hy
@@ -78,11 +78,11 @@ theorem pointCardinality_le_two_mul_base_add_one :
     Nat.card Point = Nat.card
         (Unit ⊕ (Sigma fun x : Field =>
           { y : Field //
-            GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y })) :=
+            G1Release.Math.BN254.curve.toAffine.Nonsingular x y })) :=
       Nat.card_congr pointEquiv
     _ = 1 + ∑ x : Field,
           Nat.card { y : Field //
-            GarblingPrize.Protected.BN254.curve.toAffine.Nonsingular x y } := by
+            G1Release.Math.BN254.curve.toAffine.Nonsingular x y } := by
       rw [Nat.card_sum, Nat.card_sigma]
       simp
     _ ≤ 1 + ∑ _x : Field, 2 := by
@@ -115,7 +115,7 @@ private theorem no_addOrderOf_two (point : Point) :
       rw [WeierstrassCurve.Affine.Point.neg_some,
         WeierstrassCurve.Affine.Point.some.injEq] at hsome
       have hyNeg : y = -y := by
-        simpa [GarblingPrize.Protected.BN254.curve,
+        simpa [G1Release.Math.BN254.curve,
           WeierstrassCurve.Affine.negY] using hsome.2
       have hyZero : y = 0 := by
         have htwoY : (2 : Field) * y = 0 := by
@@ -127,12 +127,12 @@ private theorem no_addOrderOf_two (point : Point) :
         have htwo : (2 : Field) ≠ 0 := by decide
         exact (mul_eq_zero.mp htwoY).resolve_left htwo
       have hequation :
-          GarblingPrize.Protected.BN254.curve.toAffine.Equation x y :=
-        (GarblingPrize.Protected.BN254.curve.toAffine.equation_iff_nonsingular_of_Δ_ne_zero
-            GarblingPrize.Protected.BN254.discriminant_ne_zero).mpr hnonsingular
+          G1Release.Math.BN254.curve.toAffine.Equation x y :=
+        (G1Release.Math.BN254.curve.toAffine.equation_iff_nonsingular_of_Δ_ne_zero
+            G1Release.Math.BN254.discriminant_ne_zero).mpr hnonsingular
       rw [WeierstrassCurve.Affine.equation_iff] at hequation
       have hsum : x ^ 3 + (3 : Field) = 0 := by
-        simpa [GarblingPrize.Protected.BN254.curve, hyZero] using
+        simpa [G1Release.Math.BN254.curve, hyZero] using
           hequation.symm
       exact HomogeneousRCBG1GroupLaw.neg_three_not_cube x
         (eq_neg_of_add_eq_zero_left hsum)

@@ -4,7 +4,7 @@ import G1Release.Submission.RandomnessCoupling
 No unrevealed input labels are used in this view. The ROM reduction must
 justify replacing the real ciphertexts with these independent values. -/
 namespace G1Release.Submission.IdealView
-open GarblingPrize.Protected SecretRelease
+open G1Release.Math SecretRelease
 open G1Release.Protected G1Release.Submission.Randomized
 
 abbrev Slot := Fin 161 × ProjectiveMap.TableKind × Fin 254

@@ -4,7 +4,7 @@ import G1Release.Submission.FixedCodec
 Field canonicality is checked by the evaluator; arbitrary ciphertext words
 remain valid serialized artifacts. No instance-dependent data is omitted. -/
 namespace G1Release.Submission.DutyFreeWords
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Word := Bytes 32
 abbrev Block (n : Nat) := Vector Word n

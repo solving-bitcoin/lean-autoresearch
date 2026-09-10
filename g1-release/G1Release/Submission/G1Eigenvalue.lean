@@ -6,7 +6,7 @@ import G1Release.Submission.EisensteinKernel
 
 namespace G1Release.Submission.G1Eigenvalue
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 noncomputable section
 

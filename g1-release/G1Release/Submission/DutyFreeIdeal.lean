@@ -15,7 +15,7 @@ def bridge (hash : Hash) (input : Input) (active : Active) (hot : HotKeys)
     (fake : BridgePads) (id : Fin 128) : DutyFreeWords.Block 64 :=
   DutyFreeProgram.packBridge fun cell bit =>
     if (!DutyFreeBridge.bit cell bit) = externalBit input (id,cell,bit) then
-      GarblingPrize.Protected.Bytes.xor (hot id cell)
+      G1Release.Math.Bytes.xor (hot id cell)
         (AffineTable.pad hash (active (externalWire (id,cell,bit))) id.val (bridgeRow cell bit))
     else fake (id,cell,bit)
 

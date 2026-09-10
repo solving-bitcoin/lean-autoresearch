@@ -20,7 +20,7 @@ These lemmas support the eight-base-field-table construction and its
 5,940,480-byte bound, below this challenge's 6 MB target.
 -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open scoped QuadraticAlgebra
 
 abbrev Word := BN254.Fq

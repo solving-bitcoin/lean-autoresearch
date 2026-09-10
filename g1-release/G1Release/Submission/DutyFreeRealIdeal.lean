@@ -5,7 +5,7 @@ and the selected plain pads. Its oracle marginal is exactly the protected
 random-function law. The separate query argument must account for observing
 one of these programmed addresses. -/
 namespace G1Release.Submission.DutyFreeRealIdeal
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open DutyFreeLayout DutyFreeSlots
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

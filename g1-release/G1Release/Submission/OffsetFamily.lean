@@ -3,7 +3,7 @@ import G1Release.Submission.TernaryFullWidth
 
 namespace G1Release.Submission.OffsetFamily
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Submission.BalancedTernary
 open G1Release.Submission.TernaryFullWidth
 

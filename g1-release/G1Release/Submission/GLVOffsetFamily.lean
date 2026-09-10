@@ -3,7 +3,7 @@ import G1Release.Submission.EisensteinFullWidth
 
 namespace G1Release.Submission.GLVOffsetFamily
 
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Hidden := G1Release.Protected.Private
 abbrev Input := G1Release.Protected.Input

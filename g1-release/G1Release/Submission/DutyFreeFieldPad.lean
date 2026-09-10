@@ -5,7 +5,7 @@ import G1Release.Submission.DutyFreeModularCoupling
 Their concatenation is a uniform 512-bit integer. Reduction modulo p has a
 small, explicitly bounded tail; it is never asserted to be exactly uniform. -/
 namespace G1Release.Submission.DutyFreeFieldPad
-open GarblingPrize.Protected
+open G1Release.Math
 
 abbrev Label := SecretRelease.Label
 abbrev Word := BN254.Fq

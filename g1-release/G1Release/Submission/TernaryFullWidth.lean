@@ -71,7 +71,7 @@ theorem signedRecomposition_eq (digits : Digits width) (point : G) :
 /-- The canonical full-width BN254 scalar codec recomposes to natural
 scalar multiplication, with no modular or truncating step. -/
 theorem signedRecomposition_encodeScalar
-    (scalar : Fin GarblingPrize.Protected.scalarFieldModulus) (point : G) :
+    (scalar : Fin G1Release.Math.scalarFieldModulus) (point : G) :
     signedRecomposition (encodeScalar scalar) point = scalar.val • point := by
   rw [signedRecomposition_eq, decode_encodeScalar]
   simp
@@ -155,7 +155,7 @@ theorem output_eq (offsets : List G) (digits : Digits width) (point : G)
 
 /-- Exact natural-scalar specialization for the BN254 scalar encoding. -/
 theorem output_encodeScalar (offsets : List G)
-    (scalar : Fin GarblingPrize.Protected.scalarFieldModulus) (point : G)
+    (scalar : Fin G1Release.Math.scalarFieldModulus) (point : G)
     (hlength : offsets.length = 161) :
     output offsets (encodeScalar scalar) point =
       offsetTotal offsets - scalar.val • point := by

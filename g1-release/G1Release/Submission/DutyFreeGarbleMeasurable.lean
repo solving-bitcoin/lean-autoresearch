@@ -5,7 +5,7 @@ import G1Release.Submission.MeasurableModels
 keys and coins are fixed. Factor it through those finite material values to
 establish measurability of the actual serialized experiments. -/
 namespace G1Release.Submission.DutyFreeGarbleMeasurable
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open DutyFreeLayout DutyFreeSlots DutyFreeRealIdeal MeasureTheory
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000

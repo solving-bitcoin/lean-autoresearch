@@ -8,7 +8,7 @@ namespace G1Release.Submission.CosetRandomness
 Each quotient state uses one projective direction, one nonzero radius, and
 four base-field coordinates for its two additive extension-field masks. -/
 
-open GarblingPrize.Protected
+open G1Release.Math
 open GLVDigits CosetCoordinates CosetFieldSampling
 open MeasureTheory ProbabilityTheory
 

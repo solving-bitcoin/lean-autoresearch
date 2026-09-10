@@ -1,14 +1,13 @@
 # Q + [r]A — SecretRelease challenge
 
 Minimize the **universal serialized artifact byte bound** for a private BN254
-map `A ↦ Q + [r]A`. This is a separate challenge using the shared
+map `A ↦ Q + [r]A`. This challenge uses the shared
 [`SecretRelease.Certified`](../secret-release/SecretRelease.lean) contract.
-The old G1 challenge and its accepted ideal-pad score remain separate.
 
 The complete challenge-specific security declaration is
 [`G1Release/Protected/Target.lean`](G1Release/Protected/Target.lean).
-It imports the existing BN254 prime certificate, curve, group law, and canonical
-point representation. No Yao circuit language, gate count, modulus oracle,
+It imports the protected BN254 prime certificate, curve, group law, and canonical
+point representation from [`G1Release/Math`](G1Release/Math). No Yao circuit language, gate count, modulus oracle,
 half-gates construction, or mandatory arithmetic strategy appears in acceptance.
 
 | Item | Fixed contract |
@@ -68,7 +67,6 @@ The ROM proofs include the bias of sampling these values from finite coins.
 Both secrecy games use the protected query/error bound; the candidate supplies
 all arithmetic and security reductions, including its own leakage lemmas.
 
-The old **5,940,480-byte** ideal-pad construction remains a separate result.
 The deliberately insecure 32,868-byte transport fixture is now under `Tests`;
 it has no certificate and is never ranked. Zero-scalar regression facts and
 proofs that the shared byte adapter preserves the old encoding also live in
@@ -111,7 +109,7 @@ boundaries. **The ideal-oracle instantiation remains heuristic / unproved.**
 
 ## CI and trust
 
-All local sources (this challenge, shared contract, and reused G1 mathematics)
+All local sources (this challenge, its G1 mathematics, and the shared contract)
 are freshly compiled in an isolated tree. Only pinned and authenticated external
 Git dependency caches are reused. Builds are sequential, one Lean thread,
 nice 10, with an 8 GiB CI / 4 GiB local aggregate RSS cap; native checks use

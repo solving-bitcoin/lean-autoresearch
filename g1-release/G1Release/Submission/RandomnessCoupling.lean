@@ -6,7 +6,7 @@ import G1Release.Submission.ProjectiveMapPrivacy
 not assert ROM privacy: the finite-tape and bounded-query transports follow
 separately. -/
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 open G1Release.Submission.BalancedTernary
 open Scheme (offsetAt digitAt inputG1 rawMap rawMap_valid rawMap_eq_addFormula
   decode_rawMap xBits yBits decodeBits_xBits decodeBits_yBits runtimeOfGroup digitRuntime)

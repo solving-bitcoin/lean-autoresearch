@@ -1,5 +1,5 @@
 import G1Release.Submission.BytePacking
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 
 set_option maxRecDepth 4096
 set_option maxHeartbeats 200000
@@ -44,11 +44,11 @@ def encrypt (value : Nat) (pad : Bytes 32) : Bytes 32 :=
   Vector.ofFn fun i => byte (words.get ⟨i.val/8,by omega⟩) ⟨i.val%8,Nat.mod_lt _ (by decide)⟩ ^^^ pad.get i
 
 theorem encrypt_eq (value : Nat) (pad : Bytes 32) :
-    encrypt value pad = GarblingPrize.Protected.Bytes.xor (BytePacking.encode 32 value) pad := by
+    encrypt value pad = G1Release.Math.Bytes.xor (BytePacking.encode 32 value) pad := by
   rw [← encode_eq]
   apply Vector.ext
   intro i hi
-  simp only [encrypt,encode,GarblingPrize.Protected.Bytes.xor,GarblingPrize.Protected.Bytes.ofFn,
+  simp only [encrypt,encode,G1Release.Math.Bytes.xor,G1Release.Math.Bytes.ofFn,
     Vector.getElem_ofFn,Vector.get_ofFn,Vector.get_eq_getElem]
 
 end G1Release.Submission.FastPacking

@@ -2,7 +2,7 @@ import G1Release.Submission.BytePacking
 import G1Release.Submission.FixedCodec
 
 namespace G1Release.Submission.HintCodec
-open GarblingPrize.Protected
+open G1Release.Math
 abbrev natLE := BytePacking.encode
 abbrev natLE32 := BytePacking.encode 32
 abbrev decodeNatLE (bytes : Bytes n) := ByteArithmetic.read bytes n (Nat.le_refl n)

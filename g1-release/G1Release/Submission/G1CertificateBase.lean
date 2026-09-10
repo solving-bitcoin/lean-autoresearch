@@ -2,7 +2,7 @@ import G1Release.Submission.FormulaSemantics
 
 namespace G1Release.Submission.G1CertificateBase
 
-open GarblingPrize.Protected
+open G1Release.Math
 open WeierstrassCurve
 
 noncomputable section

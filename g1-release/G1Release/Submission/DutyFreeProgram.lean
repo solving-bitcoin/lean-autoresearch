@@ -8,7 +8,7 @@ import G1Release.Submission.CosetCorrect
 per coordinate nibble serves every affine opening. The existing complete
 91-map G1 construction supplies the private coefficients and recomposition. -/
 namespace G1Release.Submission.DutyFreeProgram
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open DutyFreeLayout
 
 set_option maxRecDepth 4096

@@ -2,7 +2,7 @@ import G1Release.Submission.HintPadTransport
 
 namespace G1Release.Submission.HintAffineTablePrivacy
 
-open GarblingPrize.Protected
+open G1Release.Math
 open HintAffineTable HintPadTransport
 open scoped BigOperators
 

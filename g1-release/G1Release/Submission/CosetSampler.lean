@@ -5,7 +5,7 @@ import G1Release.Submission.FlatBlock
 namespace G1Release.Submission.CosetSampler
 set_option maxRecDepth 4096
 set_option maxHeartbeats 800000
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open CosetCoordinates
 
 abbrev Hidden := Private

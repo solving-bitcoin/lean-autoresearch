@@ -1,6 +1,6 @@
 import G1Release.Submission.BytePacking
 import G1Release.Submission.FastRead
-import GarblingPrize.Protected.Bytes
+import G1Release.Math.Bytes
 import G1Release.Protected.Codecs
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
@@ -9,14 +9,14 @@ open scoped BigOperators
 
 namespace G1Release.Submission.AffineTable
 
-open GarblingPrize.Protected
+open G1Release.Math
 open G1Release.Protected
 
 set_option maxHeartbeats 800000
 set_option maxRecDepth 4096
 
 abbrev Word := BN254.Fq
-abbrev WordBytes := GarblingPrize.Protected.Bytes 32
+abbrev WordBytes := G1Release.Math.Bytes 32
 abbrev Hash := SecretRelease.Hash
 abbrev Label := SecretRelease.Label
 
@@ -84,7 +84,7 @@ def openWord (ciphertext padValue : WordBytes) : Option Word :=
   unfold openWord encrypt
   rw [xorBytes_cancel, decodeWord_encodeWord]
 
-abbrev Table := GarblingPrize.Protected.Bytes 16256
+abbrev Table := G1Release.Math.Bytes 16256
 
 def ciphertextAt (hash : Hash) (purpose : Nat)
     (pairs : Fin 254 → Bool → Label)

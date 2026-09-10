@@ -2,7 +2,7 @@ import G1Release.Submission.BoundaryFacts
 import G1Release.Submission.SamplingEquivalences
 
 namespace G1Release.Submission.Randomized
-open GarblingPrize.Protected G1Release.Protected
+open G1Release.Math G1Release.Protected
 set_option maxHeartbeats 800000
 set_option maxRecDepth 4096
 

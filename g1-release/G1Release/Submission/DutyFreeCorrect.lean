@@ -1,7 +1,7 @@
 import G1Release.Submission.DutyFreeProgram
 
 namespace G1Release.Submission.DutyFreeProgram
-open SecretRelease G1Release.Protected GarblingPrize.Protected
+open SecretRelease G1Release.Protected G1Release.Math
 open DutyFreeLayout GLVDigits CosetCoordinates FourAffineQuotient
 open Scheme (runtimeOfGroup toPoint_runtimeOfGroup inputG1)
 set_option maxRecDepth 4096

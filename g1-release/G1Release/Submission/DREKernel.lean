@@ -1,4 +1,4 @@
-import GarblingPrize.Protected.G1
+import G1Release.Math.G1
 
 open scoped BigOperators
 
