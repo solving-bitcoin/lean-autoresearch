@@ -7,6 +7,14 @@ import Mathlib.Data.Fintype.EquivFin
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
+theorem uniform_map_equiv {A B : Type} [Finite A] [Finite B]
+    [MeasurableSpace A] [MeasurableSpace B]
+    [DiscreteMeasurableSpace A] [DiscreteMeasurableSpace B] (e : A ≃ B) :
+    (uniformOn (Set.univ : Set A)).map e = uniformOn (Set.univ : Set B) := by
+  apply Measure.ext
+  intro event he
+  rw [Measure.map_apply measurable_of_discrete he, Shamir.uniform_event_equiv e]
+
 def byteDigits {n : Nat} (bytes : Bytes n) : List Nat := bytes.toList.map UInt8.toNat
 
 theorem byteDigits_length {n : Nat} (bytes : Bytes n) : (byteDigits bytes).length = n := by

@@ -58,7 +58,11 @@ theorem residue_probability (r : Fin 65537) :
     uniformOn (Set.univ : Set (Fin sampleSize)) {n | n.val % 65537 = r.val} =
       (residueCount r : ENNReal) / sampleSize := by
   rw [uniformOn_univ, Measure.count_apply MeasurableSet.of_discrete]
-  rw [Set.encard, ENat.card_eq_coe_fintype_card, residueFiber_card] <;> simp
+  rw [Set.encard, ENat.card_eq_coe_fintype_card]
+  change ((Fintype.card {n : Fin sampleSize // n.val % 65537 = r.val} : ENat) : ENNReal) /
+    (Fintype.card (Fin sampleSize) : ENNReal) = _
+  rw [residueFiber_card]
+  simp
 
 /-- The rational expression corresponding to the exact marginal distance is
 small enough for all used blocks. This arithmetic lemma alone does not prove

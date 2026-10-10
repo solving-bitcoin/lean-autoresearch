@@ -131,12 +131,14 @@ theorem prepare_commitment_slice (h : Hash) (coins : ByteArray) (keys : Keys)
     have hs := congrArg (fun bytes : ByteArray => bytes.extract 0 32) hw
     rw [extract_within_block _ _ _ _ _ (by decide),
       ByteArray.extract_append_eq_left (vectorBytes_size _).symm] at hs
+    simp only [Bool.false_eq_true, ↓reduceIte] at *
     convert hs using 2 <;> omega
   | true =>
     have hs := congrArg (fun bytes : ByteArray => bytes.extract 32 64) hw
     rw [extract_within_block _ _ _ _ _ (by decide),
       ByteArray.extract_append_eq_right (vectorBytes_size _).symm
         (by simp only [vectorBytes_size])] at hs
+    simp only [↓reduceIte] at *
     convert hs using 2 <;> omega
 
 theorem prepare_share_slice (h : Hash) (coins : ByteArray) (keys : Keys)

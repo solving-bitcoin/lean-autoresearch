@@ -77,6 +77,14 @@ the actual polynomial coefficient addresses. SamplerMixture attempts an exact
 mixture law and two-sided marginal event bounds. Neither the complete expansion
 proof nor a joint ROM security theorem is yet established.
 
+At `c855881`, the remaining ArtifactBridge diagnostics are two Boolean-slice
+arithmetic goals; SamplerLaw has one set/subtype cardinality rewrite mismatch.
+The next batch repairs those and adds joint product-measure domination,
+two-sided coefficient-table event bounds, exact byte-to-field pushforward laws,
+and the coefficient-vector/bounded-polynomial equivalence. These additions
+are unverified until hosted Lean succeeds. Full correctness and the joint
+ROM reduction remain open; no certificate is issued.
+
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
 exact SHA-256/FullWidth WOTS profile and 7,209 for 256-bit SHA-256 Lamport.
