@@ -2,7 +2,7 @@
 
 **Experimental authoring track; unranked; full Lean validation is pending.**
 The candidate has `certificate := none` and `score.txt` contains `unranked`.
-This is a working research implementation and test harness, not a completed
+This is a research implementation and test harness, not a completed
 cryptographic certification. See [PROOF_STATUS.md](PROOF_STATUS.md).
 
 The reference is identity on **all 32-byte messages**. Before seeing a message,
@@ -129,8 +129,8 @@ The candidate consumes 268,173,344 coin bytes. Secrets and coins are private
 setup inputs, not unscored public instance data. All tables, decoding material,
 nonce and commitments are in the artifact. Fixed executable code is shared.
 The label/key/coin fixtures in tests are deterministic public test data, not
-production key generation. The count above is executable layout arithmetic;
-the universal Lean `ArtifactBound` proof remains open.
+production key generation. The universal Lean `Layout.artifact_bound` theorem
+checks this byte bound; it does not establish correctness or security.
 
 The protected `Construction` wrapper always prefixes the actual public key to
 the scored artifact. `Entry` can only produce a shared `Candidate` using this

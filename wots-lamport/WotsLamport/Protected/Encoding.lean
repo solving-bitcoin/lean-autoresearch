@@ -1,5 +1,5 @@
 import SecretRelease.Encoding
-import Mathlib.Tactic
+import Mathlib.Tactic.SplitIfs
 
 namespace WotsLamport.Protected
 open SecretRelease

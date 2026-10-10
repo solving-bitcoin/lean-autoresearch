@@ -143,3 +143,20 @@ peak under the normal native guard). These tests do not report a Lean pass.
 Run 32 at `3d1bcb3` passed the independent reference job: Prepare 19.23 s,
 three Expand calls 1.89/1.82/1.83 s, full fixed-artifact test 26.51 s, peak
 320,348,160 bytes. These are Rust reference measurements, not Lean timings.
+
+## Run 33 and timeout diagnostics
+
+Hosted run 33 at `e959f9e` rejected the WOTS author check at its unchanged
+1,800-second limit. The timeout branch discarded buffered Lean/runtime output;
+no new proof or native pass is claimed from that run. The independent reference
+job passed: Prepare 22.09 seconds, three-message test 30.51 seconds, peak RSS
+320,405,504 bytes. The BLAKE3 and G1 previews both passed.
+
+The following local changes await hosted validation: narrower tactic imports,
+explicit compile/runtime stages, and bounded diagnostic tails on timeout.
+The timeout remains fatal even if the child reports exit zero; the new
+failure-injection regression confirms that behavior and truncation. The complete
+resource/dependency regression suite passed under the temporary reaping
+supervisor, peak RSS 107,085,824 bytes. The author-graph regression also passed.
+The additional generated-tool test reusing one artifact for three later
+messages compiled locally (peak 285,143,040 bytes), but has not run.

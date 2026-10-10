@@ -33,6 +33,14 @@ complete imported submission or its security certificate passed.
 
 ## Current validation attempt
 
+Hosted run 33 at `e959f9e` exceeded the unchanged 1,800-second author-check
+limit. The timeout path discarded its captured source/runtime output, so no
+additional module or native pass is inferred. Cleanup showed a Rust reference
+test process had started. This does not identify the original SDK failure.
+The next batch preserves bounded timeout diagnostics, prints explicit module
+and runtime stages, and narrows tactic imports. It keeps the original
+executable and every resource limit unchanged.
+
 Hosted run 32 at `3d1bcb3` failed the complete WOTS source build. It checked
 PaddedPolynomialLaw, PolynomialEncoding, SamplerMixture and DecodingBridge.
 The remaining direct errors are in CoinBlocks, DomainSeparation, Expansion,
@@ -45,7 +53,7 @@ heartbeat, RSS and process time limits are unchanged.
 The authoring-only runtime diagnostic successfully built SRTools and packaged
 the four generated tools. Its supplied-bundle integration test failed after
 64.27 seconds with the SDK's combined timeout/side-output error. This is a
-real runtime failure, not acceptance. The next SDK diagnostic names the tool,
+real runtime failure, not acceptance. The SDK diagnostic now names the tool,
 elapsed time, timeout flag, output-overflow flag and side-output byte counts,
 without changing any limit. The candidate executable remains unchanged while
 that failure is isolated. It still has no certificate and `not-audited`
@@ -57,6 +65,24 @@ actual distinct-label-pair space, and proves deterministic chain-table and
 mask-domain properties. Generic coupling lemmas retain their explicit
 premises. These are proof attempts, not assumptions admitted into a candidate
 certificate; none substitutes for the actual joint reduction.
+
+`MachineHorner` is a further unchecked optimization proof attempt. It defines
+a tail-recursive UInt32 evaluator, proves the intended no-overflow step and
+states exact correspondence for arbitrary coefficients at coordinates at most
+1984. It is imported for audit but is not used by the current executable.
+No performance improvement is claimed before compilation and measurement.
+`MachineSharing` extends the attempted correspondence to every prepared byte
+and the whole construction. `MultiTargetTrace` removes mutual independence
+from the targets' union bound, while retaining independence of their baseline
+view. `MaskedViewLaw` attempts the joint coefficient/pad bijection preserving
+ciphertexts and visible pads. These modules are unchecked, and the executable
+still uses the original construction.
+`ChainCollisionLaw` attempts an explicit uniform-table fiber count and the
+1,056-position ideal-tape collision bound. It does not supply the missing
+real-chain coupling. Broad tactic imports are being replaced by the specific
+tactics in use; this also awaits Lean validation under the same build cap.
+`MachineFieldReduction` separately attempts exact UInt32 Fermat-prime
+reduction. It is not used by the evaluator or candidate.
 
 ## Obligations still open
 
@@ -124,8 +150,9 @@ supervisor because this container's PID 1 leaves killed descendants as zombies.
 The supervised suite passes; no repository guard was weakened to hide this.
 Hosted BLAKE3 and G1 previews at `50e6007` passed, including packed-runtime
 regressions. BLAKE3 also passed run 32 at `3d1bcb3`. These are shared-framework
-results, not a complete WOTS pass. The current SDK-only diagnostic change
-requires the next shared regression run.
+results, not a complete WOTS pass. Both BLAKE3 and G1 passed run 33 at
+`e959f9e`, including the SDK limit-diagnostic change. The new bounded timeout
+diagnostics require another shared regression run.
 
 Publication to the existing draft PR branch and hosted CI are authorized.
 Merging, deployment and an external ranked submission are not authorized.

@@ -174,6 +174,19 @@ fn generated_reference_format_correspondence() -> Result<()> {
     let measured=bundle.assert_case(&fixture,&m)?;
     assert_eq!(measured.artifact,prepare(&k,&labels,&fixture.coins));
     assert_eq!(expand(&measured.artifact,&m,&sign(&k,&m)),Some(measured.output));
+    // Reuse the identical generated artifact for later messages, including
+    // both bit extremes and a byte-order-sensitive message. Never re-garble.
+    for later in [[0;32],[255;32],std::array::from_fn(|i|i as u8)] {
+        let encoded=bundle.call("encode",&[],&[&later,&fixture.input_keys],2)?;
+        assert_eq!(encoded[0],later);
+        assert_eq!(encoded[1],encode_keys(&sign(&k,&later)));
+        let started=std::time::Instant::now();
+        let released=bundle.call("evaluate",&[],&[&measured.artifact,&later,&encoded[1]],1)?;
+        let expected: Vec<u8>=(0..256).flat_map(|i|
+            labels[i][usize::from(later[i/8]>>(i%8)&1==1)]).collect();
+        assert_eq!(released[0],expected);
+        eprintln!("Generated fixed-artifact later-message Expand: {:?}",started.elapsed());
+    }
     Ok(())
 }
 

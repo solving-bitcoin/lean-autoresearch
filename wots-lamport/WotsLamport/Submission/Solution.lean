@@ -1,8 +1,14 @@
 import WotsLamport.Submission.ChainTape
+import WotsLamport.Submission.ChainCollisionLaw
 import WotsLamport.Submission.DomainInjectivity
 import WotsLamport.Submission.JointOracleTrace
 import WotsLamport.Submission.LabelGuessing
 import WotsLamport.Submission.MaskLaw
+import WotsLamport.Submission.MaskedViewLaw
+import WotsLamport.Submission.MachineHorner
+import WotsLamport.Submission.MachineFieldReduction
+import WotsLamport.Submission.MachineSharing
+import WotsLamport.Submission.MultiTargetTrace
 import WotsLamport.Submission.RestrictedOracleProgram
 import WotsLamport.Submission.Sharing
 import WotsLamport.Submission.Shamir

@@ -41,6 +41,7 @@ end WotsLamport.Tests
 def main (args : List String) : IO UInt32 :=
   SecretRelease.CLI.main WotsLamport.Protected.wire WotsLamport.Tests.runtimeProbeEntry args
 ''')
+        print('RUNTIME_PROBE: build original executable', flush=True)
         build = guarded(['lake', 'build', 'secret-release-tools'], ROOT)
         print(build['stdout'], end='', flush=True)
         print(build['stderr'], end='', flush=True)
@@ -49,6 +50,7 @@ def main (args : List String) : IO UInt32 :=
         metadata.update(diagnostic=True, acceptance='not-audited',
                         entrypoint='WotsLamport.Tests.runtimeProbeEntry')
         (destination/'bundle.json').write_text(json.dumps(metadata, indent=2)+'\n')
+        print('RUNTIME_PROBE: run standard SDK integration', flush=True)
         measured = run_tests(ROOT, destination)
         # The standard suite is construction-neutral. This separately invoked
         # author test compares this construction's entire 48 MB artifact with
@@ -62,6 +64,7 @@ def main (args : List String) : IO UInt32 :=
             if item.get('reason') == 'compiler-artifact' and item.get('executable') and item.get('profile', {}).get('test'):
                 binaries.append(item['executable'])
         assert len(set(binaries)) == 1
+        print('RUNTIME_PROBE: compare complete reference artifact and later messages', flush=True)
         independent = guarded([binaries[0], '--ignored', 'generated_reference_format_correspondence',
                                '--test-threads=1', '--nocapture'], workspace, native=True)
         print(independent['stdout'], end='', flush=True)

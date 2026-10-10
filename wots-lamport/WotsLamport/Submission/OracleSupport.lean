@@ -1,4 +1,6 @@
 import WotsLamport.Protected.Target
+import Mathlib.Tactic.Choose
+import Mathlib.Tactic.Ext
 
 namespace WotsLamport.Submission
 open SecretRelease OracleSpec OracleComp MeasureTheory

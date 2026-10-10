@@ -6,6 +6,7 @@ never a substitute for the fresh protected-tree build and audits in verify.py.
 """
 from limits import guarded, ROOT
 import sys
+import time
 from boundary import check_protected, check_source, common
 
 
@@ -50,6 +51,8 @@ def main():
             failed.append(name)
             continue
         try:
+            started = time.monotonic()
+            print(f'CHECK: {name}', flush=True)
             result = guarded(['lake', 'build', name])
         except SystemExit as error:
             # Resource failures stop immediately; ordinary failures allow
@@ -62,11 +65,13 @@ def main():
             continue
         print(result['stdout'], end='', flush=True)
         print(result['stderr'], end='', flush=True)
+        print(f'COMPILED: {name}; {time.monotonic()-started:.2f}s', flush=True)
         peak = max(peak, result['peakMemoryBytes'])
     # Diagnostic execution cannot suppress a source failure or create acceptance.
     # A complete source build proceeds directly to the normal isolated verifier.
     if failed:
         try:
+            print('CHECK: original executable runtime diagnostic', flush=True)
             result = guarded([sys.executable, ROOT/'scripts/check_runtime_probe.py'])
             print(result['stdout'], end='', flush=True)
             print(result['stderr'], end='', flush=True)

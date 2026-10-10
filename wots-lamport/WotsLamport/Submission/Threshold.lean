@@ -1,5 +1,10 @@
 import WotsLamport.Protected.Target
-import Mathlib.Tactic
+import Mathlib.Tactic.Conv
+import Mathlib.Tactic.Convert
+import Mathlib.Tactic.Ext
+import Mathlib.Tactic.Lift
+import Mathlib.Tactic.NormNum.Prime
+import Mathlib.Tactic.Ring
 
 namespace WotsLamport.Submission
 
