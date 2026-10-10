@@ -22,8 +22,7 @@ theorem xorBytes_cancel (a b : ByteArray) : xorBytes (xorBytes a b) b = a := by
   rw [← getElem!_pos (xorBytes (xorBytes a b) b) j hleft,
     ← getElem!_pos a j hright]
   rw [xorBytes_get _ _ j (by simpa using hright), xorBytes_get a b j hright]
-  apply UInt8.toBitVec_inj.mp
-  simp
+  simp [UInt8.xor_assoc]
 
 theorem readLE_two_lt (bytes : ByteArray) (start : Nat) :
     readLE bytes start 2 < 65536 := by
@@ -40,7 +39,8 @@ theorem readLE_two_lt (bytes : ByteArray) (start : Nat) :
 theorem read_writeLE_field (n : Nat) (hn : n < prime) :
     readLE (writeLE 3 n) 0 3 = n := by
   have hn' : n < 65537 := hn
-  simp [readLE, List.range_succ, writeLE_get, UInt8.toNat_ofNat']
+  simp [readLE, List.range_succ, writeLE, ByteArray.getElem_eq_getElem_data,
+    UInt8.toNat_ofNat']
   omega
 
 theorem append_fold_prefix (parts : List ByteArray) (a b : ByteArray) :
@@ -74,7 +74,8 @@ theorem concatenate_extract (parts : List ByteArray) (width : Nat)
     | succ i =>
       have hs : (i+1)*width = part.size+i*width := by simp [hp, Nat.add_mul, Nat.add_comm]
       have ht : (i+1+1)*width = part.size+(i+1)*width := by
-        simp [hp, Nat.add_mul, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+        rw [hp]
+        ring
       simp only [concatenate_cons, List.getElem_cons_succ]
       rw [hs, ht, ByteArray.extract_append_size_add]
       exact ih hr i (by simpa using hi)
@@ -113,7 +114,7 @@ theorem labelTable_extract (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
     · intro p _; exact writeLE_size _ _
   ) index (by simpa using hi)]
   simp only [List.getElem_map, List.getElem_zipIdx, Nat.zero_add,
-    List.map_map, Function.comp_apply]
+    List.map_map, Function.comp_def]
 
 /-- Decryption of each stored share is an exact byte identity for every hash,
 coin string and key; it does not assume pseudorandom masks. -/

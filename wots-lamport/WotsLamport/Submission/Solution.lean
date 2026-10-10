@@ -7,6 +7,7 @@ import WotsLamport.Submission.FieldBridge
 import WotsLamport.Submission.Exposed
 import WotsLamport.Submission.InterpolationBridge
 import WotsLamport.Submission.ByteBridge
+import WotsLamport.Submission.DecodingBridge
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected

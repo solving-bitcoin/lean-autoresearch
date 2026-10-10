@@ -242,7 +242,7 @@ theorem interpolate_reconstruct_nat (shares : List (Nat × List Nat))
   · intro n hn
     obtain ⟨limb, _, rfl⟩ := List.mem_map.mp hn
     exact evaluatePolynomial_lt _ _
-  · simpa only [List.map_map, Function.comp_apply] using
+  · simpa only [List.map_map, Function.comp_def] using
       interpolate_reconstruct shares distinct bounded coefficients degree_lt values
 
 end WotsLamport.Submission

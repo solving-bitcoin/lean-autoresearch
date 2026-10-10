@@ -1,4 +1,5 @@
 import WotsLamport.Submission.Layout
+import Mathlib.Data.List.Nodup
 
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected
@@ -100,5 +101,65 @@ theorem opposite_slots_length (m : Message) (i : Fin 256) :
       fun jk => decide (encodeWord m jk.1 ≤ jk.2)).length + 1 =
       threshold (!(outputCodec.encode m)[i.val]) := by
   rw [filtered_slots_length, opposite_exposed_count]
+
+/-- Filtering by visibility cannot duplicate the coordinates attached by the
+actual zipIdx enumeration. Repeated chain nodes still have distinct points. -/
+theorem enumerated_coordinates_distinct {A : Type} (xs : List A) (keep : A × Nat → Bool) :
+    ((xs.zipIdx.filter keep).map fun entry => entry.2+1).Nodup := by
+  have hs : (xs.zipIdx.map Prod.snd).Nodup := by
+    rw [List.zipIdx_map_snd]
+    exact List.nodup_range'
+  have hf : (xs.zipIdx.map fun entry => entry.2+1).Nodup := by
+    simpa only [List.map_map, Function.comp_apply, Nat.succ_eq_add_one] using
+      List.Nodup.map (f := Nat.succ) Nat.succ_injective hs
+  exact List.Nodup.sublist (List.Sublist.map _ List.filter_sublist) hf
+
+theorem enumerated_filter_length {A : Type} (xs : List A) (keep : A → Bool) :
+    (xs.zipIdx.filter fun entry => keep entry.1).length = (xs.filter keep).length := by
+  have hm : (xs.zipIdx.filter (keep ∘ Prod.fst)).map Prod.fst = xs.filter keep := by
+    rw [← List.filter_map, List.zipIdx_map_fst]
+  simpa only [List.length_map] using congrArg List.length hm
+
+theorem slot_coordinate_bounds (i : Fin 256) (value : Bool)
+    (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ (slots i value).zipIdx) :
+    0 < entry.2+1 ∧ entry.2+1 < prime := by
+  have hidx : entry.2 < (slots i value).length := by
+    simpa using List.snd_lt_add_of_mem_zipIdx he
+  have hlen : (slots i value).length ≤ 1984 := by
+    rw [slots_length]
+    cases value <;> decide
+  constructor
+  · omega
+  · unfold prime
+    omega
+
+theorem visibleSlots_selected_length (m : Message) (i : Fin 256) :
+    (visibleSlots m i (outputCodec.encode m)[i.val]).length =
+      threshold (outputCodec.encode m)[i.val] := by
+  unfold visibleSlots
+  rw [enumerated_filter_length, selected_slots_length]
+
+theorem visibleSlots_distinct (m : Message) (i : Fin 256) (value : Bool) :
+    ((visibleSlots m i value).map fun entry => entry.2+1).Nodup := by
+  exact enumerated_coordinates_distinct (slots i value) _
+
+theorem visibleSlots_bounds (m : Message) (i : Fin 256) (value : Bool)
+    (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ visibleSlots m i value) :
+    0 < entry.2+1 ∧ entry.2+1 < prime := by
+  unfold visibleSlots at he
+  exact slot_coordinate_bounds i value entry (List.mem_filter.mp he).1
+
+theorem visibleSlots_open (m : Message) (i : Fin 256) (value : Bool)
+    (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ visibleSlots m i value) :
+    encodeWord m entry.1.1 ≤ entry.1.2 := by
+  unfold visibleSlots at he
+  exact of_decide_eq_true (List.mem_filter.mp he).2
+
+theorem visibleSlots_lookup (m : Message) (i : Fin 256) (value : Bool)
+    (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ visibleSlots m i value) :
+    ∃ h : entry.2 < (slots i value).length, (slots i value)[entry.2] = entry.1 := by
+  unfold visibleSlots at he
+  exact List.getElem?_eq_some_iff.mp
+    (List.mem_zipIdx_iff_getElem?.mp (List.mem_filter.mp he).1)
 
 end WotsLamport.Submission

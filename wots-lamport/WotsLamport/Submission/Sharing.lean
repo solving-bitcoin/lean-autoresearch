@@ -93,33 +93,41 @@ def interpolate (shares : List (Nat × List Nat)) : List Nat :=
   (List.range 16).map fun limb =>
     weighted.foldl (fun acc a => fadd acc (fmul a.1 a.2[limb]!)) 0
 
+def visibleSlots (m : Message) (i : Fin 256) (value : Bool) : List ((Fin 67 × Nat) × Nat) :=
+  (slots i value).zipIdx.filter fun entry => decide (encodeWord m entry.1.1 ≤ entry.1.2)
+
+def decodeShare (h : Hash) (publicBytes nonce body : ByteArray)
+    (m : Message) (sig : Signature) (i : Fin 256) (value : Bool)
+    (entry : (Fin 67 × Nat) × Nat) : Option (Nat × List Nat) :=
+  let ((j,k), index) := entry
+  let offset := 32 + 512*32 + (i.val*(1984+1982) + if value then 1984 else 0)*48
+  let node := chain h (k - encodeWord m j) (sig j)
+  let plain := xorBytes (body.extract (offset+index*48) (offset+(index+1)*48))
+    (mask h publicBytes nonce i.val value (index+1) node)
+  let fields := (List.range 16).map fun limb => readLE plain (3*limb) 3
+  if fields.any (fun x => decide (x ≥ prime)) then none else some (index+1,fields)
+
+def expandLabel (h : Hash) (publicBytes nonce body : ByteArray)
+    (m : Message) (sig : Signature) (i : Fin 256) (value : Bool) : Option ByteArray := do
+  let shares ← (visibleSlots m i value).mapM (decodeShare h publicBytes nonce body m sig i value)
+  if shares.length != threshold value then failure
+  let recovered := interpolate shares
+  if recovered.any (fun x => decide (x ≥ 65536)) then failure
+  let bytes := concatenate (recovered.map (writeLE 2))
+  let label ← (Codec.byteVector 32).bytes.decode bytes
+  let expected := body.extract (32+(2*i.val+(if value then 1 else 0))*32)
+    (32+(2*i.val+(if value then 1 else 0)+1)*32)
+  if (ByteArray.mk (commitment h publicBytes nonce i.val value label).toArray) != expected then failure
+  return bytes
+
 def expand (h : Hash) (pk : PublicKey) (body : ByteArray) (m : Message) (sig : Signature) : Option ByteArray := do
   if body.size != bodyBytes then none else do
     let publicBytes := keyCodec.encode pk
     let nonce := body.extract 0 32
-    let mut result := ByteArray.empty
-    for i in List.finRange 256 do
-      let value := (outputCodec.encode m)[i.val]
-      let offset := 32 + 512*32 + (i.val*(1984+1982) + if value then 1984 else 0)*48
-      let mut shares : List (Nat × List Nat) := []
-      for ((j,k), index) in (slots i value).zipIdx do
-        if encodeWord m j ≤ k then
-          let node := chain h (k - encodeWord m j) (sig j)
-          let plain := xorBytes (body.extract (offset+index*48) (offset+(index+1)*48))
-            (mask h publicBytes nonce i.val value (index+1) node)
-          let fields := (List.range 16).map fun limb => readLE plain (3*limb) 3
-          if fields.any (fun x => decide (x ≥ prime)) then failure
-          shares := shares ++ [(index+1,fields)]
-      if shares.length != threshold value then failure
-      let recovered := interpolate shares
-      if recovered.any (fun x => decide (x ≥ 65536)) then failure
-      let bytes := recovered.foldl (fun acc x => acc ++ writeLE 2 x) ByteArray.empty
-      let label ← (Codec.byteVector 32).bytes.decode bytes
-      let expected := body.extract (32+(2*i.val+(if value then 1 else 0))*32)
-        (32+(2*i.val+(if value then 1 else 0)+1)*32)
-      if (ByteArray.mk (commitment h publicBytes nonce i.val value label).toArray) != expected then failure
-      result := result ++ bytes
-    return result
+    let bits := outputCodec.encode m
+    let parts ← (List.finRange 256).mapM fun i =>
+      expandLabel h publicBytes nonce body m sig i bits[i.val]
+    return concatenate parts
 
 def construction : Construction := ⟨randomnessBytes, prepare, expand⟩
 
