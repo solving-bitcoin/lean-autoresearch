@@ -58,4 +58,42 @@ theorem shift_inverse (s : Finset F) (delta : F) (p : F[X]) :
     shift s (-delta) (shift s delta p) = p := by
   simp [shift]
 
+theorem shift_degree (s : Finset F) (nonzero : (0 : F) ∉ s)
+    (t : Nat) (few : s.card < t) (delta : F) (p : F[X])
+    (hp : p.degree < t) : (shift s delta p).degree < t := by
+  have hm : (C delta * privacyMask s).degree ≤ (s.card : WithBot Nat) := by
+    simpa using (Polynomial.degree_mul_le_of_le
+      (p := C delta) (q := privacyMask s) Polynomial.degree_C_le
+      (privacyMask_degree s nonzero))
+  have hc : (s.card : WithBot Nat) < (t : WithBot Nat) := WithBot.coe_lt_coe.mpr few
+  exact (Polynomial.degree_add_le _ _).trans_lt (max_lt hp (hm.trans_lt hc))
+
+def Fiber (s : Finset F) (t : Nat) (secret : F) (values : F → F) :=
+  {p : F[X] // p.degree < t ∧ p.eval 0 = secret ∧ ∀ x ∈ s, p.eval x = values x}
+
+/-- For fewer than t nonzero observed coordinates, the compatible polynomial
+sets for any two secrets are in bijection. Uniform-law transport and the actual
+biased coefficient sampler remain separate obligations. -/
+noncomputable def fiberEquiv (s : Finset F) (nonzero : (0 : F) ∉ s)
+    (t : Nat) (few : s.card < t) (a b : F) (values : F → F) :
+    Fiber s t a values ≃ Fiber s t b values where
+  toFun p := ⟨shift s (b-a) p.val,
+    shift_degree s nonzero t few (b-a) p.val p.property.1,
+    by rw [shift_secret, p.property.2.1]; ring,
+    by intro x hx; rw [shift_observed s nonzero (b-a) p.val x hx]; exact p.property.2.2 x hx⟩
+  invFun p := ⟨shift s (a-b) p.val,
+    shift_degree s nonzero t few (a-b) p.val p.property.1,
+    by rw [shift_secret, p.property.2.1]; ring,
+    by intro x hx; rw [shift_observed s nonzero (a-b) p.val x hx]; exact p.property.2.2 x hx⟩
+  left_inv p := by
+    apply Subtype.ext
+    change shift s (a-b) (shift s (b-a) p.val) = p.val
+    simp only [shift, map_sub]
+    ring
+  right_inv p := by
+    apply Subtype.ext
+    change shift s (b-a) (shift s (a-b) p.val) = p.val
+    simp only [shift, map_sub]
+    ring
+
 end WotsLamport.Submission.Shamir

@@ -1,7 +1,11 @@
 # Proof and validation status
 
-No Lean file in this new project has been compiled in this environment.
-The pinned compiler is 4.33.1; its official installer host returned proxy 403.
+Hosted Lean at a2dce49 checked all Protected modules through Wire, including
+encoding round trips, chain/signature laws and the public-key wrapper. The next
+benchmark failed its frozen digest after setup; full candidate proofs and
+generated tools remain unchecked.
+The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
+Actions successfully installed it through the authorized hosted workflow.
 That denial was not bypassed. The project contains no `sorry`, new axioms or
 fake certificate. Source-level theorem bodies are **unchecked proof attempts**.
 
@@ -13,7 +17,7 @@ fake certificate. Source-level theorem bodies are **unchecked proof attempts**.
 | Bit order | Explicit high/low nibble to LSB-first formula; exhaustive finite Python/Rust fixtures | Formal mapping theorem |
 | Weighted geometry | Checksum identity, multiplicity/telescoping lemmas; all 961 totals tested | Connect full slot enumeration to exact count for every message/wire |
 | Field reconstruction | Executable F_65537 interpolation, duplicate/nonzero checks, reference tests | Field primality/coordinate lemmas and Lagrange reconstruction theorem |
-| Shamir privacy | Toy F_7 exhaustive distribution test only | General joint independence theorem for all 16 limbs and all polynomials |
+| Shamir privacy | Toy F_7 exhaustive distribution test only | Check abstract reconstruction and secret-shift bijection in Shamir.lean; connect all 16 limbs and all polynomials to sampled distributions |
 | Coefficient law | Independent 32-byte blocks; explicit bias formula | Prove modular-sampling statistical distance and compose across coefficients |
 | Chain/mask ROM reduction | Real correlated disclosure; full-closure adversary tests | Joint bad-query/collision coupling including setup, endpoints, masks, commitments and label-recovery guessing |
 | Public pk visible | Mandatory protected wrapper, `publicKey_visible`, audited Entry mapping | Compile and audit theorem and generated serialization |

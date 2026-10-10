@@ -14,11 +14,11 @@ def bodyBytes : Nat := 32 + 512*32 + 256*(1984+1982)*48
 def artifactBytes : Nat := 2144 + bodyBytes
 
 def readLE (b : ByteArray) (start length : Nat) : Nat :=
-  (List.range length).foldr (fun j acc => b.data[start+j]!.toNat + 256*acc) 0
+  (List.range length).foldr (fun j acc => b[start+j]!.toNat + 256*acc) 0
 def writeLE (length n : Nat) : ByteArray :=
   ⟨(List.range length).toArray.map fun j => UInt8.ofNat (n / 256^j)⟩
 def xorBytes (a b : ByteArray) : ByteArray :=
-  ⟨(List.range a.size).toArray.map fun j => a.data[j]! ^^^ b.data[j]!⟩
+  ⟨(List.range a.size).toArray.map fun j => a[j]! ^^^ b[j]!⟩
 def fadd (a b : Nat) : Nat := (a+b) % prime
 def fmul (a b : Nat) : Nat := (a*b) % prime
 def fsub (a b : Nat) : Nat := (a+prime-b) % prime

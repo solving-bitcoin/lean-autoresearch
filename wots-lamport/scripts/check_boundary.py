@@ -5,6 +5,8 @@ from unittest.mock import patch
 import boundary
 from boundary import check_source, score_value, dependency_entries
 import overlay
+from manifest import restore_format
+import json
 
 
 def rejected(action):
@@ -15,6 +17,14 @@ def rejected(action):
 
 def main():
     dependency_entries()
+    with tempfile.TemporaryDirectory(prefix='wots-manifest-') as directory:
+        manifest = Path(directory)/'lake-manifest.json'
+        frozen = b'{"packages":[{"name":"fixed","rev":"a"}]}\n'
+        manifest.write_text(json.dumps(json.loads(frozen), indent=2))
+        restore_format(manifest, frozen)
+        assert manifest.read_bytes() == frozen
+        manifest.write_bytes(frozen.replace(b'"a"', b'"b"'))
+        rejected(lambda: restore_format(manifest, frozen))
     original = ('import WotsLamport.Protected.Target\nnamespace WotsLamport.Submission\n'
                 'def fixture : Nat := 0\nend WotsLamport.Submission\n')
     with tempfile.TemporaryDirectory(prefix='wots-lamport-policy-') as directory:

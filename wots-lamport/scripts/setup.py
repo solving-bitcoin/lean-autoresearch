@@ -1,13 +1,18 @@
 """Build trusted sources and authenticate external caches before submission."""
-from limits import guarded
+from limits import guarded, ROOT
 from boundary import check_protected, dependencies, prepare_generated_cache_excludes
+from manifest import restore_format
 
 check_protected()
+manifest = ROOT/'lake-manifest.json'
+frozen = manifest.read_bytes()
 for command in (['lake','update'], ['lake','resolve-deps'], ['lake','build','WotsLamport.Protected.Wire']):
     print(f"CHECK: {' '.join(command)}", flush=True)
     r = guarded(command)
     print(r['stdout'], end=''); print(r['stderr'], end='')
     print(f"Peak RSS: {r['peakMemoryBytes']} bytes", flush=True)
+    restore_format(manifest, frozen)
+check_protected()
 prepare_generated_cache_excludes()
 dependencies(snapshot=True)
 print('PASS: pinned WOTS/shared sources and authenticated external dependency builds')

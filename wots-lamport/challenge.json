@@ -30,7 +30,9 @@
     "WotsLamport.Tests.Contract",
     "WotsLamport.Tests.Nonvacuity"
   ],
-  "authoringChecks": [],
+  "authoringChecks": [
+    "scripts/check_lean.py"
+  ],
   "editablePaths": [
     "WotsLamport/Submission"
   ],

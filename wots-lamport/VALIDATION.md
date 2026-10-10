@@ -88,3 +88,6 @@ The first hosted reference run at d2c4f9f passed but measured the original
 Prepare at 69.66 s and the full test at 77.92 s. Hosted Lean installation and
 cache-key generation succeeded. There was no exact cache hit, so this run
 provides no evidence of warm-cache performance.
+
+The optimized hosted reference run at a2dce49 passed: Prepare 26.12 s, full
+test 34.51 s, peak 320,299,008 bytes. This remains a Rust-only measurement.
