@@ -12,9 +12,7 @@ theorem opposite_claim_wins (h : Hash) (m : Message) (keys : Keys)
     (labels : challenge.outputs.Keys) (i : Fin 256) :
     challenge.wins h () m keys labels
       (i, (labels i).get (!(outputCodec.encode m)[i.val])) := by
-  change (labels i).get (!(outputCodec.encode m)[i.val]) =
-    (labels i).get (!(outputCodec.encode m)[i.val])
-  exact Eq.refl _
+  simp only [challenge]
 
 theorem selected_claim_does_not_win (h : Hash) (m : Message) (keys : Keys)
     (labels : challenge.outputs.Keys) (i : Fin 256) :

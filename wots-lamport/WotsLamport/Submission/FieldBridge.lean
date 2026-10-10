@@ -56,7 +56,8 @@ theorem evaluatePolynomial_eq_val (coefficients : List Nat) (x : Nat) :
     evaluatePolynomial coefficients x =
       ((fieldPolynomial coefficients).eval (x : ZMod 65537)).val := by
   have h := congrArg ZMod.val (evaluatePolynomial_field coefficients x)
-  rw [ZMod.val_natCast, Nat.mod_eq_of_lt (evaluatePolynomial_lt coefficients x)] at h
+  have hb : evaluatePolynomial coefficients x < 65537 := evaluatePolynomial_lt coefficients x
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hb] at h
   exact h.symm
 
 /-- Abstract reconstruction now applies to values of the concrete Horner loop.

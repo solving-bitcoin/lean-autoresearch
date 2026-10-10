@@ -14,7 +14,12 @@ Horner corollary still needs compilation. Generated executable tools have not
 yet been validated. The `da8f424` all-source attempt exceeded the unchanged
 8 GiB aggregate build guard (8,645,795,840-byte peak); the next attempt uses
 sequential module builds and kernel-only reduction of the finite slot geometry.
-No native evaluation axiom or larger memory budget is used.
+The `6d26fba` run confirmed that full slot enumeration alone still exceeds
+the cap (8,897,998,848-byte peak). The next proof uses symbolic per-chain sums
+and reduces only eight nibble cases. No native evaluation axiom or larger
+memory budget is used. BitMapping and the canonical Horner corollary also
+received elaboration repairs; InverseBridge is a new, unchecked proof attempt
+for the executable inversion loop and bounded natural subtraction.
 
 The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
 Actions successfully installed it through the authorized hosted workflow.

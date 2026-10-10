@@ -1,4 +1,4 @@
-import WotsLamport.Submission.Sharing
+import WotsLamport.Submission.Geometry
 
 /-! Structural size obligations for the actual serializers. The final bound
 quantifies over every hash, coin string, WOTS key and distinct label table. -/
@@ -19,14 +19,72 @@ theorem polynomial_length (coins : ByteArray) (label : Label) (wire limb : Nat)
     (value : Bool) : (polynomial coins label wire limb value).length = threshold value := by
   simp [polynomial]
 
-set_option maxRecDepth 8192 in
-set_option maxHeartbeats 5000000 in
-/-- Finite geometry only: this kernel reduction has no cryptographic inputs.
-Unlike native_decide it does not add an executable-code axiom to the proof. -/
+theorem target_maximum (i : Fin 256) : maximum (targetChain i) = 15 := by
+  have hi : (targetChain i).val < 64 := (bitChain i).isLt
+  simp [maximum, show (targetChain i).val ≠ 64 by omega,
+    show (targetChain i).val ≠ 65 by omega]
+
+theorem target_weight (i : Fin 256) : weight (targetChain i) = 1 := by
+  have hi : (targetChain i).val < 64 := (bitChain i).isLt
+  simp [weight, show (targetChain i).val ≠ 65 by omega,
+    show (targetChain i).val ≠ 66 by omega]
+
+set_option maxRecDepth 4096 in
+/-- Only eight tiny nibble cases are reduced in the kernel. The 67-chain
+aggregation below is symbolic and does not materialize the share lists. -/
+private theorem nibble_multiplicity_sum (r : Fin 4) (value : Bool) :
+    ((List.range 15).map fun k =>
+      (multiplicity 1 (fun d => d.testBit r.val == value) k).toNat).sum =
+      if value then 14 else 16 := by
+  revert r value
+  decide +kernel
+
+theorem chain_slot_count (i : Fin 256) (value : Bool) (j : Fin 67) :
+    ((List.range (maximum j)).map fun k =>
+      if j = targetChain i then (multiplicity (weight j) (holds i value) k).toNat
+      else weight j).sum =
+      if j = targetChain i then (if value then 14 else 16) else weight j * maximum j := by
+  by_cases h : j = targetChain i
+  · subst j
+    simpa only [target_maximum, target_weight, if_pos rfl, holds, digitBit] using
+      nibble_multiplicity_sum ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
+  · simp [h, Nat.mul_comm]
+
 theorem slots_length (i : Fin 256) (value : Bool) :
     (slots i value).length = if value then 1982 else 1984 := by
-  revert i value
-  decide +kernel
+  have hs : (slots i value).length =
+      ∑ j : Fin 67, if j = targetChain i then (if value then 14 else 16)
+        else weight j * maximum j := by
+    simp only [slots, List.length_flatMap, List.length_replicate]
+    rw [← Fin.sum_univ_def]
+    apply Finset.sum_congr rfl
+    intro j _
+    exact chain_slot_count i value j
+  have h15 : (∑ j : Fin 67, if j = targetChain i then 15 else 0) = 15 := by simp
+  have hv : (∑ j : Fin 67, if j = targetChain i then (if value then 14 else 16) else 0) =
+      (if value then 14 else 16) := by simp
+  have hp : weight (targetChain i) * maximum (targetChain i) = 15 := by
+    rw [target_weight, target_maximum]
+  have he : (∑ j : Fin 67, if j = targetChain i then (if value then 14 else 16)
+        else weight j * maximum j) + 15 =
+      (∑ j : Fin 67, weight j * maximum j) + (if value then 14 else 16) := by
+    calc
+      _ = (∑ j : Fin 67, if j = targetChain i then (if value then 14 else 16)
+          else weight j * maximum j) + (∑ j : Fin 67, if j = targetChain i then 15 else 0) := by rw [h15]
+      _ = ∑ j : Fin 67, (if j = targetChain i then (if value then 14 else 16)
+          else weight j * maximum j) + (if j = targetChain i then 15 else 0) := by
+        rw [Finset.sum_add_distrib]
+      _ = ∑ j : Fin 67, weight j * maximum j +
+          (if j = targetChain i then (if value then 14 else 16) else 0) := by
+        apply Finset.sum_congr rfl
+        intro j _
+        by_cases h : j = targetChain i
+        · subst j; simp [hp, Nat.add_comm]
+        · simp [h]
+      _ = _ := by rw [Finset.sum_add_distrib, hv]
+  rw [maximum_weighted_sum] at he
+  rw [hs]
+  cases value <;> simp at he ⊢ <;> omega
 
 theorem serialized_layout_arithmetic :
     2144 + 32 + 512*32 + 256*(1984+1982)*48 = artifactBytes := by rfl

@@ -10,6 +10,8 @@ check_protected()
 check_source(ROOT/'WotsLamport/Submission')
 modules = ['.'.join(p.relative_to(ROOT).with_suffix('').parts)
            for p in sorted((ROOT/'WotsLamport').rglob('*.lean'))]
+# Establish author-owned game checks before potentially expensive candidate proofs.
+modules.sort(key=lambda name: (name.startswith('WotsLamport.Submission.'), name))
 peak = 0
 failed = []
 for name in modules:

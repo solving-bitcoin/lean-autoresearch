@@ -15,8 +15,7 @@ theorem nibble_bit (n r : Nat) (hr : r < 8) :
 byte-major, least-significant-bit-first ordering for every message and wire. -/
 theorem message_digit_bit (m : Message) (i : Fin 256) :
     digitBit i (messageDigit m (bitChain i)) = (outputCodec.encode m)[i.val] := by
-  change digitBit i (messageDigit m (bitChain i)) =
-    m[i.val / 8].toNat.testBit (i.val % 8)
+  simp only [outputCodec, Codec.byteVector, Vector.getElem_ofFn]
   conv_rhs => rw [← nibble_bit _ _ (Nat.mod_lt i.val (by decide : 0 < 8))]
   have hm : i.val % 8 % 4 = i.val % 4 := by omega
   have hl : (2 * (i.val / 8) + 1) / 2 = i.val / 8 := by omega
@@ -28,8 +27,7 @@ theorem message_digit_bit (m : Message) (i : Fin 256) :
 
 theorem target_digit_bit (m : Message) (i : Fin 256) :
     digitBit i (encodeWord m (targetChain i)) = (outputCodec.encode m)[i.val] := by
-  have hi : (targetChain i).val < 64 := (bitChain i).isLt
-  simpa only [encodeWord, dif_pos hi, targetChain] using message_digit_bit m i
+  simpa only [targetChain, encodeWord, dif_pos (bitChain i).isLt] using message_digit_bit m i
 
 theorem selected_holds (m : Message) (i : Fin 256) :
     holds i (outputCodec.encode m)[i.val] (encodeWord m (targetChain i)) = true := by
