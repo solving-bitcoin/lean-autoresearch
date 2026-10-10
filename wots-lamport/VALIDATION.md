@@ -11,7 +11,7 @@ Rust toolchain: `rustc 1.97.1 (8bab26f4f 2026-07-14)`.
   serialized-layout arithmetic.
 - Independent Python/Rust agreement: public-key/signature hashes, 67 encoded
   digits and 20 encrypted-share byte vectors, including checksum coordinates.
-- Rust reference suite: **6 reference + 4 review tests passed**, 0 failed. The separate full-size test was
+- Rust reference suite: **6 reference + 5 review tests passed**, 0 failed. The separate full-size test was
   initially ignored in this suite and then explicitly executed. The generated
   Lean integration test was filtered out locally because no Lean bundle exists;
   the shared benchmark does not filter it out.
@@ -34,9 +34,10 @@ Useful raw logs are under the ignored `wots-lamport/.yukon/` directory:
 
 ## Not validated
 
-- Lean parsing/elaboration/kernel proofs, generated executable tools and their
-  actual codec/algorithm correspondence. The official installer host returned
-  proxy 403; the restriction was not bypassed.
+- The complete all-source Lean build, generated executable tools and their
+  actual codec/algorithm correspondence. Protected, Threshold and the shared
+  packed-runtime equivalence theorem have passed hosted Lean; see PROOF_STATUS.
+  The local installer returned proxy 403; the restriction was not bypassed.
 - Universal correctness and artifact-size theorems, Shamir privacy and the
   joint ROM reduction. The shared candidate certificate is `none`; no score.
 - Equivalence for all accepted raw stacks and Bitcoin Core consensus/policy validity.
@@ -91,3 +92,10 @@ provides no evidence of warm-cache performance.
 
 The optimized hosted reference run at a2dce49 passed: Prepare 26.12 s, full
 test 34.51 s, peak 320,299,008 bytes. This remains a Rust-only measurement.
+
+The reference job for `f605fb5` passed all six reference tests, five review
+tests and the separately invoked full-size test: Prepare 26.10 s, full test
+34.47 s, peak 320,294,912 bytes. These measurements do not certify the candidate.
+The optional shared packed-coin path has a universal equivalence proof checked
+by hosted Lean; its new 256 MiB native memory regression still awaits execution.
+The SDK per-tool limit remains 60 seconds and native RSS remains 1 GiB.

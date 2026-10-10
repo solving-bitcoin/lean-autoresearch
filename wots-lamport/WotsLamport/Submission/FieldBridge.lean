@@ -50,6 +50,15 @@ theorem evaluatePolynomial_lt (coefficients : List Nat) (x : Nat) :
     change (a + fmul x (evaluatePolynomial rest x)) % prime < prime
     exact Nat.mod_lt _ (by decide)
 
+/-- The executable result is the canonical natural representative, not just
+an arbitrary integer congruent to the polynomial evaluation. -/
+theorem evaluatePolynomial_eq_val (coefficients : List Nat) (x : Nat) :
+    evaluatePolynomial coefficients x =
+      ((fieldPolynomial coefficients).eval (x : ZMod 65537)).val := by
+  have h := congrArg ZMod.val (evaluatePolynomial_field coefficients x)
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt (evaluatePolynomial_lt coefficients x)] at h
+  exact h.symm
+
 /-- Abstract reconstruction now applies to values of the concrete Horner loop.
 Connecting the executable inverse/serialization/coordinate list remains open. -/
 theorem reconstruct_evaluated_secret (s : Finset (ZMod 65537))

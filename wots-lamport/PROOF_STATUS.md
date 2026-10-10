@@ -1,27 +1,37 @@
 # Proof and validation status
 
-Hosted Lean at a2dce49 checked all Protected modules through Wire, including
-encoding round trips, chain/signature laws and the public-key wrapper. The next
-benchmark failed its frozen digest after setup; full candidate proofs and
-generated tools remain unchecked.
+Hosted Lean checked all Protected modules through Wire at `a2dce49`, including
+encoding round trips, chain/signature laws and the public-key wrapper. At
+`50e6007` it also checked the shared `Runtime.garblePacked_eq` theorem: the
+optional packed-byte implementation equals the mathematical vector operation
+for every valid coin vector. At `18aebd8`, Threshold, Adaptive, Contract and
+RunnerFixture compiled. That run exposed candidate elaboration failures;
+at `f605fb5`, Sharing, Shamir and FieldBridge compiled. This checks abstract
+Lagrange reconstruction, the Shamir secret-shift bijection, distinct nonzero
+coordinates, and the modular Horner/field evaluation bridge. Layout and one
+Nonvacuity theorem failed and are being repaired. The added canonical-integer
+Horner corollary still needs compilation. Generated executable tools have not
+yet been validated.
+
 The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
 Actions successfully installed it through the authorized hosted workflow.
 That denial was not bypassed. The project contains no `sorry`, new axioms or
-fake certificate. New candidate proofs and packed-runtime changes are
-**unchecked proof attempts** until their exact revision passes hosted Lean.
+fake certificate. Proof source is not counted as a proved result until the
+pinned compiler checks it. The status below distinguishes checked modules
+from remaining proof obligations.
 
 | Obligation | Current deliverable | Remaining work |
 | --- | --- | --- |
-| Full 256-bit message coverage | Encoding/decoding, `decode_encode`, canonical extraction | Compile and repair/check actual proofs |
-| Canonical Sign accepted | Correlated seeds/chain recurrence, `sign_verifies` | Kernel-check proof; actual Script correspondence |
+| Full 256-bit message coverage | Encoding/decoding, `decode_encode`, canonical extraction | Checked in Protected.Encoding |
+| Canonical Sign accepted | Correlated seeds/chain recurrence, `sign_verifies` | Canonical theorem checked; actual Script correspondence remains open |
 | Same artifact, all messages | Lean and independent Rust weighted-sharing algorithms | Prove `Correct` universally for every hash, coins, key and distinct label table |
 | Bit order | Explicit high/low nibble to LSB-first formula; exhaustive finite Python/Rust fixtures | Formal mapping theorem |
 | Weighted geometry | Checksum identity, multiplicity/telescoping lemmas; all 961 totals tested | Connect full slot enumeration to exact count for every message/wire |
-| Field reconstruction | Executable F_65537 interpolation, duplicate/nonzero checks, reference tests | Field primality/coordinate lemmas and Lagrange reconstruction theorem |
-| Shamir privacy | Toy F_7 exhaustive distribution test only | Check abstract reconstruction and secret-shift bijection in Shamir.lean; connect all 16 limbs and all polynomials to sampled distributions |
+| Field reconstruction | Executable F_65537 interpolation, duplicate/nonzero checks, reference tests | Primality, coordinates, Horner bridge and abstract reconstruction checked; connect executable interpolation |
+| Shamir privacy | Abstract secret-shift bijection checked; toy F_7 exhaustive test | Connect all 16 limbs and all polynomials to sampled distributions |
 | Coefficient law | Independent 32-byte blocks; explicit bias formula | Prove modular-sampling statistical distance and compose across coefficients |
 | Chain/mask ROM reduction | Real correlated disclosure; full-closure adversary tests | Joint bad-query/collision coupling including setup, endpoints, masks, commitments and label-recovery guessing |
-| Public pk visible | Mandatory protected wrapper, `publicKey_visible`, audited Entry mapping | Compile and audit theorem and generated serialization |
+| Public pk visible | Mandatory protected wrapper, `publicKey_visible`, audited Entry mapping | Wrapper theorem checked; audit generated serialization |
 | Pre-release withholding | Nonvacuous author-owned game recovering either label | Prove `ROM.WithholdingSecure` |
 | Post-release opposite label | Nonvacuous author-owned static game, outputs free | Prove `ROM.ReleaseSecure` against all bounded-query programs |
 | Exact artifact codec | Raw bytes, identity encode and `some` decode | Supply shared certificate codec fields; malformed body checks are distinct |
