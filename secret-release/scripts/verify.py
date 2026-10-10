@@ -85,6 +85,18 @@ example (s : Scheme {target}) (n : Nat) (h : Correct s)
             if not all(field in str(error) for field in ('releaseSecure','functionPrivate')): raise
         else: raise SystemExit('incomplete certificate was accepted')
         print('PASS: correctness/codec/size cannot replace the secrecy certificate',flush=True)
+        packed_negative=project/'PackedWithoutProof.lean'
+        packed_negative.write_text('''import SecretRelease
+open SecretRelease
+example (n : Nat) (g : Hash → Bytes n → Unit → Unit → Unit → ByteArray)
+    (r : Hash → ByteArray → Unit → Unit → Unit → ByteArray) :
+    PackedGarble n Unit Unit Unit ByteArray g := { run := r }
+''')
+        try: guarded(['lake','env','lean','-j1',packed_negative.name],project)
+        except SystemExit as error:
+            if 'agrees' not in str(error): raise
+        else: raise SystemExit('packed runtime without correspondence proof was accepted')
+        print('PASS: packed runtime requires universal garbling correspondence',flush=True)
         r=guarded([shared/'.lake/build/bin/secret-release-checks'],project,native=True)
         natives.append(r['peakMemoryBytes']); print(r['stdout'],end='',flush=True)
         generate(project,fixture=True)

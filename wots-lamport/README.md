@@ -220,3 +220,17 @@ Protected/local modules are always rebuilt in the isolated verifier tree.
 The seal is an integrity check, not a signature; writer provenance is enforced
 by GitHub cache scopes, read-only consumer tokens and the main-only producer.
 A green preview does not certify or rank this reference candidate.
+
+## Packed coin execution
+
+The mathematical scheme still quantifies over every `Bytes randomnessBytes`
+coin string, with the same independent byte law. `PackedGarble` offers an
+optional runtime implementation on packed `ByteArray` inputs, accompanied by
+an `agrees` proof for every valid coin string. The shared entrypoint checks the
+exact length before selecting it. WOTS's wrapper uses this path to avoid the
+2 GiB pointer array that unpacking its 268 MB coin buffer would otherwise
+require on a 64-bit host. Existing schemes default to the original path.
+This changes representation only: no entropy expansion, smaller random seed,
+new oracle assumption, relaxed certificate or larger resource limit is used.
+The correspondence theorem and large-buffer native regression still require
+hosted validation before this optimization can be claimed checked.

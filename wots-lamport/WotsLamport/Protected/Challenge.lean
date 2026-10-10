@@ -39,13 +39,14 @@ def challenge : SecretRelease.Challenge where
 actual WOTS pk as the first 2,144 scored bytes before AND after release. -/
 structure Construction where
   randomnessBytes : Nat
-  prepare : Hash → Bytes randomnessBytes → Keys → challenge.outputs.Keys → ByteArray
+  prepare : Hash → ByteArray → Keys → challenge.outputs.Keys → ByteArray
   expand : Hash → PublicKey → ByteArray → Message → Signature → Option ByteArray
 
 def wrapped (s : Construction) : Scheme challenge where
   Artifact := ByteArray
   randomnessBytes := s.randomnessBytes
-  garble := fun h coins _ keys labels => keyCodec.encode (publicKey h keys) ++ s.prepare h coins keys labels
+  garble := fun h coins _ keys labels =>
+    keyCodec.encode (publicKey h keys) ++ s.prepare h ⟨coins.toArray⟩ keys labels
   encode := id
   decode := some
   evaluate := fun h bytes m active => do
@@ -54,11 +55,15 @@ def wrapped (s : Construction) : Scheme challenge where
     if verifies h pk (encodeWord m) sig then
       s.expand h pk (bytes.extract 2144 bytes.size) m sig
     else none
+  packedGarble := some {
+    run := fun h coins _ keys labels =>
+      keyCodec.encode (publicKey h keys) ++ s.prepare h coins keys labels
+    agrees := by intros; rfl }
 
 theorem publicKey_visible (s : Construction) (h : Hash) (coins : Bytes s.randomnessBytes)
     (keys : Keys) (labels : challenge.outputs.Keys) :
     ∃ body, (wrapped s).garbleBytes h coins () keys labels = keyCodec.encode (publicKey h keys) ++ body :=
-  ⟨s.prepare h coins keys labels, rfl⟩
+  ⟨s.prepare h ⟨coins.toArray⟩ keys labels, rfl⟩
 
 theorem wrapped_decode_encode (s : Construction) (a : ByteArray) :
     (wrapped s).decode ((wrapped s).encode a) = some a := rfl

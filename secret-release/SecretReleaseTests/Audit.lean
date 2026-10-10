@@ -4,6 +4,10 @@ import Lean
 
 open SecretRelease MeasureTheory ProbabilityTheory
 
+-- Native packed coins must preserve the original mathematical garbling for
+-- every valid coin string. Neither a byte bound nor a secrecy goal is relaxed.
+#print axioms SecretRelease.Runtime.garblePacked_eq
+
 -- The experiment must be a probability law, never a zero-measure shortcut.
 theorem secretRelease_law_probability (c : Challenge) (s : Scheme c) :
     IsProbabilityMeasure (ROM.law s) := by

@@ -58,9 +58,9 @@ def mask (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool)
 def commitment (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool) (label : Label) : Label :=
   h (domain "WOTS-LAMPORT/label/v1" pk nonce wire value ++ ⟨label.toArray⟩)
 
-def prepare (h : Hash) (coins : Bytes randomnessBytes) (keys : Keys)
+def prepare (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : challenge.outputs.Keys) : ByteArray := Id.run do
-  let randomness := ByteArray.mk coins.toArray
+  let randomness := coins
   let nonce := randomness.extract 0 32
   let pk := keyCodec.encode (publicKey h keys)
   let mut out := nonce

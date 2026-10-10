@@ -25,13 +25,33 @@ structure WireFormat (c : Challenge) where
 
 namespace Runtime
 
+/-- Select a proved packed implementation when one exists. The fallback keeps
+the previous interface, so existing schemes require no new implementation. -/
+def garblePacked (s : Scheme c) (h : Hash) (coins : ByteArray)
+    (hc : coins.size = s.randomnessBytes) (p : c.Private)
+    (ik : c.inputs.Keys) (ok : c.outputs.Keys) : ByteArray :=
+  match s.packedGarble with
+  | some implementation => s.encode (implementation.run h coins p ik ok)
+  | none => s.garbleBytes h ⟨coins.data, hc⟩ p ik ok
+
+theorem garblePacked_eq (s : Scheme c) (h : Hash) (coins : Bytes s.randomnessBytes)
+    (p : c.Private) (ik : c.inputs.Keys) (ok : c.outputs.Keys) :
+    garblePacked s h ⟨coins.toArray⟩ (by simp [ByteArray.size]) p ik ok =
+      s.garbleBytes h coins p ik ok := by
+  unfold garblePacked
+  split
+  · rename_i implementation _
+    rw [implementation.agrees]
+    rfl
+  · rfl
+
 def garble (w : WireFormat c) (s : Scheme c) (h : Hash)
     (coins privateBytes inputKeys outputKeys : ByteArray) : Option ByteArray := do
   if hc : coins.size = s.randomnessBytes then
     let p ← c.privateCodec.bytes.decode privateBytes
     let ik ← w.inputs.codec.decode inputKeys
     let ok ← w.outputs.codec.decode outputKeys
-    pure (s.garbleBytes h ⟨coins.data,hc⟩ p ik ok)
+    pure (garblePacked s h coins hc p ik ok)
   else none
 
 /-- The known input is a separate fixed canonical channel. Only the selected
@@ -61,7 +81,7 @@ def release (w : WireFormat c) (h : Hash) (value keys : ByteArray) : Option Byte
     (coins : Bytes s.randomnessBytes) (p : c.Private) (ik : c.inputs.Keys) (ok : c.outputs.Keys) :
     garble w s h ⟨coins.toArray⟩ (c.privateCodec.bytes.encode p)
       (w.inputs.codec.encode ik) (w.outputs.codec.encode ok) = some (s.garbleBytes h coins p ik ok) := by
-  simp [garble, ByteArray.size, ByteCodec.decode_encode]
+  simp [garble, ByteArray.size, ByteCodec.decode_encode, garblePacked_eq]
 
 @[simp] theorem encode_encoded (w : WireFormat c) (h : Hash) (x : c.Input) (ik : c.inputs.Keys) :
     encode w h (c.inputCodec.bytes.encode x) (w.inputs.codec.encode ik) =
