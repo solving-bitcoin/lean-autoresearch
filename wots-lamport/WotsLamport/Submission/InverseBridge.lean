@@ -13,6 +13,7 @@ theorem fsub_field (a b : Nat) (hb : b ≤ prime) :
     (fsub a b : ZMod 65537) = (a : ZMod 65537) - (b : ZMod 65537) := by
   have h : b ≤ a + 65537 := by unfold prime at hb; omega
   simp [fsub, prime, Nat.cast_sub h]
+  simpa only [Nat.cast_ofNat] using ZMod.natCast_self 65537
 
 private def inverseState (a n : Nat) : Nat × Nat :=
   (List.range n).foldl (fun s _ => (fmul s.1 s.2, fmul s.2 s.2)) (1, a)

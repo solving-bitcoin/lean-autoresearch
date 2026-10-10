@@ -27,7 +27,10 @@ theorem message_digit_bit (m : Message) (i : Fin 256) :
 
 theorem target_digit_bit (m : Message) (i : Fin 256) :
     digitBit i (encodeWord m (targetChain i)) = (outputCodec.encode m)[i.val] := by
-  simpa only [targetChain, encodeWord, dif_pos (bitChain i).isLt] using message_digit_bit m i
+  unfold encodeWord
+  split
+  · exact message_digit_bit m i
+  · next h => exact False.elim (h (bitChain i).isLt)
 
 theorem selected_holds (m : Message) (i : Fin 256) :
     holds i (outputCodec.encode m)[i.val] (encodeWord m (targetChain i)) = true := by

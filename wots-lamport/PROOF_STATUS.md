@@ -19,7 +19,11 @@ the cap (8,897,998,848-byte peak). The next proof uses symbolic per-chain sums
 and reduces only eight nibble cases. No native evaluation axiom or larger
 memory budget is used. BitMapping and the canonical Horner corollary also
 received elaboration repairs; InverseBridge is a new, unchecked proof attempt
-for the executable inversion loop and bounded natural subtraction.
+for the executable inversion loop and bounded natural subtraction. At
+`d048390`, all Nonvacuity theorems and the canonical Horner integer-result
+corollary compiled. Two elaboration errors remained (target-digit case
+selection and reduction of the modulus to zero); their dependent geometry
+and size modules therefore did not build. Repairs are awaiting the next run.
 
 The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
 Actions successfully installed it through the authorized hosted workflow.

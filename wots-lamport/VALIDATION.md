@@ -103,3 +103,14 @@ its equivalence proof. The relevant shared files are unchanged at `da8f424`.
 Its axiom audit listed only propext, Classical.choice and Quot.sound. This
 checks the shared runtime path, not the WOTS algorithm or WOTS bundle.
 The SDK per-tool limit remains 60 seconds and native RSS remains 1 GiB.
+
+At `d048390`, the hosted reference job measured Prepare at 28.95 s, the full
+test at 38.09 s and peak RSS at 320,221,184 bytes. All reference/review checks
+passed. Hosted Lean checked Nonvacuity and the canonical Horner-result bridge;
+BitMapping/InverseBridge errors still prevented a complete source build.
+
+Both BLAKE3 and G1 authoring previews at `50e6007` completed successfully,
+including native generated-tool tests and packed-coin tests. The corresponding
+shared runtime, native regression and verifier sources remain unchanged at
+`d048390`. This is compatibility evidence for those shared changes, not a
+passing WOTS preview or a passing complete matrix for the current head.
