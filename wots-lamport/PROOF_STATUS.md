@@ -11,7 +11,10 @@ Lagrange reconstruction, the Shamir secret-shift bijection, distinct nonzero
 coordinates, and the modular Horner/field evaluation bridge. Layout and one
 Nonvacuity theorem failed and are being repaired. The added canonical-integer
 Horner corollary still needs compilation. Generated executable tools have not
-yet been validated.
+yet been validated. The `da8f424` all-source attempt exceeded the unchanged
+8 GiB aggregate build guard (8,645,795,840-byte peak); the next attempt uses
+sequential module builds and kernel-only reduction of the finite slot geometry.
+No native evaluation axiom or larger memory budget is used.
 
 The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
 Actions successfully installed it through the authorized hosted workflow.
@@ -25,8 +28,8 @@ from remaining proof obligations.
 | Full 256-bit message coverage | Encoding/decoding, `decode_encode`, canonical extraction | Checked in Protected.Encoding |
 | Canonical Sign accepted | Correlated seeds/chain recurrence, `sign_verifies` | Canonical theorem checked; actual Script correspondence remains open |
 | Same artifact, all messages | Lean and independent Rust weighted-sharing algorithms | Prove `Correct` universally for every hash, coins, key and distinct label table |
-| Bit order | Explicit high/low nibble to LSB-first formula; exhaustive finite Python/Rust fixtures | Formal mapping theorem |
-| Weighted geometry | Checksum identity, multiplicity/telescoping lemmas; all 961 totals tested | Connect full slot enumeration to exact count for every message/wire |
+| Bit order | General `BitMapping` proof attempt; exhaustive finite Python/Rust fixtures | Kernel-check the mapping for every message and wire |
+| Weighted geometry | Checked multiplicity/telescoping; `Geometry` proof attempt of weighted sum 960 and remaining depth 1023 | Kernel-check Geometry and connect full slot enumeration to exact count for every message/wire |
 | Field reconstruction | Executable F_65537 interpolation, duplicate/nonzero checks, reference tests | Primality, coordinates, Horner bridge and abstract reconstruction checked; connect executable interpolation |
 | Shamir privacy | Abstract secret-shift bijection checked; toy F_7 exhaustive test | Connect all 16 limbs and all polynomials to sampled distributions |
 | Coefficient law | Independent 32-byte blocks; explicit bias formula | Prove modular-sampling statistical distance and compose across coefficients |

@@ -25,7 +25,8 @@ set_option maxHeartbeats 5000000 in
 Unlike native_decide it does not add an executable-code axiom to the proof. -/
 theorem slots_length (i : Fin 256) (value : Bool) :
     (slots i value).length = if value then 1982 else 1984 := by
-  fin_cases i <;> cases value <;> decide
+  revert i value
+  decide +kernel
 
 theorem serialized_layout_arithmetic :
     2144 + 32 + 512*32 + 256*(1984+1982)*48 = artifactBytes := by rfl

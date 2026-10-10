@@ -10,7 +10,12 @@ check_protected()
 check_source(ROOT/'WotsLamport/Submission')
 modules = ['.'.join(p.relative_to(ROOT).with_suffix('').parts)
            for p in sorted((ROOT/'WotsLamport').rglob('*.lean'))]
-result = guarded(['lake', 'build', *modules])
-print(result['stdout'], end='', flush=True)
-print(result['stderr'], end='', flush=True)
-print(f"PASS: author source build; peak {result['peakMemoryBytes']} bytes")
+peak = 0
+for name in modules:
+    # Independent proof modules can otherwise elaborate concurrently, each
+    # retaining a large imported environment. Keep the aggregate cap intact.
+    result = guarded(['lake', 'build', name])
+    print(result['stdout'], end='', flush=True)
+    print(result['stderr'], end='', flush=True)
+    peak = max(peak, result['peakMemoryBytes'])
+print(f"PASS: sequential author source build; peak {peak} bytes")

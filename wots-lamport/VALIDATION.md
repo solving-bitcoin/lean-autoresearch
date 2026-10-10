@@ -97,5 +97,9 @@ The reference job for `f605fb5` passed all six reference tests, five review
 tests and the separately invoked full-size test: Prepare 26.10 s, full test
 34.47 s, peak 320,294,912 bytes. These measurements do not certify the candidate.
 The optional shared packed-coin path has a universal equivalence proof checked
-by hosted Lean; its new 256 MiB native memory regression still awaits execution.
+by hosted Lean. The BLAKE3 preview at `50e6007` passed the 256 MiB native memory
+regression and the negative test rejecting a packed implementation without
+its equivalence proof. The relevant shared files are unchanged at `da8f424`.
+Its axiom audit listed only propext, Classical.choice and Quot.sound. This
+checks the shared runtime path, not the WOTS algorithm or WOTS bundle.
 The SDK per-tool limit remains 60 seconds and native RSS remains 1 GiB.
