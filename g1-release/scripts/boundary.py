@@ -24,7 +24,7 @@ def protected_files():
     paths += shared_source_files(SHARED)
     paths += [REPO/'blake3/scripts'/n for n in ('resources.py','policy.py','check_overlay.py')]
     paths += [REPO/'scripts'/n for n in ('run_with_rss.py','verifier_common.py',
-              'check_submission.py','lean_source_policy.py','dependency_builds.py',
+              'check_submission.py','lean_source_policy.py','dependency_builds.py','cache_trust.py','check_cache_trust.py',
               'check_verifier_regressions.py')]
     paths += list((REPO/'.github/workflows').glob('secret-release*.yml'))
     for p in paths:

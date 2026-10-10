@@ -48,7 +48,8 @@ def main():
             registry.write_text(json.dumps(bad));reject(lambda:projects(root))
         # The shared overlay admits a union of regular submission paths, but
         # any protected SDK/codec/workflow/lock/digest mutation is still rejected.
-        prefixes=['blake3/Blake3Prize/Submission/','g1-release/G1Release/Submission/']
+        prefixes=['blake3/Blake3Prize/Submission/','g1-release/G1Release/Submission/',
+                  'wots-lamport/WotsLamport/Submission/']
         original_prefix,original_editable=overlay.PREFIX,overlay.editable
         try:
             overlay.PREFIX=prefixes[0]
@@ -56,10 +57,15 @@ def main():
                 (path[len(p):]=='score.txt' or overlay.MODULE.fullmatch(path[len(p):])) for p in prefixes)
             base={p+n:('100644','blob','old') for p in prefixes for n in ('Solution.lean','score.txt')}
             head={p:('100644','blob','new') for p in base}
+            # The union is admissible; extraction returns only the selected
+            # project's two files (Solution.lean and score.txt).
             assert len(overlay.admitted_entries(base,head))==2
             for protected in ['secret-release/SecretRelease.lean','secret-release/rust/Cargo.lock',
                               'secret-release/SecretRelease/Profiles.lean',
                               'g1-release/G1Release/Tests/Contract.lean',
+                              'wots-lamport/WotsLamport/Protected/Challenge.lean',
+                              'wots-lamport/WotsLamport/Protected/Adaptive.lean',
+                              'wots-lamport/WotsLamport/Tests/Contract.lean',
                               'blake3/Blake3Prize/Tests/RunnerFixture.lean',
                               'secret-release/rust/secret-release/src/lib.rs','blake3/protected.sha256',
                               '.github/workflows/secret-release-submission.yml']:

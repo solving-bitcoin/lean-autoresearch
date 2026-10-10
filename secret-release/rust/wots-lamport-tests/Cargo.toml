@@ -1,0 +1,12 @@
+[package]
+name = "wots-lamport-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+sha2.workspace = true
+
+[dev-dependencies]
+secret-release.workspace = true
+serde_json.workspace = true

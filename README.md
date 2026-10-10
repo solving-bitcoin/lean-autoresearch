@@ -77,6 +77,15 @@ rules, use `--authoring-preview` with the relevant benchmark script. Authoring
 previews do not accept ranked scores; trusted submission verification uses the
 immutable base revision.
 
+### Experimental WOTS-to-Lamport translation
+
+The [WOTS-to-Lamport track](wots-lamport/README.md) adds direct-base-16 signing
+of all 32-byte messages, a correlated 67-chain input disclosure and an unranked
+weighted-Shamir translation candidate. Its fixed public-data claim is
+48,752,768 bytes. The [proof status](wots-lamport/PROOF_STATUS.md) distinguishes
+executable reference checks from the still-unchecked Lean sources and missing
+ROM certificates. This experimental track has no accepted score.
+
 Both challenges use a ClassicalBoundedQueryROM proof profile on Lean 4.33.1.
 The concrete SHA-256 instantiation remains heuristic. See the
 [shared architecture](secret-release/ARCHITECTURE.md) for the generated tools,

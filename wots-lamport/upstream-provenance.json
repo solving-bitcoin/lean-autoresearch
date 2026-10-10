@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/solving-bitcoin/bitcoin-scripts",
+  "revision": "bf9ee0bb34987a9130ad9dc13a06e18fef137296",
+  "inspection": "source read and three selected upstream Script tests passed; no general equivalence or Bitcoin Core deployment claim",
+  "files": {
+    "src/signatures/winternitz/base16/mod.rs": "df5bce79d920d05d57f7790ea1d433f8134f2bebd4c7102d501408edc56adf9e",
+    "src/signatures/winternitz/shared/chain_hash.rs": "c7d64a128720b73606fe9c3ecd2f90c4e2725d22ff6abad717816c3009b2aefd",
+    "src/signatures/winternitz/shared/preimage.rs": "719b8d83e9cbf265cc989fdd81c10acc80596583671be3d449a97b86dd016b06",
+    "src/signatures/winternitz/base16/tests/hash_choice.rs": "518b7931f8b663ce280eed58b60810ee16fb242b34c925864ff5e84ec4c6a204"
+  },
+  "tests": [
+    "hash_profiles_match_independent_python_vectors",
+    "sha256_chain_binds_all_digits_and_rejects_wrong_widths",
+    "both_hashes_roundtrip_all_profiles_and_message_boundaries"
+  ]
+}

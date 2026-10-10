@@ -16,6 +16,14 @@
       "direction": "minimize",
       "metric": "universal_serialized_artifact_byte_bound",
       "unit": "bytes"
+    },
+    {
+      "slug": "wots-lamport",
+      "version": "wots-lamport-base16-sha256-fullwidth-rom-v1",
+      "status": "experimental-unranked",
+      "direction": "minimize",
+      "metric": "universal_serialized_artifact_byte_bound",
+      "unit": "bytes"
     }
   ]
 }

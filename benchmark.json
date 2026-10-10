@@ -41,6 +41,26 @@
         "./blake3/benchmark.sh"
       ],
       "scorePath": "blake3/.yukon/blake3-64-labeled-hash-score.json"
+    },
+    {
+      "name": "wots-lamport",
+      "description": "Experimental 256-bit direct-base-16 WOTS-to-fixed-Lamport translation. No ranked certificate yet.",
+      "category": "lean",
+      "direction": "-",
+      "editablePaths": [
+        "wots-lamport/WotsLamport/Submission"
+      ],
+      "setupCommand": [
+        "bash",
+        "-lc",
+        "./wots-lamport/setup.sh"
+      ],
+      "benchmarkCommand": [
+        "bash",
+        "-lc",
+        "./wots-lamport/benchmark.sh"
+      ],
+      "scorePath": "wots-lamport/.yukon/wots-lamport-score.json"
     }
   ]
 }
