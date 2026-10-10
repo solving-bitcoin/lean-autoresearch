@@ -24,7 +24,6 @@ theorem commitment_as_query (h : Hash) (pk nonce : ByteArray) (wire : Nat)
 theorem domain_size (tag : String) (pk nonce : ByteArray) (wire : Nat) (value : Bool) :
     (domain tag pk nonce wire value).size = tag.toUTF8.size+nonce.size+pk.size+3 := by
   simp only [domain, ByteArray.size_append, writeLE_size]
-  omega
 
 theorem maskQuery_size (pk nonce : ByteArray) (wire : Nat) (value : Bool)
     (point : Nat) (node : Label) (block : Nat) :
@@ -63,8 +62,8 @@ theorem maskQuery_ne_commitmentQuery (pk nonce : ByteArray) (wire wire' : Nat)
   rw [maskQuery_size, commitmentQuery_size] at hs
   omega
 
-theorem extract_label_between (prefix suffix : ByteArray) (label : Label) :
-    ((prefix ++ ByteArray.mk label.toArray) ++ suffix).extract prefix.size (prefix.size+32) =
+theorem extract_label_between (header suffix : ByteArray) (label : Label) :
+    ((header ++ ByteArray.mk label.toArray) ++ suffix).extract header.size (header.size+32) =
       ByteArray.mk label.toArray := by
   rw [extract_append_left_of_le _ _ _ _ (by simp only [ByteArray.size_append, vectorBytes_size])]
   exact ByteArray.extract_append_eq_right rfl (by rw [vectorBytes_size])
@@ -74,10 +73,10 @@ truncation or non-injective hash-input serialization at this boundary. -/
 theorem maskQuery_node_injective (pk nonce : ByteArray) (wire : Nat) (value : Bool)
     (point block : Nat) : Function.Injective (fun node => maskQuery pk nonce wire value point node block) := by
   intro a b he
-  let prefix := domain "WOTS-LAMPORT/mask/v1" pk nonce wire value ++ writeLE 2 point
-  have hs := congrArg (fun bytes : ByteArray => bytes.extract prefix.size (prefix.size+32)) he
-  change ((prefix ++ ByteArray.mk a.toArray) ++ writeLE 1 block).extract _ _ =
-    ((prefix ++ ByteArray.mk b.toArray) ++ writeLE 1 block).extract _ _ at hs
+  let header := domain "WOTS-LAMPORT/mask/v1" pk nonce wire value ++ writeLE 2 point
+  have hs := congrArg (fun bytes : ByteArray => bytes.extract header.size (header.size+32)) he
+  change ((header ++ ByteArray.mk a.toArray) ++ writeLE 1 block).extract _ _ =
+    ((header ++ ByteArray.mk b.toArray) ++ writeLE 1 block).extract _ _ at hs
   rw [extract_label_between, extract_label_between] at hs
   apply Vector.toArray_inj.mp
   exact congrArg ByteArray.data hs

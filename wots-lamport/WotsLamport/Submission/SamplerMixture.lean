@@ -36,12 +36,14 @@ theorem reduced_integer_mixture :
   · subst r
     norm_num [residueCount, quotient, sampleSize, ordinaryWeight, exceptionWeight] <;>
       apply (ENNReal.toReal_eq_toReal_iff' (by finiteness) (by finiteness)).mp <;>
-      norm_num [ENNReal.toReal_add, ENNReal.toReal_mul]
+      (try rw [ENNReal.toReal_add (by finiteness) (by finiteness)]) <;>
+      norm_num [ENNReal.toReal_mul]
   · have hv : r.val ≠ 0 := fun h => hz (Fin.ext h)
     norm_num [residueCount, quotient, sampleSize, ordinaryWeight, exceptionWeight,
       Measure.dirac_apply, hz, hv, Ne.symm hz] <;>
       apply (ENNReal.toReal_eq_toReal_iff' (by finiteness) (by finiteness)).mp <;>
-      norm_num [ENNReal.toReal_add, ENNReal.toReal_mul]
+      (try rw [ENNReal.toReal_add (by finiteness) (by finiteness)]) <;>
+      norm_num [ENNReal.toReal_mul]
 
 theorem mixture_weights : ordinaryWeight + exceptionWeight = 1 := by
   unfold ordinaryWeight exceptionWeight

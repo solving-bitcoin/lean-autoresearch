@@ -4,6 +4,7 @@ This catches independent proof errors in one build. It is never a substitute
 for the fresh protected-tree build and exact candidate audits in verify.py.
 """
 from limits import guarded, ROOT
+import sys
 from boundary import check_protected, check_source
 
 check_protected()
@@ -30,6 +31,20 @@ for name in modules:
     print(result['stdout'], end='', flush=True)
     print(result['stderr'], end='', flush=True)
     peak = max(peak, result['peakMemoryBytes'])
+# Measure the same executable even when unrelated proof elaboration fails.
+# This never suppresses a proof failure or replaces the isolated candidate audit.
+# A complete source build proceeds directly to the normal isolated verifier.
+if failed:
+    try:
+        result = guarded([sys.executable, ROOT/'scripts/check_runtime_probe.py'])
+        print(result['stdout'], end='', flush=True)
+        print(result['stderr'], end='', flush=True)
+        peak = max(peak, result['peakMemoryBytes'])
+    except SystemExit as error:
+        print(str(error), flush=True)
+        if 'exceeded' in str(error) or 'timed out' in str(error):
+            raise
+        failed.append('runtime diagnostic')
 if failed:
     raise SystemExit('AUTHOR_PROOFS_REJECTED: ' + ', '.join(failed))
 print(f"PASS: sequential author source build; peak {peak} bytes")

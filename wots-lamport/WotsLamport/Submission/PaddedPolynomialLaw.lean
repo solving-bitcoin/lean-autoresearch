@@ -125,7 +125,10 @@ theorem uniform_padded_joint_secret_transport [Finite F] [MeasurableSpace F]
         (coefficientPrefix (bound j) (c j)))) := by
     funext j
     by_cases he : a j = b j
-    · simp [e, localEquiv, he]
+    · change observedValues (s j) (coefficientEquiv (b j) (k j)
+        (coefficientPrefix (bound j) (localEquiv j (c j)))) = _
+      simp only [localEquiv, dif_pos he, Equiv.refl_apply]
+      rw [he]
     · change observedValues (s j) (coefficientEquiv (b j) (k j)
         (coefficientPrefix (bound j) (localEquiv j (c j)))) = _
       simp only [localEquiv, dif_neg he]

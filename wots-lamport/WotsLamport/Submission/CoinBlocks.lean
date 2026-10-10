@@ -26,7 +26,8 @@ def byteBlocksEquiv (n : Nat) : Bytes (n*32) ≃ (Fin n → Bytes 32) where
     have hd : (block.val*32+k)/32 = block.val := by omega
     have hm : (block.val*32+k)%32 = k := by omega
     have hf : (⟨(block.val*32+k)/32, by have hb := block.isLt; omega⟩ : Fin n) = block := Fin.ext hd
-    rw [hf, hm]
+    rw [hf]
+    exact congrArg (fun i : Fin 32 => (blocks block)[i.val]) (Fin.ext hm)
 
 theorem byteBlocks_extract (n : Nat) (coins : Bytes (n*32)) (block : Fin n) :
     ByteArray.mk ((byteBlocksEquiv n coins) block).toArray =
@@ -40,7 +41,7 @@ theorem byteBlocks_extract (n : Nat) (coins : Bytes (n*32)) (block : Fin n) :
   intro k hk hk'
   rw [ByteArray.getElem_extract]
   simp only [byteBlocksEquiv, ByteArray.getElem_eq_getElem_data,
-    Vector.toArray_ofFn, Array.getElem_ofFn]
+    Equiv.coe_fn_mk, Vector.getElem_toArray, Vector.getElem_ofFn]
 
 theorem uniform_blocks_product (n : Nat) :
     (uniformOn (Set.univ : Set (Fin n → Bytes 32))) =
@@ -72,6 +73,10 @@ theorem coefficient_block_read (coins : Bytes randomnessBytes) (block : Fin coef
   rw [he]
   have hstart : (block.val+1)*32 = 32+block.val*32 := by omega
   have hstop : (block.val+1+1)*32 = (32+block.val*32)+32 := by omega
-  rw [hstart, hstop, readLE_extract _ _ _ (by rw [hs]; unfold randomnessBytes; omega)]
+  rw [hstart, hstop]
+  have hbound : (32+block.val*32)+32 ≤ randomnessBytes := by
+    change (32+block.val*32)+32 ≤ 32+coefficientCount*32
+    omega
+  exact readLE_extract _ _ _ (by rw [hs]; exact hbound)
 
 end WotsLamport.Submission

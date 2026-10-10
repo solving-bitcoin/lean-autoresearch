@@ -3,10 +3,14 @@ import WotsLamport.Protected.Target
 namespace WotsLamport.Submission
 open SecretRelease OracleSpec OracleComp MeasureTheory
 
+def oracleQuery (input : ByteArray) : Program Label :=
+  liftM ((ByteArray →ₒ Label).query input)
+
 theorem run_query_bind {A : Type} (h : Hash) (input : ByteArray) (next : Label → Program A) :
-    ROM.run h ((query input : Program Label) >>= next) = ROM.run h (next (h input)) := by
-  change evalWithAnswerFn (QueryImpl.ofFn h) ((query input : Program Label) >>= next) =
+    ROM.run h ((oracleQuery input : Program Label) >>= next) = ROM.run h (next (h input)) := by
+  change evalWithAnswerFn (QueryImpl.ofFn h) ((oracleQuery input : Program Label) >>= next) =
     evalWithAnswerFn (QueryImpl.ofFn h) (next (h input))
+  unfold oracleQuery
   rw [evalWithAnswerFn_bind, evalWithAnswerFn_query]
   rfl
 
@@ -30,8 +34,9 @@ theorem program_finite_query_support {A : Type} (p : Program A) :
     apply he query
     exact Finset.mem_insert_of_mem (Finset.mem_biUnion.mpr ⟨g input, Finset.mem_univ _, hquery⟩)
 
-def completeAnswerTable (inputs : Finset ByteArray) (answers : inputs → Label) : Hash :=
-  fun input => if hi : input ∈ inputs then answers ⟨input, hi⟩ else Vector.replicate 32 0
+noncomputable def completeAnswerTable (inputs : Finset ByteArray) (answers : inputs → Label) : Hash := by
+  classical
+  exact fun input => if hi : input ∈ inputs then answers ⟨input, hi⟩ else Vector.replicate 32 0
 
 /-- Fixed adversarial programs are measurable under the protected infinite
 random-function model, even though their query-input domain is unbounded. -/

@@ -95,6 +95,18 @@ law, padded coefficient-family privacy, exact executable polynomial-table
 identification, oracle-program measurability and query-domain separation.
 All new layers remain unchecked; full correctness and ROM security remain open.
 
+At `3e17ad3`, CoinEncoding and PolynomialLaw compiled completely, including
+the byte/integer bijection, coefficient/polynomial equivalence and joint
+uniform coefficient transport. Remaining diagnostics concern dependent byte
+indices, one mixture arithmetic case, equal-secret transport, explicit oracle
+query typing and final share decoding. The next batch repairs these and adds
+unchecked reifications of the actual setup/release games, honest query budgets,
+measurability and a generic trace-based reprogramming bound. The latter has
+explicit coupling premises and is not a security certificate for this candidate.
+A separate authoring-only runtime diagnostic now attempts the unchanged
+executable despite unrelated proof failures; it cannot produce acceptance or
+a certificate. Full correctness, the ROM coupling and native limits remain open.
+
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
 exact SHA-256/FullWidth WOTS profile and 7,209 for 256-bit SHA-256 Lamport.

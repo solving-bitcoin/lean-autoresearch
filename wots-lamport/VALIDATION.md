@@ -38,8 +38,10 @@ Useful raw logs are under the ignored `wots-lamport/.yukon/` directory:
   actual codec/algorithm correspondence. Protected, Threshold and the shared
   packed-runtime equivalence theorem have passed hosted Lean; see PROOF_STATUS.
   The local installer returned proxy 403; the restriction was not bypassed.
-- Universal correctness and artifact-size theorems, Shamir privacy and the
-  joint ROM reduction. The shared candidate certificate is `none`; no score.
+- Universal correctness, the complete sampled sharing law and the joint ROM
+  reduction. The universal 48,752,768-byte artifact bound and abstract Shamir
+  reconstruction/transport theorems have been checked; see PROOF_STATUS for
+  exact scope and commits. The shared certificate remains `none`; no score.
 - Equivalence for all accepted raw stacks and Bitcoin Core consensus/policy validity.
 - Adaptive security, simulation/GC composition, malicious setup or a full
   binding/availability/fraud protocol.
@@ -114,3 +116,12 @@ including native generated-tool tests and packed-coin tests. The corresponding
 shared runtime, native regression and verifier sources remain unchanged at
 `d048390`. This is compatibility evidence for those shared changes, not a
 passing WOTS preview or a passing complete matrix for the current head.
+
+When ordinary proof elaboration fails, the authoring checker now attempts a
+separate runtime diagnostic importing the same `Sharing.construction` through
+the protected public-key wrapper and generated four-tool CLI. It uses the
+existing Rust SDK, 60-second per-tool timeout and 1 GiB native guard. Its entry
+has no certificate; its metadata remains `not-audited`, and it creates no
+acceptance report or exported archive. Every proof failure is still fatal.
+When all source proofs compile, the normal isolated verifier runs directly.
+This diagnostic has not yet run under hosted Lean.

@@ -42,6 +42,7 @@ theorem decodeShare_of_slice (h : Hash) (coins pk nonce body : ByteArray)
   rcases entry with ⟨⟨j, k⟩, index⟩
   dsimp only at *
   unfold decodeShare
+  dsimp only
   rw [forward_closure h keys m j k hopen, slice, hplain, hfields, hvalid]
   rfl
 

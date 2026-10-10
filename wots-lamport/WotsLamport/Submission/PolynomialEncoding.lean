@@ -23,13 +23,17 @@ theorem fieldPolynomial_as_coefficients (coefficients : List Nat) (k : Nat)
   | succ n =>
     by_cases hn : n < k
     · rw [fieldPolynomial_coefficient]
-      exact (Shamir.coefficientPolynomial_coefficient _ _ ⟨n, hn⟩).symm
+      exact (Shamir.coefficientPolynomial_coefficient
+        ((coefficients[0]! : Nat) : ZMod 65537)
+        (fun j : Fin k => ((coefficients[j.val+1]! : Nat) : ZMod 65537)) ⟨n, hn⟩).symm
     · have hge : k+1 ≤ n+1 := by omega
       have hd : (fieldPolynomial coefficients).degree < (k+1 : Nat) := by
         simpa only [length] using fieldPolynomial_degree coefficients
       rw [(Polynomial.degree_lt_iff_coeff_zero _ _).mp hd (n+1) hge,
         (Polynomial.degree_lt_iff_coeff_zero _ _).mp
-          (Shamir.coefficientPolynomial_degree _ _) (n+1) hge]
+          (Shamir.coefficientPolynomial_degree
+            ((coefficients[0]! : Nat) : ZMod 65537)
+            (fun j : Fin k => ((coefficients[j.val+1]! : Nat) : ZMod 65537))) (n+1) hge]
 
 /-- The polynomial evaluated by the executable Horner loop is exactly the
 fixed-secret polynomial used in the uniform coefficient-law theorem. -/

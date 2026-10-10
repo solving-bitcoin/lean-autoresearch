@@ -16,6 +16,8 @@ import WotsLamport.Submission.CoefficientIndices
 import WotsLamport.Submission.NonceTableLaw
 import WotsLamport.Submission.ActualPolynomialTable
 import WotsLamport.Submission.DomainSeparation
+import WotsLamport.Submission.GamePrograms
+import WotsLamport.Submission.OracleTrace
 import WotsLamport.Submission.OracleSupport
 import WotsLamport.Submission.JointSampler
 import WotsLamport.Submission.FieldTableLaw
