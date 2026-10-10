@@ -27,6 +27,11 @@ and size modules therefore did not build. At `d67ce75`, BitMapping and
 InverseBridge compiled in full. Geometry failed on a simplifier mismatch
 between a Fin cast and its natural value; the repaired hypothesis uses the
 natural value explicitly. Layout remains blocked on that dependency.
+The `8857322` attempt stopped before Lean because the new author-owned cost
+fixtures were not included in the frozen digest. The digest is refreshed with
+those files; admission rules are unchanged. `Exposed` now attempts to connect
+filtered executable slots to the exact selected/opposite threshold counts;
+it has not yet been checked by Lean.
 
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the

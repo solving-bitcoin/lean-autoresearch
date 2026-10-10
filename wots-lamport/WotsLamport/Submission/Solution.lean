@@ -4,6 +4,7 @@ import WotsLamport.Submission.Layout
 import WotsLamport.Submission.Geometry
 import WotsLamport.Submission.InverseBridge
 import WotsLamport.Submission.FieldBridge
+import WotsLamport.Submission.Exposed
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected
