@@ -1,6 +1,6 @@
 # Direct-base-16 WOTS to fixed Lamport labels
 
-**Experimental authoring track; unranked; Lean source has not been compiled.**
+**Experimental authoring track; unranked; full Lean validation is pending.**
 The candidate has `certificate := none` and `score.txt` contains `unranked`.
 This is a working research implementation and test harness, not a completed
 cryptographic certification. See [PROOF_STATUS.md](PROOF_STATUS.md).

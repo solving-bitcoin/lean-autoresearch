@@ -8,7 +8,9 @@ from boundary import check_protected, check_source
 
 check_protected()
 check_source(ROOT/'WotsLamport/Submission')
-result = guarded(['lake', 'build', 'WotsLamport'])
+modules = ['.'.join(p.relative_to(ROOT).with_suffix('').parts)
+           for p in sorted((ROOT/'WotsLamport').rglob('*.lean'))]
+result = guarded(['lake', 'build', *modules])
 print(result['stdout'], end='', flush=True)
 print(result['stderr'], end='', flush=True)
 print(f"PASS: author source build; peak {result['peakMemoryBytes']} bytes")

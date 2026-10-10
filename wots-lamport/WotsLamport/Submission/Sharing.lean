@@ -58,23 +58,27 @@ def mask (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool)
 def commitment (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool) (label : Label) : Label :=
   h (domain "WOTS-LAMPORT/label/v1" pk nonce wire value ++ ⟨label.toArray⟩)
 
+def concatenate (parts : List ByteArray) : ByteArray :=
+  parts.foldl (fun acc part => acc ++ part) ByteArray.empty
+
+def labelTable (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
+    (i : Fin 256) (value : Bool) (label : Label) : ByteArray :=
+  let polys := (List.range 16).map fun limb => polynomial coins label i.val limb value
+  concatenate ((slots i value).enum.map fun (index, (j,k)) =>
+    let point := index+1
+    let share := concatenate (polys.map fun p => writeLE 3 (evaluatePolynomial p point))
+    xorBytes share (mask h pk nonce i.val value point (chain h k (keys j))))
+
 def prepare (h : Hash) (coins : ByteArray) (keys : Keys)
-    (labels : challenge.outputs.Keys) : ByteArray := Id.run do
-  let randomness := coins
-  let nonce := randomness.extract 0 32
+    (labels : challenge.outputs.Keys) : ByteArray :=
+  let nonce := coins.extract 0 32
   let pk := keyCodec.encode (publicKey h keys)
-  let mut out := nonce
-  for i in List.finRange 256 do
-    for value in [false,true] do
-      out := out ++ ⟨(commitment h pk nonce i.val value ((labels i).get value)).toArray⟩
-  for i in List.finRange 256 do
-    for value in [false,true] do
-      let polys := (List.range 16).map fun limb => polynomial randomness ((labels i).get value) i.val limb value
-      for (index, (j,k)) in (slots i value).enum do
-        let point := index+1
-        let share := polys.foldl (fun acc p => acc ++ writeLE 3 (evaluatePolynomial p point)) ByteArray.empty
-        out := out ++ xorBytes share (mask h pk nonce i.val value point (chain h k (keys j)))
-  return out
+  nonce ++ concatenate ((List.finRange 256).map fun i =>
+    (ByteArray.mk (commitment h pk nonce i.val false ((labels i).get false)).toArray) ++
+    (ByteArray.mk (commitment h pk nonce i.val true ((labels i).get true)).toArray)) ++
+  concatenate ((List.finRange 256).map fun i =>
+    labelTable h coins pk nonce keys i false ((labels i).get false) ++
+    labelTable h coins pk nonce keys i true ((labels i).get true))
 
 def interpolate (shares : List (Nat × List Nat)) : List Nat :=
   let weighted := shares.map fun a =>
