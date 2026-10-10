@@ -65,6 +65,7 @@ theorem labelTable_size (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
   rw [concatenate_map_size _ _ 48]
   · simp
   · intro point _
+    rcases point with ⟨⟨j, k⟩, index⟩
     rw [xorBytes_size, concatenate_map_size _ _ 3]
     · simp
     · intro p _; exact writeLE_size _ _

@@ -13,7 +13,9 @@ coefficient. This theorem is independent of the selected field and limb count. -
 theorem reconstruct_secret (s : Finset F) (p : F[X])
     (degree_lt : p.degree < s.card) :
     (Lagrange.interpolate s id (fun x => p.eval x)).eval 0 = p.eval 0 := by
-  rw [← Lagrange.eq_interpolate (fun _ _ _ _ h => h) degree_lt]
+  have hp : p = Lagrange.interpolate s id (fun x => p.eval x) :=
+    Lagrange.eq_interpolate (s := s) (v := id) (fun _ _ _ _ h => h) degree_lt
+  exact congrArg (Polynomial.eval (0 : F)) hp.symm
 
 /-- A polynomial which is one at the secret coordinate and zero at all
 observed nonzero coordinates. Its degree is at most the observation count. -/

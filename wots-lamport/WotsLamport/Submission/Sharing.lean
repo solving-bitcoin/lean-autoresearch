@@ -51,9 +51,9 @@ def domain (tag : String) (pk nonce : ByteArray) (wire : Nat) (value : Bool) : B
   tag.toUTF8 ++ nonce ++ pk ++ writeLE 2 wire ++ writeLE 1 (if value then 1 else 0)
 def mask (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool)
     (point : Nat) (node : Label) : ByteArray :=
-  let prefix := domain "WOTS-LAMPORT/mask/v1" pk nonce wire value ++ writeLE 2 point ++ ⟨node.toArray⟩
-  let first := h (prefix ++ writeLE 1 0)
-  let second := h (prefix ++ writeLE 1 1)
+  let maskInput := domain "WOTS-LAMPORT/mask/v1" pk nonce wire value ++ writeLE 2 point ++ ⟨node.toArray⟩
+  let first := h (maskInput ++ writeLE 1 0)
+  let second := h (maskInput ++ writeLE 1 1)
   ⟨first.toArray⟩ ++ (ByteArray.mk second.toArray).extract 0 16
 def commitment (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool) (label : Label) : Label :=
   h (domain "WOTS-LAMPORT/label/v1" pk nonce wire value ++ ⟨label.toArray⟩)
@@ -64,7 +64,7 @@ def concatenate (parts : List ByteArray) : ByteArray :=
 def labelTable (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
     (i : Fin 256) (value : Bool) (label : Label) : ByteArray :=
   let polys := (List.range 16).map fun limb => polynomial coins label i.val limb value
-  concatenate ((slots i value).enum.map fun (index, (j,k)) =>
+  concatenate ((slots i value).zipIdx.map fun ((j,k), index) =>
     let point := index+1
     let share := concatenate (polys.map fun p => writeLE 3 (evaluatePolynomial p point))
     xorBytes share (mask h pk nonce i.val value point (chain h k (keys j))))
@@ -97,22 +97,22 @@ def expand (h : Hash) (pk : PublicKey) (body : ByteArray) (m : Message) (sig : S
       let value := (outputCodec.encode m)[i.val]
       let offset := 32 + 512*32 + (i.val*(1984+1982) + if value then 1984 else 0)*48
       let mut shares : List (Nat × List Nat) := []
-      for (index, (j,k)) in (slots i value).enum do
+      for ((j,k), index) in (slots i value).zipIdx do
         if encodeWord m j ≤ k then
           let node := chain h (k - encodeWord m j) (sig j)
           let plain := xorBytes (body.extract (offset+index*48) (offset+(index+1)*48))
             (mask h publicBytes nonce i.val value (index+1) node)
           let fields := (List.range 16).map fun limb => readLE plain (3*limb) 3
-          if fields.any (fun x => decide (x ≥ prime)) then return none
+          if fields.any (fun x => decide (x ≥ prime)) then failure
           shares := shares ++ [(index+1,fields)]
-      if shares.length != threshold value then return none
+      if shares.length != threshold value then failure
       let recovered := interpolate shares
-      if recovered.any (fun x => decide (x ≥ 65536)) then return none
+      if recovered.any (fun x => decide (x ≥ 65536)) then failure
       let bytes := recovered.foldl (fun acc x => acc ++ writeLE 2 x) ByteArray.empty
       let label ← (Codec.byteVector 32).bytes.decode bytes
       let expected := body.extract (32+(2*i.val+(if value then 1 else 0))*32)
         (32+(2*i.val+(if value then 1 else 0)+1)*32)
-      if (ByteArray.mk (commitment h publicBytes nonce i.val value label).toArray) != expected then return none
+      if (ByteArray.mk (commitment h publicBytes nonce i.val value label).toArray) != expected then failure
       result := result ++ bytes
     return result
 

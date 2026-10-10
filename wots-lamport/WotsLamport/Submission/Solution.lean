@@ -1,6 +1,7 @@
 import WotsLamport.Submission.Sharing
 import WotsLamport.Submission.Shamir
 import WotsLamport.Submission.Layout
+import WotsLamport.Submission.FieldBridge
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected

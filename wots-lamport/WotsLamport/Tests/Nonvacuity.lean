@@ -2,6 +2,9 @@ import WotsLamport.Protected.Adaptive
 
 /-! Author-owned regression theorem statements. These sources remain unchecked
 until the pinned Lean compiler runs. No candidate certificate imports them. -/
+set_option maxRecDepth 4096
+set_option maxHeartbeats 500000
+
 namespace WotsLamport.Tests
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
