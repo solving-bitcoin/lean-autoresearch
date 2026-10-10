@@ -14,8 +14,8 @@ theorem encoded_weighted_sum (m : Message) :
     apply Finset.sum_congr rfl
     intro j _
     have h64 : (Fin.castAdd 3 j).val < 64 := j.isLt
-    have h65 : (Fin.castAdd 3 j).val ≠ 65 := by omega
-    have h66 : (Fin.castAdd 3 j).val ≠ 66 := by omega
+    have h65 : j.val ≠ 65 := by omega
+    have h66 : j.val ≠ 66 := by omega
     simp [weight, encodeWord, h64, h65, h66]
   have last : (∑ j : Fin 3,
       weight (Fin.natAdd 64 j) * encodeWord m (Fin.natAdd 64 j)) =

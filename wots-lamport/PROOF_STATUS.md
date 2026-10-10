@@ -23,7 +23,16 @@ for the executable inversion loop and bounded natural subtraction. At
 `d048390`, all Nonvacuity theorems and the canonical Horner integer-result
 corollary compiled. Two elaboration errors remained (target-digit case
 selection and reduction of the modulus to zero); their dependent geometry
-and size modules therefore did not build. Repairs are awaiting the next run.
+and size modules therefore did not build. At `d67ce75`, BitMapping and
+InverseBridge compiled in full. Geometry failed on a simplifier mismatch
+between a Fin cast and its natural value; the repaired hypothesis uses the
+natural value explicitly. Layout remains blocked on that dependency.
+
+The independent pinned Script comparison is now locally reproduced in
+`BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
+exact SHA-256/FullWidth WOTS profile and 7,209 for 256-bit SHA-256 Lamport.
+This does not discharge the Lean or ROM obligations. Core download was
+denied by proxy 403; no Core consensus/policy acceptance is claimed.
 
 The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
 Actions successfully installed it through the authorized hosted workflow.
