@@ -13,7 +13,7 @@ theorem uniform_map_equiv {A B : Type} [Finite A] [Finite B]
     (uniformOn (Set.univ : Set A)).map e = uniformOn (Set.univ : Set B) := by
   apply Measure.ext
   intro event he
-  rw [Measure.map_apply measurable_of_discrete he, Shamir.uniform_event_equiv e]
+  rw [Measure.map_apply Measurable.of_discrete he, Shamir.uniform_event_equiv e]
 
 def byteDigits {n : Nat} (bytes : Bytes n) : List Nat := bytes.toList.map UInt8.toNat
 
@@ -63,7 +63,7 @@ def bytesFunctionEquiv (n : Nat) : Bytes n ≃ (Fin n → Fin 256) where
   right_inv f := by
     funext i
     apply Fin.ext
-    change (UInt8.ofNat (f i).val).toNat = (f i).val
+    simp only [Vector.get_eq_getElem, Vector.getElem_ofFn, UInt8.toFin_val]
     exact UInt8.toNat_ofNat_of_lt' (f i).isLt
 
 theorem bytes_card (n : Nat) [Fintype (Bytes n)] : Fintype.card (Bytes n) = 256^n := by

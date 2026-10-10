@@ -39,8 +39,10 @@ theorem decodeShare_of_slice (h : Hash) (coins pk nonce body : ByteArray)
     obtain ⟨limb, _, rfl⟩ := List.mem_map.mp hn
     simpa using Nat.not_le.mpr (evaluatePolynomial_lt
       (polynomial coins label i.val limb value) (entry.2+1))
+  rcases entry with ⟨⟨j, k⟩, index⟩
+  dsimp only at *
   unfold decodeShare
-  rw [forward_closure h keys m entry.1.1 entry.1.2 hopen, slice, hplain, hfields, hvalid]
+  rw [forward_closure h keys m j k hopen, slice, hplain, hfields, hvalid]
   rfl
 
 theorem decodeShare_prepared (h : Hash) (coins : ByteArray) (keys : Keys)

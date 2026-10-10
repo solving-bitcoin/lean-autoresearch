@@ -85,6 +85,16 @@ and the coefficient-vector/bounded-polynomial equivalence. These additions
 are unverified until hosted Lean succeeds. Full correctness and the joint
 ROM reduction remain open; no certificate is issued.
 
+At `8b06ee6`, ArtifactBridge, LabelBridge and SamplerLaw compiled completely.
+This checks prepared commitment/share slices, lossless label-byte round trips,
+and the exact modular residue count/probability. DecodingBridge needs explicit
+tuple unpacking; the new coin/measure and polynomial layers need renamed
+measurability/monotonicity lemmas, finite ENNReal arithmetic and a Nat degree
+coercion. The next batch repairs these and attempts the nonce-preserving joint
+law, padded coefficient-family privacy, exact executable polynomial-table
+identification, oracle-program measurability and query-domain separation.
+All new layers remain unchecked; full correctness and ROM security remain open.
+
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
 exact SHA-256/FullWidth WOTS profile and 7,209 for 256-bit SHA-256 Lamport.

@@ -25,7 +25,7 @@ theorem fieldPolynomial_as_coefficients (coefficients : List Nat) (k : Nat)
     · rw [fieldPolynomial_coefficient]
       exact (Shamir.coefficientPolynomial_coefficient _ _ ⟨n, hn⟩).symm
     · have hge : k+1 ≤ n+1 := by omega
-      have hd : (fieldPolynomial coefficients).degree < k+1 := by
+      have hd : (fieldPolynomial coefficients).degree < (k+1 : Nat) := by
         simpa only [length] using fieldPolynomial_degree coefficients
       rw [(Polynomial.degree_lt_iff_coeff_zero _ _).mp hd (n+1) hge,
         (Polynomial.degree_lt_iff_coeff_zero _ _).mp

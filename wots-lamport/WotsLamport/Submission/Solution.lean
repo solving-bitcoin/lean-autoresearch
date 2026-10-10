@@ -13,6 +13,10 @@ import WotsLamport.Submission.Expansion
 import WotsLamport.Submission.VisiblePrivacy
 import WotsLamport.Submission.SamplerLaw
 import WotsLamport.Submission.CoefficientIndices
+import WotsLamport.Submission.NonceTableLaw
+import WotsLamport.Submission.ActualPolynomialTable
+import WotsLamport.Submission.DomainSeparation
+import WotsLamport.Submission.OracleSupport
 import WotsLamport.Submission.JointSampler
 import WotsLamport.Submission.FieldTableLaw
 import WotsLamport.Submission.PolynomialLaw

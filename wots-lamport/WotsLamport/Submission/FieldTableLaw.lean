@@ -19,7 +19,7 @@ theorem fieldBlock_law :
   have hf : fieldBlock = Sampler.reduceInteger ∘ coinBlockEquiv := by
     funext bytes
     exact fieldBlock_as_integer bytes
-  rw [hf, ← Measure.map_map measurable_of_discrete measurable_of_discrete,
+  rw [hf, ← Measure.map_map Measurable.of_discrete Measurable.of_discrete,
     uniform_map_equiv coinBlockEquiv]
   rfl
 
@@ -36,9 +36,9 @@ theorem tableFields_law (n : Nat) :
     infer_instance
   have hf : tableFields n = (fun blocks : Fin n → Bytes 32 => fun i => fieldBlock (blocks i)) ∘
       byteBlocksEquiv n := rfl
-  rw [hf, ← Measure.map_map measurable_of_discrete measurable_of_discrete,
+  rw [hf, ← Measure.map_map Measurable.of_discrete Measurable.of_discrete,
     uniform_map_equiv (byteBlocksEquiv n), uniform_blocks_product,
-    Measure.pi_map_pi (fun _ => measurable_of_discrete.aemeasurable)]
+    Measure.pi_map_pi (fun _ => Measurable.of_discrete.aemeasurable)]
   simp only [fieldBlock_law]
 
 theorem tableFields_event_bounds (n : Nat) (event : Set (Fin n → Fin 65537)) :
@@ -50,7 +50,7 @@ theorem tableFields_event_bounds (n : Nat) (event : Set (Fin n → Fin 65537)) :
           (n : ENNReal)*Sampler.exceptionWeight := by
   have hlaw : uniformOn (Set.univ : Set (Bytes (n*32))) ((tableFields n) ⁻¹' event) =
       (Measure.pi (fun _ : Fin n => Sampler.fieldLaw)) event := by
-    rw [← tableFields_law, Measure.map_apply measurable_of_discrete MeasurableSet.of_discrete]
+    rw [← tableFields_law, Measure.map_apply Measurable.of_discrete MeasurableSet.of_discrete]
   rw [hlaw]
   exact Sampler.joint_field_event_bounds n event
 

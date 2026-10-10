@@ -31,12 +31,12 @@ theorem coefficientPolynomial_coefficient (secret : F) {k : Nat}
       apply hne
       apply Fin.ext
       omega
-    simp [hv]
+    exact if_neg hv
   · intro hj
     exact False.elim (hj (Finset.mem_univ j))
 
 theorem coefficientPolynomial_degree (secret : F) {k : Nat} (coefficients : Fin k → F) :
-    (coefficientPolynomial secret coefficients).degree < k+1 := by
+    (coefficientPolynomial secret coefficients).degree < (k+1 : Nat) := by
   apply (Polynomial.degree_lt_iff_coeff_zero _ _).mpr
   intro n hn
   simp only [coefficientPolynomial, Polynomial.coeff_add,
@@ -45,7 +45,7 @@ theorem coefficientPolynomial_degree (secret : F) {k : Nat} (coefficients : Fin 
   apply Finset.sum_eq_zero
   intro j _
   have hne : n ≠ j.val+1 := by have hj := j.isLt; omega
-  simp [hne]
+  exact if_neg hne
 
 /-- Uniform nonconstant coefficients and uniform bounded-degree polynomials
 with a fixed constant term are equivalent finite sample spaces. -/
@@ -88,5 +88,26 @@ theorem uniform_coefficients_secret_independent [Finite F] [MeasurableSpace F]
         {p | observedValues s p ∈ event} :=
       uniform_shares_secret_independent s nonzero (k+1) few a b event
     _ = _ := (uniform_event_equiv (coefficientEquiv b k) _).symm
+
+/-- All polynomial coefficient vectors move together through a product
+bijection. This is a joint law for arbitrary events on the complete family. -/
+theorem uniform_joint_coefficients_secret_independent [Finite F] [MeasurableSpace F]
+    [DiscreteMeasurableSpace F] {I : Type} [Fintype I]
+    (s : I → Finset F) (nonzero : ∀ j, (0 : F) ∉ s j)
+    (k : I → Nat) (few : ∀ j, (s j).card < k j+1) (a b : I → F)
+    (event : Set ((j : I) → s j → F)) :
+    uniformOn (Set.univ : Set ((j : I) → Fin (k j) → F))
+      {c | (fun j => observedValues (s j) (coefficientEquiv (a j) (k j) (c j))) ∈ event} =
+    uniformOn (Set.univ : Set ((j : I) → Fin (k j) → F))
+      {c | (fun j => observedValues (s j) (coefficientEquiv (b j) (k j) (c j))) ∈ event} := by
+  let ea := Equiv.piCongrRight fun j => coefficientEquiv (a j) (k j)
+  let eb := Equiv.piCongrRight fun j => coefficientEquiv (b j) (k j)
+  calc
+    _ = uniformOn (Set.univ : Set ((j : I) → SecretPolynomials (k j+1) (a j)))
+        {p | (fun j => observedValues (s j) (p j)) ∈ event} := uniform_event_equiv ea _
+    _ = uniformOn (Set.univ : Set ((j : I) → SecretPolynomials (k j+1) (b j)))
+        {p | (fun j => observedValues (s j) (p j)) ∈ event} :=
+      uniform_joint_shares_secret_independent s nonzero (fun j => k j+1) few a b event
+    _ = _ := (uniform_event_equiv eb _).symm
 
 end WotsLamport.Submission.Shamir
