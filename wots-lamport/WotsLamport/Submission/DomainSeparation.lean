@@ -65,7 +65,7 @@ theorem maskQuery_ne_commitmentQuery (pk nonce : ByteArray) (wire wire' : Nat)
 theorem extract_label_between (header suffix : ByteArray) (label : Label) :
     ((header ++ ByteArray.mk label.toArray) ++ suffix).extract header.size (header.size+32) =
       ByteArray.mk label.toArray := by
-  rw [extract_append_left_of_le _ _ _ _ (by simp only [ByteArray.size_append, vectorBytes_size])]
+  rw [extract_append_left_of_le _ _ _ _ (by simp only [ByteArray.size_append, vectorBytes_size]; exact le_rfl)]
   exact ByteArray.extract_append_eq_right rfl (by rw [vectorBytes_size])
 
 /-- A mask query retains the complete 256-bit hidden node. There is no

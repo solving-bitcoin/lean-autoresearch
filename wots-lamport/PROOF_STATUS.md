@@ -1,184 +1,131 @@
 # Proof and validation status
 
-Hosted Lean checked all Protected modules through Wire at `a2dce49`, including
-encoding round trips, chain/signature laws and the public-key wrapper. At
-`50e6007` it also checked the shared `Runtime.garblePacked_eq` theorem: the
-optional packed-byte implementation equals the mathematical vector operation
-for every valid coin vector. At `18aebd8`, Threshold, Adaptive, Contract and
-RunnerFixture compiled. That run exposed candidate elaboration failures;
-at `f605fb5`, Sharing, Shamir and FieldBridge compiled. This checks abstract
-Lagrange reconstruction, the Shamir secret-shift bijection, distinct nonzero
-coordinates, and the modular Horner/field evaluation bridge. Layout and one
-Nonvacuity theorem failed and are being repaired. The added canonical-integer
-Horner corollary still needs compilation. Generated executable tools have not
-yet been validated. The `da8f424` all-source attempt exceeded the unchanged
-8 GiB aggregate build guard (8,645,795,840-byte peak); the next attempt uses
-sequential module builds and kernel-only reduction of the finite slot geometry.
-The `6d26fba` run confirmed that full slot enumeration alone still exceeds
-the cap (8,897,998,848-byte peak). The next proof uses symbolic per-chain sums
-and reduces only eight nibble cases. No native evaluation axiom or larger
-memory budget is used. BitMapping and the canonical Horner corollary also
-received elaboration repairs; InverseBridge is a new, unchecked proof attempt
-for the executable inversion loop and bounded natural subtraction. At
-`d048390`, all Nonvacuity theorems and the canonical Horner integer-result
-corollary compiled. Two elaboration errors remained (target-digit case
-selection and reduction of the modulus to zero); their dependent geometry
-and size modules therefore did not build. At `d67ce75`, BitMapping and
-InverseBridge compiled in full. Geometry failed on a simplifier mismatch
-between a Fin cast and its natural value; the repaired hypothesis uses the
-natural value explicitly. Layout remains blocked on that dependency.
-The `8857322` attempt stopped before Lean because the new author-owned cost
-fixtures were not included in the frozen digest. The digest is refreshed with
-those files; admission rules are unchanged. `Exposed` now attempts to connect
-filtered executable slots to the exact selected/opposite threshold counts;
-it has not yet been checked by Lean.
-At `80d2a99`, Geometry compiled, proving the weighted codeword sum 960 and
-remaining depth 1023. Layout reached ordinary elaboration errors (a Boolean
-conditional, sum scope and the concrete Lamport key type), without a resource
-rejection. Those are repaired for the next run. New unchecked work adds the
-polynomial degree/constant-coefficient bridge and a full limbwise connection
-from the executable interpolation loops to Lagrange interpolation. Its small
-factor/weight helpers preserve the previous executable algorithm.
-At `6f344d2`, FieldBridge compiled with the new degree and constant-term
-lemmas. InterpolationBridge needs explicit Nat-to-field coercions and reduced
-tuple projections; Layout needs explicit partial-function unfolding and a
-concrete, definitionally equal Lamport key type in `prepare`. The next batch
-also attempts exact integer reconstruction, byte-mask cancellation, field
-serialization round trips and extraction/decryption of every table row.
-These new ByteBridge and reconstruction results are not yet compiler-checked.
-At `e65c736`, Layout and Exposed compiled: the full universal artifact bound
-is 48,752,768 bytes, and selected/opposite visible slot counts equal the
-threshold/threshold-minus-one for every message and wire. InterpolationBridge
-reached only a final function-composition simplification error; ByteBridge
-reported four ordinary proof errors. The next batch repairs these and adds
-explicit filtered-coordinate uniqueness, prepared-body slice identities and
-honest share decoding/reconstruction. These additions and the expansion
-refactor remain unchecked until the next hosted run.
-At `6531e8e`, Sharing compiled after the expansion refactor, and the complete
-InterpolationBridge compiled, including exact natural-number reconstruction.
-ByteBridge now has one remaining field-byte round-trip error; new indexed-slot
-lemmas have three elaboration errors. The next batch repairs these and attempts
-the full `Correct (wrapped construction)` theorem through prepared slices,
-label repacking and commitment checking. It also adds uniform polynomial-law
-transport (including finite families), the actual opposite-coordinate privacy
-specialization, and an exact symbolic residue-fiber count for a uniform
-256-bit integer. All these new results remain unchecked. The sampler theorem
-does not yet connect coin-byte blocks or compose distance bounds, and no joint
-ROM reduction or security certificate is claimed.
-At `00cc333`, ByteBridge, the complete indexed-slot Exposed module, ShamirLaw
-and VisiblePrivacy compiled. This checks exact share-byte decoding primitives,
-uniform-law transport for finite polynomial families, and the actual opposite
-coordinate set's uniform-polynomial privacy statement. ArtifactBridge still
-needs slice arithmetic/finite-index repairs; LabelBridge has one symbolic
-multiplication-order proof error, and SamplerLaw needs a tuple projection and
-non-looping cardinality simplification. New unchecked CoinEncoding/CoinBlocks
-and CoefficientIndices work connects uniform coin bytes, independent blocks and
-the actual polynomial coefficient addresses. SamplerMixture attempts an exact
-mixture law and two-sided marginal event bounds. Neither the complete expansion
-proof nor a joint ROM security theorem is yet established.
+The candidate remains **uncertified and unranked**. The pinned compiler is
+Lean 4.33.1. Source declarations count as proved only after that compiler
+accepts them; Rust/Python tests are independent validation, not Lean proofs.
+`Submission.submission.certificate = none` and `score.txt = unranked`.
 
-At `c855881`, the remaining ArtifactBridge diagnostics are two Boolean-slice
-arithmetic goals; SamplerLaw has one set/subtype cardinality rewrite mismatch.
-The next batch repairs those and adds joint product-measure domination,
-two-sided coefficient-table event bounds, exact byte-to-field pushforward laws,
-and the coefficient-vector/bounded-polynomial equivalence. These additions
-are unverified until hosted Lean succeeds. Full correctness and the joint
-ROM reduction remain open; no certificate is issued.
+## Compiler-checked results
 
-At `8b06ee6`, ArtifactBridge, LabelBridge and SamplerLaw compiled completely.
-This checks prepared commitment/share slices, lossless label-byte round trips,
-and the exact modular residue count/probability. DecodingBridge needs explicit
-tuple unpacking; the new coin/measure and polynomial layers need renamed
-measurability/monotonicity lemmas, finite ENNReal arithmetic and a Nat degree
-coercion. The next batch repairs these and attempts the nonce-preserving joint
-law, padded coefficient-family privacy, exact executable polynomial-table
-identification, oracle-program measurability and query-domain separation.
-All new layers remain unchecked; full correctness and ROM security remain open.
+The following modules passed hosted Lean elaboration. This does not mean the
+complete imported submission or its security certificate passed.
 
-At `3e17ad3`, CoinEncoding and PolynomialLaw compiled completely, including
-the byte/integer bijection, coefficient/polynomial equivalence and joint
-uniform coefficient transport. Remaining diagnostics concern dependent byte
-indices, one mixture arithmetic case, equal-secret transport, explicit oracle
-query typing and final share decoding. The next batch repairs these and adds
-unchecked reifications of the actual setup/release games, honest query budgets,
-measurability and a generic trace-based reprogramming bound. The latter has
-explicit coupling premises and is not a security certificate for this candidate.
-A separate authoring-only runtime diagnostic now attempts the unchanged
-executable despite unrelated proof failures; it cannot produce acceptance or
-a certificate. Full correctness, the ROM coupling and native limits remain open.
-
-The independent pinned Script comparison is now locally reproduced in
-`BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
-exact SHA-256/FullWidth WOTS profile and 7,209 for 256-bit SHA-256 Lamport.
-This does not discharge the Lean or ROM obligations. Core download was
-denied by proxy 403; no Core consensus/policy acceptance is claimed.
-
-The pinned compiler is 4.33.1. Local installation returned proxy 403; GitHub
-Actions successfully installed it through the authorized hosted workflow.
-That denial was not bypassed. The project contains no `sorry`, new axioms or
-fake certificate. Proof source is not counted as a proved result until the
-pinned compiler checks it. The status below distinguishes checked modules
-from remaining proof obligations.
-
-| Obligation | Current deliverable | Remaining work |
+| Result | Checked modules | Evidence commit |
 | --- | --- | --- |
-| Full 256-bit message coverage | Encoding/decoding, `decode_encode`, canonical extraction | Checked in Protected.Encoding |
-| Canonical Sign accepted | Correlated seeds/chain recurrence, `sign_verifies` | Canonical theorem checked; actual Script correspondence remains open |
-| Same artifact, all messages | Lean and independent Rust weighted-sharing algorithms | Prove `Correct` universally for every hash, coins, key and distinct label table |
-| Bit order | General `BitMapping` theorem checked; exhaustive finite Python/Rust fixtures | Connect to complete expansion correctness |
-| Weighted geometry | Geometry and exact selected/opposite filtered-slot counts checked | Check explicit coordinate enumeration and connect decoding |
-| Field reconstruction | Executable F_65537 interpolation through exact integer reconstruction checked | Connect actual body decoding and label repacking |
-| Shamir privacy | Abstract secret-shift bijection checked; toy F_7 exhaustive test | Connect all 16 limbs and all polynomials to sampled distributions |
-| Coefficient law | Independent 32-byte blocks; explicit bias formula | Prove modular-sampling statistical distance and compose across coefficients |
-| Chain/mask ROM reduction | Real correlated disclosure; full-closure adversary tests | Joint bad-query/collision coupling including setup, endpoints, masks, commitments and label-recovery guessing |
-| Public pk visible | Mandatory protected wrapper, `publicKey_visible`, audited Entry mapping | Wrapper theorem checked; audit generated serialization |
-| Pre-release withholding | Nonvacuous author-owned game recovering either label | Prove `ROM.WithholdingSecure` |
-| Post-release opposite label | Nonvacuous author-owned static game, outputs free | Prove `ROM.ReleaseSecure` against all bounded-query programs |
-| Exact artifact codec | Raw bytes, identity encode and `some` decode | Supply shared certificate codec fields; malformed body checks are distinct |
-| Universal byte bound | Universal `Layout.artifact_bound` checked for 48,752,768 bytes | Validate generated executable bytes |
-| Actual executable correspondence | Rust reference and generated SRTools integration test added | Compile generated Lean tools and run independent end-to-end tests within all caps |
-| Adaptive input | Protected artifact-first two-stage game | Prove separate adaptive bound; no implication from static game |
-| Simulation/GC composition | Boundary documented | Formal ideal interface, simulation and joint labels theorem not implemented |
-| Every raw Script witness | Types distinguish canonical, semantic, raw witnesses | Fix full interpreter/flags normalization and prove relation; canonical adapter rejects aliases |
-| Malicious setup/fraud protocol | Boundary documented; mismatched-instance regression tests | Authenticated GC/transaction/label binding, availability and Bitcoin-verifiable evidence design |
+| All 256-bit messages, encoding round trips, canonical signing and forward closure | Protected.Encoding, Chains, Disclosure, ScriptRelation, Challenge, Target, Wire | `a2dce49` |
+| Nonvacuous games and separate artifact-first adaptive game | Protected.Adaptive, Tests.Contract, Tests.RunnerFixture, Tests.Nonvacuity | `18aebd8`, `d048390` |
+| Packed-coin execution equals mathematical vector execution | shared Runtime.garblePacked_eq | `50e6007` |
+| Exact bit mapping and executable inversion | BitMapping, InverseBridge | `d67ce75` |
+| Weighted sum 960 and remaining depth 1023 | Geometry | `80d2a99` |
+| Polynomial degree, constant term and modular Horner interpretation | FieldBridge | `6f344d2` |
+| Universal artifact bound of 48,752,768 bytes | Layout.artifact_bound | `e65c736` |
+| Exact selected/opposite share counts, distinct nonzero visible coordinates | Exposed | `e65c736`, `00cc333` |
+| Executable interpolation equals exact field/natural reconstruction | InterpolationBridge | `6531e8e` |
+| Share-byte round trips, mask cancellation and table-row extraction | ByteBridge | `00cc333` |
+| Prepared commitment/share slices and lossless label repacking | ArtifactBridge, LabelBridge | `8b06ee6` |
+| Abstract Shamir secret-shift bijections and joint uniform-polynomial privacy | Shamir, ShamirLaw, VisiblePrivacy | `f605fb5`, `00cc333` |
+| Exact 256-bit modular residue fibers and marginal probabilities | SamplerLaw | `8b06ee6` |
+| Byte/integer bijection and actual single-block decoder law | CoinEncoding | `3e17ad3` |
+| Coefficient-vector/polynomial equivalence and joint coefficient privacy | PolynomialLaw | `3e17ad3` |
+| Padded/selective polynomial privacy, exact coefficient-list encoding and marginal mixture | PaddedPolynomialLaw, PolynomialEncoding, SamplerMixture | `3d1bcb3` |
+| Every honest table row decrypts to its exact field shares | DecodingBridge | `3d1bcb3` |
+| Executable weighted-sharing construction after expansion refactor | Sharing | `6531e8e` |
 
-## Numerical target is not a proved reduction
+## Current validation attempt
 
-The protected target uses 256-bit independent seeds, q<=2^48,
-an honest-query budget 2^32 and multi-target multiplier 2^20. These are fixed
-challenge parameters. Merely proving the rational expression is below one
-does not prove a candidate's security. The ledger must include:
+Hosted run 32 at `3d1bcb3` failed the complete WOTS source build. It checked
+PaddedPolynomialLaw, PolynomialEncoding, SamplerMixture and DecodingBridge.
+The remaining direct errors are in CoinBlocks, DomainSeparation, Expansion,
+OracleSupport and VisibleCoefficientPrivacy; their dependents remain blocked.
+The next batch adds explicit finite indices/query syntax, controlled slice
+arithmetic, noncomputable distribution declarations and expansion repairs.
+Scoped recursion depth 4096 permits the 256-element expansion conversion;
+heartbeat, RSS and process time limits are unchanged.
 
-- 67 chains (989 chain steps to compute all endpoints), possible collisions
-  within/across chains and with derived oracle inputs;
-- every setup/evaluation mask query, including repeats and public endpoints;
-- 512 public label commitments and 512 label-recovery targets;
-- all 1,015,296 encrypted evaluations, with two mask blocks each;
-- coefficient sampling bias, correlations induced by the shared oracle and
-  unrestricted local adversarial computation;
-- the difference between the independent seed model and upstream's derivation;
-- separate pre-release, static post-release and adaptive experiments.
+The authoring-only runtime diagnostic successfully built SRTools and packaged
+the four generated tools. Its supplied-bundle integration test failed after
+64.27 seconds with the SDK's combined timeout/side-output error. This is a
+real runtime failure, not acceptance. The next SDK diagnostic names the tool,
+elapsed time, timeout flag, output-overflow flag and side-output byte counts,
+without changing any limit. The candidate executable remains unchanged while
+that failure is isolated. It still has no certificate and `not-audited`
+metadata; the diagnostic cannot create acceptance or an exported archive.
 
-The supplied fixed-sum T=0 singleton is excluded by this track's T=1023.
-The optional enumerative 66-digit laboratory is not implemented; it was not
-substituted for the direct 67-chain target.
+Additional source work connects finite oracle restrictions to VCV's lazy
+random-oracle semantics, preserves query budgets, counts guesses against the
+actual distinct-label-pair space, and proves deterministic chain-table and
+mask-domain properties. Generic coupling lemmas retain their explicit
+premises. These are proof attempts, not assumptions admitted into a candidate
+certificate; none substitutes for the actual joint reduction.
 
-## Environment baseline
+## Obligations still open
 
-Rust 1.97.1 was installed from the official installer within `/workspace`.
-The original repository's policy, overlay and resource configuration tests
-passed. Its verifier regression suite fails when killed descendants become
-unreaped zombies under PID 1 (`tail -f /dev/null`). Running the unchanged suite
-under a temporary child-reaping supervisor passes. No repository guard was
-weakened or patched to hide this environment dependency. A suitable process
-supervisor is still required for the normal full verifier in this container.
+| Obligation | Remaining work |
+| --- | --- |
+| Universal honest correctness | Check Expansion through `construction_correct` for the exact protected wrapper |
+| Complete coefficient law | Check independent byte blocks, allocated/padded coefficient tables, raw nonce and two-sided joint sampling-error bounds |
+| Joint visible-share privacy | Check the full sampled coefficient-table specialization, including all 16 limbs and all 512 labels |
+| Actual oracle programs | Check reification, measurable winning events and the honest query budget |
+| ROM reduction | Establish the real/ideal joint laws and bound chain collisions, hidden-node queries, mask/commitment programming and label guessing |
+| Pre-release withholding | Prove `ROM.WithholdingSecure` against every bounded-query program |
+| Static post-release security | Prove `ROM.ReleaseSecure` with the selected labels supplied for free |
+| Adaptive message choice | Prove the separate artifact-first two-stage `AdaptiveSecure` theorem |
+| Native implementation | Run generated Lean tools and byte-for-byte reference correspondence within all unchanged caps |
+| Certificate | Fill every field with checked proofs, run isolated source/axiom audits and validate the final bundle |
 
-## Status gate
+## Fixed numerical target
 
-`Submission.submission.certificate = none`; `score.txt = unranked`.
-The certificate fields are deliberately not filled with assumptions. Before
-claiming a complete implementation, discharge the universal functional and
-security obligations above, compile all Lean sources, run the actual generated
-tools and review the new protected boundary. Publication of a feature branch
-and draft PR to solving-bitcoin/lean-autoresearch is authorized. Merging and
-external ranked submission are not authorized.
+The author-owned target is `2^20 * (q + 2^32 + 1)^2 / 2^256`, for
+`q <= 2^48`. Its nontriviality is checked, but this is not a security reduction.
+The accounting must cover 67 correlated chains (989 endpoint steps), 512 label
+commitments, 1,015,296 encrypted evaluations with two mask queries each,
+8,380,416 allocated coefficient blocks, the raw nonce, and all adversarial
+queries. Repeated calls count again. The scalar sampler is biased because
+`2^256 mod 65537 = 1`; no exact-uniform-sampler assumption is allowed.
+
+The direct 67-chain profile has weighted remaining depth 1023. It is not
+replaced by the excluded fixed-sum T=0 singleton or an enumerative 66-digit
+laboratory.
+
+## Independent evidence and boundaries
+
+The independent Rust implementation and Python arithmetic/format/boundary
+tests pass. They do not prove the candidate. Hosted run 32 measured Rust Prepare at 19.23 seconds, the full fixed-artifact
+three-message test at 26.51 seconds, and peak RSS at 320,348,160 bytes.
+This does not predict Lean timing.
+
+The pinned Script comparison is reproduced in [BITCOIN_COST.md](BITCOIN_COST.md):
+maximum complete-spend sizes are **2,101 vbytes WOTS** and **7,209 vbytes
+Lamport** for the matched SHA-256/full-width profiles and stated transaction
+fixture. The offchain artifact is 48,752,768 bytes. Bitcoin Core retrieval was
+denied by proxy 403; no Bitcoin Core consensus or relay-policy result is claimed.
+
+Canonical signing, every raw Script witness, simulation/GC composition,
+malicious setup, authenticated transaction/label binding, availability, and a
+Bitcoin-verifiable fraud protocol are distinct statements. They are not
+implied by the current construction or the intended static ROM certificate.
+The protected seed distribution uses independent seeds, not the upstream
+master-seed derivation.
+
+## Reproducibility and resource limits
+
+Local Lean installation was denied by proxy 403 and was not bypassed. The
+compiler runs in the authorized hosted workflow. Builds are sequential with
+one Lean thread and nice 10: 4 GiB locally, 8 GiB in CI. Native processes retain
+1 GiB RSS; native suite limits are 300 seconds locally and 600 seconds in CI,
+with the SDK's separate 60-second limit for each generated tool unchanged.
+
+Two earlier source builds exceeded the unchanged 8 GiB cap. Sequential builds
+and symbolic geometry replaced parallel elaboration and full slot enumeration;
+no cap increase or native evaluation axiom repaired those failures.
+
+The unchanged local verifier regression suite requires a temporary child-reaping
+supervisor because this container's PID 1 leaves killed descendants as zombies.
+The supervised suite passes; no repository guard was weakened to hide this.
+Hosted BLAKE3 and G1 previews at `50e6007` passed, including packed-runtime
+regressions. BLAKE3 also passed run 32 at `3d1bcb3`. These are shared-framework
+results, not a complete WOTS pass. The current SDK-only diagnostic change
+requires the next shared regression run.
+
+Publication to the existing draft PR branch and hosted CI are authorized.
+Merging, deployment and an external ranked submission are not authorized.

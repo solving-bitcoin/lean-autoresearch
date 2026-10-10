@@ -124,4 +124,22 @@ existing Rust SDK, 60-second per-tool timeout and 1 GiB native guard. Its entry
 has no certificate; its metadata remains `not-audited`, and it creates no
 acceptance report or exported archive. Every proof failure is still fatal.
 When all source proofs compile, the normal isolated verifier runs directly.
-This diagnostic has not yet run under hosted Lean.
+Run 32 built and packaged SRTools, then its supplied-bundle integration test
+failed after 64.27 seconds with the combined SDK timeout/side-output message.
+The independent byte-for-byte generated-artifact test was not reached.
+The next SDK diagnostic identifies the exact tool and cause without changing
+the timeout, output limit or RSS guard. No generated-tool success is claimed.
+
+The next author-preview scheduler builds the source import graph in dependency
+order using the existing conservative Lean lexer. A failed prerequisite blocks
+its dependents instead of repeatedly recompiling the same failure. Every
+blocked module remains in the fatal rejection list. Independent modules still
+build, and successful runs attempt all modules before the isolated verifier.
+`check_author_graph.py` passed local failure-injection cases for complete
+success, an ordinary proof failure, transitive blocked dependents, independent
+work, immediate RSS/timeout rejection, and an import cycle (20,365,312-byte
+peak under the normal native guard). These tests do not report a Lean pass.
+
+Run 32 at `3d1bcb3` passed the independent reference job: Prepare 19.23 s,
+three Expand calls 1.89/1.82/1.83 s, full fixed-artifact test 26.51 s, peak
+320,348,160 bytes. These are Rust reference measurements, not Lean timings.

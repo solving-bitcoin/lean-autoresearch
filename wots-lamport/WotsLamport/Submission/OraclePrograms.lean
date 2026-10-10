@@ -13,7 +13,9 @@ open SecretRelease WotsLamport.Protected OracleSpec OracleComp
 
 @[simp] theorem run_query (h : Hash) (input : ByteArray) :
     ROM.run h (oracleQuery input : Program Label) = h input := by
-  exact evalWithAnswerFn_query (QueryImpl.ofFn h) input
+  change simulateQ (QueryImpl.ofFn h) (liftM ((ByteArray →ₒ Label).query input)) = _
+  rw [simulateQ_spec_query]
+  rfl
 
 theorem run_listMapM {A B : Type} (h : Hash) (xs : List A) (f : A → Program B) :
     ROM.run h (xs.mapM f) = xs.map (fun x => ROM.run h (f x)) := by

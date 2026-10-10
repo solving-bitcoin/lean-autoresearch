@@ -119,6 +119,18 @@ theorem releaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels
     (fun artifact => isTotalQueryBound_bind (signProgram_query_bound keys m)
       (fun signature => pure_query_bound ⟨m, artifact, signatureBytes signature, selectedOutputBytes labels m⟩ 0))
 
+theorem preReleaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
+    (m : Message) : IsTotalQueryBound (preReleaseViewProgram coins keys labels m) honestSetupQueries := by
+  exact isTotalQueryBound_bind (wrappedPrepareProgram_query_bound coins keys labels)
+    (fun artifact => pure_query_bound ⟨m, artifact⟩ 0)
+
+theorem withholdingGameProgram_query_bound (m : Message)
+    (a : PreReleaseView challenge → Program challenge.Claim)
+    (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
+    IsTotalQueryBound (withholdingGameProgram m a initial) (honestSetupQueries+q) := by
+  exact isTotalQueryBound_bind (preReleaseViewProgram_query_bound _ _ _ m)
+    (fun view => isTotalQueryBound_bind (bound view) (fun claim => pure_query_bound _ 0))
+
 theorem releaseGameProgram_query_bound (m : Message) (a : View challenge → Program challenge.Claim)
     (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
     IsTotalQueryBound (releaseGameProgram m a initial) (honestReleaseQueries+q) := by

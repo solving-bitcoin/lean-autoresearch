@@ -78,7 +78,7 @@ theorem probability_event_bounds {A : Type} [MeasurableSpace A]
   constructor
   · have hfinite : weight*ν eventᶜ ≠ ⊤ :=
       (lt_of_le_of_lt (hlow eventᶜ) (measure_lt_top μ eventᶜ)).ne
-    apply ENNReal.le_of_Sampler.add_left_mono hfinite
+    apply ENNReal.le_of_add_le_add_left hfinite
     calc
       weight*ν eventᶜ+μ event ≤ μ eventᶜ+μ event := Sampler.add_right_mono (hlow eventᶜ) _
       _ = 1 := by rw [add_comm, prob_add_prob_compl measurable]

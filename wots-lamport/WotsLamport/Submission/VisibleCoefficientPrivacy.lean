@@ -14,7 +14,7 @@ def labelLimb (labels : Fin 256 → Pair) (slot : PolynomialSlot) : ZMod 65537 :
 theorem nonconstant_count_bound (value : Bool) : threshold value-1 ≤ 1023 := by
   cases value <;> decide
 
-def visibleCoefficientObservations (m : Message) (labels : Fin 256 → Pair)
+noncomputable def visibleCoefficientObservations (m : Message) (labels : Fin 256 → Pair)
     (c : PolynomialSlot → Fin 1023 → ZMod 65537) :
     (slot : PolynomialSlot) → visibleCoordinates m slot.1 slot.2.1 → ZMod 65537 :=
   fun slot => Shamir.observedValues (visibleCoordinates m slot.1 slot.2.1)
@@ -33,7 +33,8 @@ theorem visible_coefficients_joint_privacy (m : Message) (a b : Fin 256 → Pair
       {c | visibleCoefficientObservations m a c ∈ event} =
     uniformOn (Set.univ : Set (PolynomialSlot → Fin 1023 → ZMod 65537))
       {c | visibleCoefficientObservations m b c ∈ event} := by
-  apply Shamir.uniform_padded_joint_secret_transport 1023
+  unfold visibleCoefficientObservations
+  apply Shamir.uniform_padded_joint_secret_transport (F := ZMod 65537) (I := PolynomialSlot) 1023
     (fun slot => threshold slot.2.1-1) (fun slot => nonconstant_count_bound slot.2.1)
     (fun slot => visibleCoordinates m slot.1 slot.2.1)
     (fun slot => visibleCoordinates_nonzero m slot.1 slot.2.1)

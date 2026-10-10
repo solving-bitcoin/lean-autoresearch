@@ -1,3 +1,9 @@
+import WotsLamport.Submission.ChainTape
+import WotsLamport.Submission.DomainInjectivity
+import WotsLamport.Submission.JointOracleTrace
+import WotsLamport.Submission.LabelGuessing
+import WotsLamport.Submission.MaskLaw
+import WotsLamport.Submission.RestrictedOracleProgram
 import WotsLamport.Submission.Sharing
 import WotsLamport.Submission.Shamir
 import WotsLamport.Submission.Layout
@@ -13,9 +19,11 @@ import WotsLamport.Submission.Expansion
 import WotsLamport.Submission.VisiblePrivacy
 import WotsLamport.Submission.SamplerLaw
 import WotsLamport.Submission.CoefficientIndices
+import WotsLamport.Submission.NonceEnvironmentLaw
 import WotsLamport.Submission.NonceTableLaw
 import WotsLamport.Submission.ActualPolynomialTable
 import WotsLamport.Submission.DomainSeparation
+import WotsLamport.Submission.GameReductions
 import WotsLamport.Submission.GamePrograms
 import WotsLamport.Submission.OracleTrace
 import WotsLamport.Submission.OracleSupport

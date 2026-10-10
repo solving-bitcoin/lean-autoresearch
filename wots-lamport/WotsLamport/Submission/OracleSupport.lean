@@ -3,7 +3,7 @@ import WotsLamport.Protected.Target
 namespace WotsLamport.Submission
 open SecretRelease OracleSpec OracleComp MeasureTheory
 
-def oracleQuery (input : ByteArray) : Program Label :=
+abbrev oracleQuery (input : ByteArray) : Program Label :=
   liftM ((ByteArray →ₒ Label).query input)
 
 theorem run_query_bind {A : Type} (h : Hash) (input : ByteArray) (next : Label → Program A) :
@@ -11,8 +11,8 @@ theorem run_query_bind {A : Type} (h : Hash) (input : ByteArray) (next : Label �
   change evalWithAnswerFn (QueryImpl.ofFn h) ((oracleQuery input : Program Label) >>= next) =
     evalWithAnswerFn (QueryImpl.ofFn h) (next (h input))
   unfold oracleQuery
-  rw [evalWithAnswerFn_bind, evalWithAnswerFn_query]
-  rfl
+  rw [evalWithAnswerFn_bind]
+  simp only [evalWithAnswerFn, simulateQ_spec_query, QueryImpl.ofFn_apply]
 
 /-- Every total free oracle program with finite answers inspects a finite set
 of possible query inputs across all executions. This set is not asserted to

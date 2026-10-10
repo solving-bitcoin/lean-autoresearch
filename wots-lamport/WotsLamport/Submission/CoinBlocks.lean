@@ -27,7 +27,8 @@ def byteBlocksEquiv (n : Nat) : Bytes (n*32) ≃ (Fin n → Bytes 32) where
     have hm : (block.val*32+k)%32 = k := by omega
     have hf : (⟨(block.val*32+k)/32, by have hb := block.isLt; omega⟩ : Fin n) = block := Fin.ext hd
     rw [hf]
-    exact congrArg (fun i : Fin 32 => (blocks block)[i.val]) (Fin.ext hm)
+    have hfm : (⟨(block.val*32+k)%32, Nat.mod_lt _ (by decide)⟩ : Fin 32) = ⟨k,hk⟩ := Fin.ext hm
+    exact congrArg (fun i : Fin 32 => (blocks block)[i.val]) hfm
 
 theorem byteBlocks_extract (n : Nat) (coins : Bytes (n*32)) (block : Fin n) :
     ByteArray.mk ((byteBlocksEquiv n coins) block).toArray =
@@ -67,16 +68,18 @@ theorem coefficient_block_read (coins : Bytes randomnessBytes) (block : Fin coef
   have hb := block.isLt
   have hs : (ByteArray.mk coins.toArray).size = randomnessBytes := coins.size_toArray
   have he := byteBlocks_extract (coefficientCount+1) coins
-    ⟨block.val+1, by omega⟩
+    ⟨block.val+1, Nat.succ_lt_succ block.isLt⟩
   change readLE (ByteArray.mk ((byteBlocksEquiv (coefficientCount+1) coins)
-    ⟨block.val+1, by omega⟩).toArray) 0 32 = _
+    ⟨block.val+1, Nat.succ_lt_succ block.isLt⟩).toArray) 0 32 = _
   rw [he]
-  have hstart : (block.val+1)*32 = 32+block.val*32 := by omega
-  have hstop : (block.val+1+1)*32 = (32+block.val*32)+32 := by omega
+  have hstart : (block.val+1)*32 = 32+block.val*32 := by ring
+  have hstop : (block.val+1+1)*32 = (32+block.val*32)+32 := by ring
   rw [hstart, hstop]
   have hbound : (32+block.val*32)+32 ≤ randomnessBytes := by
     change (32+block.val*32)+32 ≤ 32+coefficientCount*32
-    omega
+    calc
+      _ = 32+(block.val+1)*32 := by ring
+      _ ≤ _ := Nat.add_le_add_left (Nat.mul_le_mul_right 32 (Nat.succ_le_of_lt block.isLt)) 32
   exact readLE_extract _ _ _ (by rw [hs]; exact hbound)
 
 end WotsLamport.Submission

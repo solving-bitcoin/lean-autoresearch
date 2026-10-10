@@ -32,8 +32,10 @@ theorem expandLabel_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
     simpa only [limbs, List.map_map, Function.comp_def] using serialize_label_limbs label
   change expandLabel h _ _ _ m _ i value = some (ByteArray.mk label.toArray)
   simp only [expandLabel, decodeShares_prepared h coins keys labels hcoins m i value]
-  simp [hlength, hrec, hvalid, hbytes, byteVector_decode_raw,
-    prepare_commitment_slice h coins keys labels hcoins i value]
+  dsimp only [label] at hlength hrec hbytes
+  simp only [hlength, hrec, hvalid, hbytes, byteVector_decode_raw, Option.bind_some,
+    bne_self_eq_false, Bool.false_eq_true, ite_false,
+    prepare_commitment_slice h coins keys labels hcoins i value] <;> rfl
 
 theorem concatenate_label_fold (labels : List Label) (initial : ByteArray) :
     (labels.map fun label => ByteArray.mk label.toArray).foldl
@@ -42,12 +44,13 @@ theorem concatenate_label_fold (labels : List Label) (initial : ByteArray) :
   induction labels generalizing initial with
   | nil => rfl
   | cons label rest ih =>
-    simpa only [List.map_cons, List.foldl_cons] using ih (initial ++ ByteArray.mk label.toArray)
+    simpa only [List.map_cons, List.foldl_cons, ByteArray.data_append] using ih (initial ++ ByteArray.mk label.toArray)
 
 theorem concatenate_labels (labels : List Label) :
     concatenate (labels.map fun label => ByteArray.mk label.toArray) = pack labels := by
   exact concatenate_label_fold labels ByteArray.empty
 
+set_option maxRecDepth 4096 in
 theorem expand_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size) (m : Message) :
     expand h (publicKey h keys) (prepare h coins keys labels) m (sign h keys m) =
@@ -74,6 +77,7 @@ theorem expand_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
 /-- Exact correctness of the protected, public-key-prefixed construction.
 This theorem concerns honest evaluation only; it is independent of the
 unproved pre-release, post-release and adaptive security reductions. -/
+set_option maxRecDepth 4096 in
 theorem construction_correct : Correct (wrapped construction) := by
   intro h coins p keys labels m
   change Fin 256 → Pair at labels
