@@ -54,6 +54,17 @@ reported four ordinary proof errors. The next batch repairs these and adds
 explicit filtered-coordinate uniqueness, prepared-body slice identities and
 honest share decoding/reconstruction. These additions and the expansion
 refactor remain unchecked until the next hosted run.
+At `6531e8e`, Sharing compiled after the expansion refactor, and the complete
+InterpolationBridge compiled, including exact natural-number reconstruction.
+ByteBridge now has one remaining field-byte round-trip error; new indexed-slot
+lemmas have three elaboration errors. The next batch repairs these and attempts
+the full `Correct (wrapped construction)` theorem through prepared slices,
+label repacking and commitment checking. It also adds uniform polynomial-law
+transport (including finite families), the actual opposite-coordinate privacy
+specialization, and an exact symbolic residue-fiber count for a uniform
+256-bit integer. All these new results remain unchecked. The sampler theorem
+does not yet connect coin-byte blocks or compose distance bounds, and no joint
+ROM reduction or security certificate is claimed.
 
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
@@ -75,7 +86,7 @@ from remaining proof obligations.
 | Same artifact, all messages | Lean and independent Rust weighted-sharing algorithms | Prove `Correct` universally for every hash, coins, key and distinct label table |
 | Bit order | General `BitMapping` theorem checked; exhaustive finite Python/Rust fixtures | Connect to complete expansion correctness |
 | Weighted geometry | Geometry and exact selected/opposite filtered-slot counts checked | Check explicit coordinate enumeration and connect decoding |
-| Field reconstruction | Executable F_65537 interpolation, duplicate/nonzero checks, reference tests | Primality, coordinates, Horner bridge and abstract reconstruction checked; connect executable interpolation |
+| Field reconstruction | Executable F_65537 interpolation through exact integer reconstruction checked | Connect actual body decoding and label repacking |
 | Shamir privacy | Abstract secret-shift bijection checked; toy F_7 exhaustive test | Connect all 16 limbs and all polynomials to sampled distributions |
 | Coefficient law | Independent 32-byte blocks; explicit bias formula | Prove modular-sampling statistical distance and compose across coefficients |
 | Chain/mask ROM reduction | Real correlated disclosure; full-closure adversary tests | Joint bad-query/collision coupling including setup, endpoints, masks, commitments and label-recovery guessing |

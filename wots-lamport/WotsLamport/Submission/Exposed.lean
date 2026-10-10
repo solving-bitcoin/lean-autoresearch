@@ -110,7 +110,7 @@ theorem enumerated_coordinates_distinct {A : Type} (xs : List A) (keep : A × Na
     rw [List.zipIdx_map_snd]
     exact List.nodup_range'
   have hf : (xs.zipIdx.map fun entry => entry.2+1).Nodup := by
-    simpa only [List.map_map, Function.comp_apply, Nat.succ_eq_add_one] using
+    simpa only [List.map_map, Function.comp_def, Nat.succ_eq_add_one] using
       List.Nodup.map (f := Nat.succ) Nat.succ_injective hs
   exact List.Nodup.sublist (List.Sublist.map _ List.filter_sublist) hf
 
@@ -118,7 +118,7 @@ theorem enumerated_filter_length {A : Type} (xs : List A) (keep : A → Bool) :
     (xs.zipIdx.filter fun entry => keep entry.1).length = (xs.filter keep).length := by
   have hm : (xs.zipIdx.filter (keep ∘ Prod.fst)).map Prod.fst = xs.filter keep := by
     rw [← List.filter_map, List.zipIdx_map_fst]
-  simpa only [List.length_map] using congrArg List.length hm
+  simpa only [List.length_map, Function.comp_def] using congrArg List.length hm
 
 theorem slot_coordinate_bounds (i : Fin 256) (value : Bool)
     (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ (slots i value).zipIdx) :
@@ -136,12 +136,20 @@ theorem slot_coordinate_bounds (i : Fin 256) (value : Bool)
 theorem visibleSlots_selected_length (m : Message) (i : Fin 256) :
     (visibleSlots m i (outputCodec.encode m)[i.val]).length =
       threshold (outputCodec.encode m)[i.val] := by
-  unfold visibleSlots
-  rw [enumerated_filter_length, selected_slots_length]
+  exact (enumerated_filter_length (slots i (outputCodec.encode m)[i.val])
+    (fun jk : Fin 67 × Nat => decide (encodeWord m jk.1 ≤ jk.2))).trans
+    (selected_slots_length m i)
 
 theorem visibleSlots_distinct (m : Message) (i : Fin 256) (value : Bool) :
     ((visibleSlots m i value).map fun entry => entry.2+1).Nodup := by
   exact enumerated_coordinates_distinct (slots i value) _
+
+theorem visibleSlots_opposite_length (m : Message) (i : Fin 256) :
+    (visibleSlots m i (!(outputCodec.encode m)[i.val])).length + 1 =
+      threshold (!(outputCodec.encode m)[i.val]) := by
+  have hf := enumerated_filter_length (slots i (!(outputCodec.encode m)[i.val]))
+    (fun jk : Fin 67 × Nat => decide (encodeWord m jk.1 ≤ jk.2))
+  exact (congrArg (fun n : Nat => n+1) hf).trans (opposite_slots_length m i)
 
 theorem visibleSlots_bounds (m : Message) (i : Fin 256) (value : Bool)
     (entry : (Fin 67 × Nat) × Nat) (he : entry ∈ visibleSlots m i value) :

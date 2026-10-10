@@ -39,8 +39,11 @@ theorem readLE_two_lt (bytes : ByteArray) (start : Nat) :
 theorem read_writeLE_field (n : Nat) (hn : n < prime) :
     readLE (writeLE 3 n) 0 3 = n := by
   have hn' : n < 65537 := hn
-  simp [readLE, List.range_succ, writeLE, ByteArray.getElem_eq_getElem_data,
-    UInt8.toNat_ofNat']
+  change (writeLE 3 n)[0]!.toNat + 256*((writeLE 3 n)[1]!.toNat +
+    256*((writeLE 3 n)[2]!.toNat + 256*0)) = n
+  rw [writeLE_get 3 n 0 (by decide), writeLE_get 3 n 1 (by decide),
+    writeLE_get 3 n 2 (by decide)]
+  simp only [UInt8.toNat_ofNat', Nat.reducePow, Nat.div_one, Nat.mul_zero, Nat.add_zero]
   omega
 
 theorem append_fold_prefix (parts : List ByteArray) (a b : ByteArray) :

@@ -63,6 +63,64 @@ theorem prepare_wire_block (h : Hash) (coins : ByteArray) (keys : Keys)
     concatenate_extract rows ((1984+1982)*48) hs i.val (by simpa [rows] using i.isLt)]
   simp only [rows, List.getElem_map, List.getElem_finRange]
 
+theorem prepare_commitment_block (h : Hash) (coins : ByteArray) (keys : Keys)
+    (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size) (i : Fin 256) :
+    (prepare h coins keys labels).extract (32+i.val*64) (32+(i.val+1)*64) =
+      ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
+        i.val false ((labels i).get false)).toArray ++
+      ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
+        i.val true ((labels i).get true)).toArray := by
+  let nonce := coins.extract 0 32
+  let pk := keyCodec.encode (publicKey h keys)
+  let rows := (List.finRange 256).map fun j =>
+    ByteArray.mk (commitment h pk nonce j.val false ((labels j).get false)).toArray ++
+    ByteArray.mk (commitment h pk nonce j.val true ((labels j).get true)).toArray
+  have hn : nonce.size = 32 := by
+    dsimp [nonce]
+    rw [ByteArray.size_extract]
+    omega
+  have hs : ∀ row ∈ rows, row.size = 64 := by
+    intro row hr
+    obtain ⟨j, _, rfl⟩ := List.mem_map.mp hr
+    simp only [ByteArray.size_append, vectorBytes_size]
+  have hc : (concatenate rows).size = 256*64 := by
+    exact concatenate_map_size _ _ 64 (by intro j _; simp only [ByteArray.size_append, vectorBytes_size])
+  unfold prepare
+  change ((nonce ++ concatenate rows) ++ _).extract _ _ = _
+  rw [extract_append_left_of_le (nonce ++ concatenate rows) _ _ _ (by
+    rw [ByteArray.size_append, hn, hc]
+    have hi := i.isLt
+    omega)]
+  rw [← hn, ByteArray.extract_append_size_add,
+    concatenate_extract rows 64 hs i.val (by simpa [rows] using i.isLt)]
+  simp only [rows, List.getElem_map, List.getElem_finRange]
+
+theorem prepare_commitment_slice (h : Hash) (coins : ByteArray) (keys : Keys)
+    (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size) (i : Fin 256) (value : Bool) :
+    (prepare h coins keys labels).extract
+      (32+(2*i.val+(if value then 1 else 0))*32)
+      (32+(2*i.val+(if value then 1 else 0)+1)*32) =
+      ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
+        i.val value ((labels i).get value)).toArray := by
+  have hw : (prepare h coins keys labels).extract (32+i.val*64) (32+i.val*64+64) =
+      ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
+        i.val false ((labels i).get false)).toArray ++
+      ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
+        i.val true ((labels i).get true)).toArray := by
+    convert prepare_commitment_block h coins keys labels hcoins i using 1 <;> omega
+  cases value with
+  | false =>
+    have hs := congrArg (fun bytes : ByteArray => bytes.extract 0 32) hw
+    rw [extract_within_block _ _ _ _ _ (by decide),
+      ByteArray.extract_append_eq_left (vectorBytes_size _).symm] at hs
+    convert hs using 1 <;> omega
+  | true =>
+    have hs := congrArg (fun bytes : ByteArray => bytes.extract 32 64) hw
+    rw [extract_within_block _ _ _ _ _ (by decide),
+      ByteArray.extract_append_eq_right (vectorBytes_size _).symm
+        (by simp only [vectorBytes_size])] at hs
+    convert hs using 1 <;> omega
+
 theorem prepare_share_slice (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size)
     (i : Fin 256) (value : Bool) (index : Nat) (hi : index < (slots i value).length) :

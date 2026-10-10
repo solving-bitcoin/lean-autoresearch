@@ -8,6 +8,10 @@ import WotsLamport.Submission.Exposed
 import WotsLamport.Submission.InterpolationBridge
 import WotsLamport.Submission.ByteBridge
 import WotsLamport.Submission.DecodingBridge
+import WotsLamport.Submission.LabelBridge
+import WotsLamport.Submission.Expansion
+import WotsLamport.Submission.VisiblePrivacy
+import WotsLamport.Submission.SamplerLaw
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected
