@@ -12,6 +12,8 @@ import WotsLamport.Submission.LabelBridge
 import WotsLamport.Submission.Expansion
 import WotsLamport.Submission.VisiblePrivacy
 import WotsLamport.Submission.SamplerLaw
+import WotsLamport.Submission.CoefficientIndices
+import WotsLamport.Submission.SamplerMixture
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected

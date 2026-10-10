@@ -7,7 +7,10 @@ theorem extract_append_left_of_le (a b : ByteArray) (start stop : Nat)
     (hstop : stop ≤ a.size) : (a ++ b).extract start stop = a.extract start stop := by
   rw [ByteArray.extract_append]
   have hz : stop-a.size = 0 := Nat.sub_eq_zero_of_le hstop
-  simp [hz]
+  rw [hz]
+  have he : b.extract (start-a.size) 0 = ByteArray.empty :=
+    ByteArray.extract_eq_empty_iff.mpr (by simp)
+  rw [he, ByteArray.append_empty]
 
 /-- A subrange can be read either directly or through its containing block. -/
 theorem extract_within_block (a : ByteArray) (base width start stop : Nat)
@@ -51,7 +54,7 @@ theorem prepare_wire_block (h : Hash) (coins : ByteArray) (keys : Keys)
     dsimp only [commitments]
     rw [concatenate_map_size _ _ 64 (by
       intro j _; simp only [ByteArray.size_append, vectorBytes_size])]
-    rfl
+    simp only [List.length_finRange]
   have hp : (nonce ++ commitments).size = 32+512*32 := by
     rw [ByteArray.size_append, hn, hc]
   have hs : ∀ row ∈ rows, row.size = (1984+1982)*48 := by
@@ -61,7 +64,13 @@ theorem prepare_wire_block (h : Hash) (coins : ByteArray) (keys : Keys)
   change ((nonce ++ commitments) ++ concatenate rows).extract _ _ = _
   rw [← hp, ByteArray.extract_append_size_add,
     concatenate_extract rows ((1984+1982)*48) hs i.val (by simpa [rows] using i.isLt)]
-  simp only [rows, List.getElem_map, List.getElem_finRange]
+  have hi : i.val < (List.finRange 256).length := by simpa only [List.length_finRange] using i.isLt
+  have helem : (List.finRange 256)[i.val]'hi = i := by
+    simp only [List.getElem_finRange]
+    apply Fin.ext
+    rfl
+  simp only [rows, List.getElem_map]
+  rw [helem]
 
 theorem prepare_commitment_block (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size) (i : Fin 256) :
@@ -84,16 +93,25 @@ theorem prepare_commitment_block (h : Hash) (coins : ByteArray) (keys : Keys)
     obtain ⟨j, _, rfl⟩ := List.mem_map.mp hr
     simp only [ByteArray.size_append, vectorBytes_size]
   have hc : (concatenate rows).size = 256*64 := by
-    exact concatenate_map_size _ _ 64 (by intro j _; simp only [ByteArray.size_append, vectorBytes_size])
+    simpa only [List.length_finRange] using concatenate_map_size (List.finRange 256)
+      (fun j => ByteArray.mk (commitment h pk nonce j.val false ((labels j).get false)).toArray ++
+        ByteArray.mk (commitment h pk nonce j.val true ((labels j).get true)).toArray)
+      64 (by intro j _; simp only [ByteArray.size_append, vectorBytes_size])
   unfold prepare
   change ((nonce ++ concatenate rows) ++ _).extract _ _ = _
   rw [extract_append_left_of_le (nonce ++ concatenate rows) _ _ _ (by
     rw [ByteArray.size_append, hn, hc]
     have hi := i.isLt
     omega)]
-  rw [← hn, ByteArray.extract_append_size_add,
+  rw [ByteArray.extract_append_size_add' hn.symm,
     concatenate_extract rows 64 hs i.val (by simpa [rows] using i.isLt)]
-  simp only [rows, List.getElem_map, List.getElem_finRange]
+  have hi : i.val < (List.finRange 256).length := by simpa only [List.length_finRange] using i.isLt
+  have helem : (List.finRange 256)[i.val]'hi = i := by
+    simp only [List.getElem_finRange]
+    apply Fin.ext
+    rfl
+  simp only [rows, List.getElem_map]
+  rw [helem]
 
 theorem prepare_commitment_slice (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size) (i : Fin 256) (value : Bool) :
@@ -107,19 +125,19 @@ theorem prepare_commitment_slice (h : Hash) (coins : ByteArray) (keys : Keys)
         i.val false ((labels i).get false)).toArray ++
       ByteArray.mk (commitment h (keyCodec.encode (publicKey h keys)) (coins.extract 0 32)
         i.val true ((labels i).get true)).toArray := by
-    convert prepare_commitment_block h coins keys labels hcoins i using 1 <;> omega
+    convert prepare_commitment_block h coins keys labels hcoins i using 2 <;> omega
   cases value with
   | false =>
     have hs := congrArg (fun bytes : ByteArray => bytes.extract 0 32) hw
     rw [extract_within_block _ _ _ _ _ (by decide),
       ByteArray.extract_append_eq_left (vectorBytes_size _).symm] at hs
-    convert hs using 1 <;> omega
+    convert hs using 2 <;> omega
   | true =>
     have hs := congrArg (fun bytes : ByteArray => bytes.extract 32 64) hw
     rw [extract_within_block _ _ _ _ _ (by decide),
       ByteArray.extract_append_eq_right (vectorBytes_size _).symm
         (by simp only [vectorBytes_size])] at hs
-    convert hs using 1 <;> omega
+    convert hs using 2 <;> omega
 
 theorem prepare_share_slice (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) (hcoins : 32 ≤ coins.size)
@@ -136,7 +154,7 @@ theorem prepare_share_slice (h : Hash) (coins : ByteArray) (keys : Keys)
     keys i true ((labels i).get true)
   have hl : left.size = 1984*48 := by simp [left, labelTable_size, slots_length]
   have hw : (prepare h coins keys labels).extract base (base+(1984+1982)*48) = left ++ right := by
-    convert prepare_wire_block h coins keys labels hcoins i using 1 <;> dsimp [base] <;> omega
+    convert prepare_wire_block h coins keys labels hcoins i using 2 <;> dsimp only [base] <;> omega
   have hb : (if value then 1984 else 0)*48+(index+1)*48 ≤ (1984+1982)*48 := by
     rw [slots_length] at hi
     cases value <;> simp only [Bool.false_eq_true, ite_false, ite_true] at * <;> omega
@@ -152,10 +170,10 @@ theorem prepare_share_slice (h : Hash) (coins : ByteArray) (keys : Keys)
       rw [slots_length] at hi
       simp only [Bool.false_eq_true, ite_false] at hi
       omega)] at hs
-    convert hs using 1 <;> dsimp [base] <;> omega
+    convert hs using 2 <;> dsimp only [base] <;> omega
   | true =>
     simp only [ite_true] at hs ⊢
     rw [← hl, ByteArray.extract_append_size_add] at hs
-    convert hs using 1 <;> dsimp [base] <;> omega
+    convert hs using 2 <;> dsimp only [base] <;> omega
 
 end WotsLamport.Submission

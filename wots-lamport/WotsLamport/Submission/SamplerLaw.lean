@@ -31,6 +31,7 @@ def residueFiberEquiv (r : Fin 65537) :
     unfold residueCount at hj
     split_ifs at hj <;> omega⟩, by
       have hr := r.isLt
+      change (j.val*65537+r.val) % 65537 = r.val
       omega⟩
   left_inv n := by
     apply Subtype.ext
@@ -57,7 +58,7 @@ theorem residue_probability (r : Fin 65537) :
     uniformOn (Set.univ : Set (Fin sampleSize)) {n | n.val % 65537 = r.val} =
       (residueCount r : ENNReal) / sampleSize := by
   rw [uniformOn_univ, Measure.count_apply MeasurableSet.of_discrete]
-  simp [Set.encard, ENat.card_eq_coe_fintype_card, residueFiber_card]
+  rw [Set.encard, ENat.card_eq_coe_fintype_card, residueFiber_card] <;> simp
 
 /-- The rational expression corresponding to the exact marginal distance is
 small enough for all used blocks. This arithmetic lemma alone does not prove

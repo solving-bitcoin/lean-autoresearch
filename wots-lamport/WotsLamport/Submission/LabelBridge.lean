@@ -19,7 +19,7 @@ theorem concatenate_extract_blocks (bytes : ByteArray) (width count : Nat) :
     simp only [List.map_singleton, concatenate_cons, concatenate, List.foldl_nil,
       ByteArray.append_empty]
     exact (ByteArray.extract_eq_extract_append_extract (count*width) (by omega)
-      (by omega)).symm
+      (Nat.mul_le_mul_right width (Nat.le_succ count))).symm
 
 theorem write_readLE_two (bytes : ByteArray) (start : Nat) (fits : start+2 ≤ bytes.size) :
     writeLE 2 (readLE bytes start 2) = bytes.extract start (start+2) := by

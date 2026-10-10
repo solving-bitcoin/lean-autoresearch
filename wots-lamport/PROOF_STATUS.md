@@ -65,6 +65,17 @@ specialization, and an exact symbolic residue-fiber count for a uniform
 256-bit integer. All these new results remain unchecked. The sampler theorem
 does not yet connect coin-byte blocks or compose distance bounds, and no joint
 ROM reduction or security certificate is claimed.
+At `00cc333`, ByteBridge, the complete indexed-slot Exposed module, ShamirLaw
+and VisiblePrivacy compiled. This checks exact share-byte decoding primitives,
+uniform-law transport for finite polynomial families, and the actual opposite
+coordinate set's uniform-polynomial privacy statement. ArtifactBridge still
+needs slice arithmetic/finite-index repairs; LabelBridge has one symbolic
+multiplication-order proof error, and SamplerLaw needs a tuple projection and
+non-looping cardinality simplification. New unchecked CoinEncoding/CoinBlocks
+and CoefficientIndices work connects uniform coin bytes, independent blocks and
+the actual polynomial coefficient addresses. SamplerMixture attempts an exact
+mixture law and two-sided marginal event bounds. Neither the complete expansion
+proof nor a joint ROM security theorem is yet established.
 
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
