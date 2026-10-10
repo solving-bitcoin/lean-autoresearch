@@ -56,10 +56,11 @@ theorem exposed_chain_count (m : Message) (i : Fin 256) (value : Bool) (j : Fin 
       have he := encodeWord_le m (targetChain i)
       rw [target_maximum] at he
       omega
-    simpa [exposedCount, target_maximum, target_weight,
-      Nat.one_mul, holds, digitBit] using
-      nibble_suffix ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
-        ⟨encodeWord m (targetChain i), hd⟩
+    simp only [exposedCount, target_maximum, target_weight, ite_true, eq_self,
+      Nat.cast_one, Nat.one_mul]
+    unfold holds digitBit
+    exact nibble_suffix ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
+      ⟨encodeWord m (targetChain i), hd⟩
   · simp [exposedCount, h, uniform_suffix, Nat.mul_comm]
 
 theorem exposed_total_count (m : Message) (i : Fin 256) (value : Bool) :

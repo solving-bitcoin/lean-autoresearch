@@ -46,8 +46,9 @@ theorem chain_slot_count (i : Fin 256) (value : Bool) (j : Fin 67) :
       if j = targetChain i then (if value then 14 else 16) else weight j * maximum j := by
   by_cases h : j = targetChain i
   · subst j
-    simpa [target_maximum, target_weight, holds, digitBit] using
-      nibble_multiplicity_sum ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
+    simp only [target_maximum, target_weight, ite_true, eq_self, Nat.cast_one]
+    unfold holds digitBit
+    exact nibble_multiplicity_sum ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
   · simp [h, Nat.mul_comm]
 
 theorem slots_length (i : Fin 256) (value : Bool) :

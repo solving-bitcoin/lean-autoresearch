@@ -70,7 +70,7 @@ def labelTable (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
     xorBytes share (mask h pk nonce i.val value point (chain h k (keys j))))
 
 def prepare (h : Hash) (coins : ByteArray) (keys : Keys)
-    (labels : challenge.outputs.Keys) : ByteArray :=
+    (labels : Fin 256 → Pair) : ByteArray :=
   let nonce := coins.extract 0 32
   let pk := keyCodec.encode (publicKey h keys)
   nonce ++ concatenate ((List.finRange 256).map fun i =>

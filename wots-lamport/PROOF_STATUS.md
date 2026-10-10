@@ -39,6 +39,13 @@ rejection. Those are repaired for the next run. New unchecked work adds the
 polynomial degree/constant-coefficient bridge and a full limbwise connection
 from the executable interpolation loops to Lagrange interpolation. Its small
 factor/weight helpers preserve the previous executable algorithm.
+At `6f344d2`, FieldBridge compiled with the new degree and constant-term
+lemmas. InterpolationBridge needs explicit Nat-to-field coercions and reduced
+tuple projections; Layout needs explicit partial-function unfolding and a
+concrete, definitionally equal Lamport key type in `prepare`. The next batch
+also attempts exact integer reconstruction, byte-mask cancellation, field
+serialization round trips and extraction/decryption of every table row.
+These new ByteBridge and reconstruction results are not yet compiler-checked.
 
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the
