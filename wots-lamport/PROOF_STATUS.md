@@ -32,6 +32,13 @@ fixtures were not included in the frozen digest. The digest is refreshed with
 those files; admission rules are unchanged. `Exposed` now attempts to connect
 filtered executable slots to the exact selected/opposite threshold counts;
 it has not yet been checked by Lean.
+At `80d2a99`, Geometry compiled, proving the weighted codeword sum 960 and
+remaining depth 1023. Layout reached ordinary elaboration errors (a Boolean
+conditional, sum scope and the concrete Lamport key type), without a resource
+rejection. Those are repaired for the next run. New unchecked work adds the
+polynomial degree/constant-coefficient bridge and a full limbwise connection
+from the executable interpolation loops to Lagrange interpolation. Its small
+factor/weight helpers preserve the previous executable algorithm.
 
 The independent pinned Script comparison is now locally reproduced in
 `BITCOIN_COST.md`: maximum complete-spend sizes are 2,101 vbytes for the

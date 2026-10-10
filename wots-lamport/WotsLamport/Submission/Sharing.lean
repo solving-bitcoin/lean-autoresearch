@@ -80,11 +80,16 @@ def prepare (h : Hash) (coins : ByteArray) (keys : Keys)
     labelTable h coins pk nonce keys i false ((labels i).get false) ++
     labelTable h coins pk nonce keys i true ((labels i).get true))
 
+def interpolationFactors (shares : List (Nat × List Nat)) (a : Nat) (initial : Nat × Nat) : Nat × Nat :=
+  shares.foldl (fun (nd : Nat × Nat) b =>
+    if a = b.1 then nd else (fmul nd.1 (fsub 0 b.1), fmul nd.2 (fsub a b.1))) initial
+
+def interpolationWeight (shares : List (Nat × List Nat)) (a : Nat) : Nat :=
+  let nd := interpolationFactors shares a (1,1)
+  fmul nd.1 (inverse nd.2)
+
 def interpolate (shares : List (Nat × List Nat)) : List Nat :=
-  let weighted := shares.map fun a =>
-    let nd := shares.foldl (fun (nd : Nat × Nat) b =>
-      if a.1 = b.1 then nd else (fmul nd.1 (fsub 0 b.1), fmul nd.2 (fsub a.1 b.1))) (1,1)
-    (fmul nd.1 (inverse nd.2), a.2)
+  let weighted := shares.map fun a => (interpolationWeight shares a.1, a.2)
   (List.range 16).map fun limb =>
     weighted.foldl (fun acc a => fadd acc (fmul a.1 a.2[limb]!)) 0
 

@@ -46,7 +46,7 @@ theorem chain_slot_count (i : Fin 256) (value : Bool) (j : Fin 67) :
       if j = targetChain i then (if value then 14 else 16) else weight j * maximum j := by
   by_cases h : j = targetChain i
   · subst j
-    simpa only [target_maximum, target_weight, if_pos rfl, holds, digitBit] using
+    simpa [target_maximum, target_weight, holds, digitBit] using
       nibble_multiplicity_sum ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
   · simp [h, Nat.mul_comm]
 
@@ -71,11 +71,11 @@ theorem slots_length (i : Fin 256) (value : Bool) :
     calc
       _ = (∑ j : Fin 67, if j = targetChain i then (if value then 14 else 16)
           else weight j * maximum j) + (∑ j : Fin 67, if j = targetChain i then 15 else 0) := by rw [h15]
-      _ = ∑ j : Fin 67, (if j = targetChain i then (if value then 14 else 16)
-          else weight j * maximum j) + (if j = targetChain i then 15 else 0) := by
+      _ = ∑ j : Fin 67, ((if j = targetChain i then (if value then 14 else 16)
+          else weight j * maximum j) + (if j = targetChain i then 15 else 0)) := by
         rw [Finset.sum_add_distrib]
-      _ = ∑ j : Fin 67, weight j * maximum j +
-          (if j = targetChain i then (if value then 14 else 16) else 0) := by
+      _ = ∑ j : Fin 67, (weight j * maximum j +
+          (if j = targetChain i then (if value then 14 else 16) else 0)) := by
         apply Finset.sum_congr rfl
         intro j _
         by_cases h : j = targetChain i
@@ -134,7 +134,7 @@ theorem vectorBytes_size {n : Nat} (v : Bytes n) :
   exact v.size_toArray
 
 theorem prepare_size (h : Hash) (coins : ByteArray) (keys : Keys)
-    (labels : challenge.outputs.Keys) :
+    (labels : Fin 256 → Pair) :
     (prepare h coins keys labels).size = (coins.extract 0 32).size +
       512*32 + 256*(1984+1982)*48 := by
   let nonce := coins.extract 0 32
@@ -147,6 +147,7 @@ theorem prepare_size (h : Hash) (coins : ByteArray) (keys : Keys)
     (fun i => labelTable h coins pk nonce keys i false ((labels i).get false) ++
       labelTable h coins pk nonce keys i true ((labels i).get true))
     ((1984+1982)*48) (by intro i _; simp [labelTable_size, slots_length])
+  dsimp only [pk, nonce] at hc ht
   unfold prepare
   rw [ByteArray.size_append, ByteArray.size_append, hc, ht]
   simp
@@ -165,6 +166,7 @@ theorem keyCodec_size (keys : Keys) : (keyCodec.encode keys).size = 2144 := by
 This does not establish functional correctness or either security game. -/
 theorem artifact_bound : ArtifactBound (wrapped construction) artifactBytes := by
   intro h coins p keys labels
+  change Fin 256 → Pair at labels
   change (keyCodec.encode (publicKey h keys) ++
     prepare h ⟨coins.toArray⟩ keys labels).size ≤ artifactBytes
   rw [ByteArray.size_append, keyCodec_size]

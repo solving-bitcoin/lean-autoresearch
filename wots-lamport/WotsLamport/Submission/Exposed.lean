@@ -56,7 +56,7 @@ theorem exposed_chain_count (m : Message) (i : Fin 256) (value : Bool) (j : Fin 
       have he := encodeWord_le m (targetChain i)
       rw [target_maximum] at he
       omega
-    simpa only [exposedCount, if_pos rfl, target_maximum, target_weight,
+    simpa [exposedCount, target_maximum, target_weight,
       Nat.one_mul, holds, digitBit] using
       nibble_suffix ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
         ⟨encodeWord m (targetChain i), hd⟩
@@ -65,10 +65,10 @@ theorem exposed_chain_count (m : Message) (i : Fin 256) (value : Bool) (j : Fin 
 theorem exposed_total_count (m : Message) (i : Fin 256) (value : Bool) :
     (∑ j : Fin 67, exposedCount m i value j) + (if value then 1 else 0) =
       1023 + (if holds i value (encodeWord m (targetChain i)) then 1 else 0) := by
-  have he : (∑ j : Fin 67, exposedCount m i value j +
-      (if j = targetChain i then (if value then 1 else 0) else 0)) =
-      ∑ j : Fin 67, weight j * (maximum j - encodeWord m j) +
-        (if j = targetChain i then (if holds i value (encodeWord m j) then 1 else 0) else 0) := by
+  have he : (∑ j : Fin 67, (exposedCount m i value j +
+      (if j = targetChain i then (if value then 1 else 0) else 0))) =
+      ∑ j : Fin 67, (weight j * (maximum j - encodeWord m j) +
+        (if j = targetChain i then (if holds i value (encodeWord m j) then 1 else 0) else 0)) := by
     apply Finset.sum_congr rfl
     intro j _
     exact exposed_chain_count m i value j

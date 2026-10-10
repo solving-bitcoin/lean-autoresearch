@@ -20,7 +20,8 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--full-reference',action='store_true')
     args=parser.parse_args()
-    for script in ['check_model.py','check_vectors.py','check_security_arithmetic.py','check_boundary.py']:
+    for script in ['check_model.py','check_vectors.py','check_security_arithmetic.py','check_boundary.py',
+                   'check_bitcoin_cost.py']:
         run([sys.executable,ROOT/'scripts'/script])
     run([sys.executable,REPO/'scripts/check_cache_trust.py'])
     workspace=REPO/'secret-release/rust'

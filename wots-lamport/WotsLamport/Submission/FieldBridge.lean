@@ -30,6 +30,30 @@ noncomputable def fieldPolynomial : List Nat → Polynomial (ZMod 65537)
   | [] => 0
   | a :: rest => C (a : ZMod 65537) + X * fieldPolynomial rest
 
+theorem fieldPolynomial_degree (coefficients : List Nat) :
+    (fieldPolynomial coefficients).degree < coefficients.length := by
+  induction coefficients with
+  | nil => simp [fieldPolynomial]
+  | cons a rest ih =>
+    apply (Polynomial.degree_lt_iff_coeff_zero _ _).mpr
+    intro n hn
+    cases n with
+    | zero => simp at hn
+    | succ n =>
+      have hz := (Polynomial.degree_lt_iff_coeff_zero _ _).mp ih n
+        (by simp only [List.length_cons] at hn; omega)
+      simpa [fieldPolynomial, Polynomial.coeff_X_mul] using hz
+
+theorem polynomial_degree (coins : ByteArray) (label : SecretRelease.Label)
+    (wire limb : Nat) (value : Bool) :
+    (fieldPolynomial (polynomial coins label wire limb value)).degree < threshold value := by
+  simpa only [polynomial, List.length_map, List.length_range] using
+    fieldPolynomial_degree (polynomial coins label wire limb value)
+
+theorem fieldPolynomial_secret (coefficients : List Nat) :
+    (fieldPolynomial coefficients).eval 0 = (coefficients.headD 0 : ZMod 65537) := by
+  cases coefficients <;> simp [fieldPolynomial]
+
 /-- The actual modular Horner loop computes the field polynomial evaluation,
 for arbitrary coefficients and points; no random-oracle assumption is used. -/
 theorem evaluatePolynomial_field (coefficients : List Nat) (x : Nat) :
