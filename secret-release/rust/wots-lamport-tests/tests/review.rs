@@ -2,6 +2,19 @@
 use secret_release::test_bytes;
 use wots_lamport_tests::*;
 
+#[test]
+fn interleaved_horner_matches_scalar_field_evaluation() {
+    let coefficients: Vec<[u64;16]>=(0..1024).map(|d|
+        std::array::from_fn(|i| ((d*913+i*671+37) as u64)%PRIME)).collect();
+    for x in [0,1,2,7,64,1023,1984,65536] {
+        let values=eval_limbs(&coefficients,x);
+        for i in 0..16 {
+            let scalar: Vec<u64>=coefficients.iter().map(|row|row[i]).collect();
+            assert_eq!(values[i],eval(&scalar,x));
+        }
+    }
+}
+
 fn fixture_keys() -> Keys {decode_keys(&test_bytes(71,b"review-keys",2144)).unwrap()}
 fn hex(b: &[u8]) -> String {b.iter().map(|x|format!("{x:02x}")).collect()}
 

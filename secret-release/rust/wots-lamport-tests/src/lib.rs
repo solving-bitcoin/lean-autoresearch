@@ -80,6 +80,15 @@ fn mul(a: u64,b: u64) -> u64 { a*b % PRIME }
 fn sub(a: u64,b: u64) -> u64 { (a+PRIME-b)%PRIME }
 fn inverse(mut a: u64) -> u64 { let mut r=1; for _ in 0..16 {r=mul(r,a);a=mul(a,a);} r }
 pub fn eval(poly: &[u64], x: u64) -> u64 { poly.iter().rev().fold(0, |acc,&a| (a+x*acc)%PRIME) }
+/// Same Horner evaluation, with independent limbs adjacent in memory so the
+/// compiler can schedule their operations together. No change to field/coins.
+pub fn eval_limbs(coefficients: &[[u64;16]], x: u64) -> [u64;16] {
+    let mut values=[0;16];
+    for row in coefficients.iter().rev() {
+        for limb in 0..16 {values[limb]=(row[limb]+x*values[limb])%PRIME;}
+    }
+    values
+}
 fn read_field(bytes: &[u8]) -> u64 { bytes.iter().rev().fold(0,|acc,&b| (acc*256+u64::from(b))%PRIME) }
 fn domain(tag: &[u8], pk: &[u8], nonce: &Label, i: usize, value: bool) -> Vec<u8> {
     [tag, nonce, pk, &(i as u16).to_le_bytes(), &[u8::from(value)]].concat()
@@ -104,16 +113,17 @@ pub fn commitment(pk: &[u8],nonce: &Label,i: usize,value: bool,label: &Label) ->
 pub fn prepare_label(keys: &Keys,nonce: &Label,i: usize,value: bool,label: &Label,coins: &[u8]) -> Vec<u8> {
     assert!(i<256);assert_eq!(coins.len(),16*1023*32);
     let pk=encode_keys(&public_key(keys));
-    let polys: Vec<Vec<u64>>=(0..16).map(|limb| (0..threshold(value)).map(|degree| {
+    let polys: Vec<[u64;16]>=(0..threshold(value)).map(|degree| std::array::from_fn(|limb| {
         if degree==0 {u64::from(u16::from_le_bytes([label[2*limb],label[2*limb+1]]))}
         else {let p=(limb*1023+degree-1)*32;read_field(&coins[p..p+32])}
-    }).collect()).collect();
+    })).collect();
     let nodes: Vec<Vec<Label>>=(0..67).map(|j| (0..maximum(j)).map(|k| chain(keys[j],k)).collect()).collect();
     let mut out=Vec::with_capacity(slots(i,value).len()*48);
     for (index,(j,k)) in slots(i,value).into_iter().enumerate() {
         let pad=mask(&pk,nonce,i,value,index+1,&nodes[j][k as usize]);
+        let values=eval_limbs(&polys,(index+1) as u64);
         for limb in 0..16 {
-            let bytes=eval(&polys[limb],(index+1) as u64).to_le_bytes();
+            let bytes=values[limb].to_le_bytes();
             out.extend((0..3).map(|b| bytes[b]^pad[3*limb+b]));
         }
     }

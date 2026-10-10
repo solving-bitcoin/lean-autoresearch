@@ -72,3 +72,19 @@ The largest runtime RSS was 51,556,352 bytes. The build used 1,205,002,240 bytes
 These execute the upstream strict raw-script interpreter with its configured
 stack limit. They do not establish every raw-witness equivalence, Bitcoin Core
 consensus validity or relay policy; deployment remains unclassified.
+
+## Follow-up runtime optimization
+
+Interleaving the 16 independent Horner accumulators in contiguous Rust arrays
+preserves every scalar polynomial evaluation and the fixed byte layout. The
+independent Python ciphertext vectors and a new scalar-versus-interleaved test
+pass. Under the same local build/native settings, Prepare fell from 61.13 s to
+24.20 s; the full test fell from 69.17 s to 31.96 s (319,254,528-byte peak RSS).
+No timeout, field, randomness distribution, hash domain or artifact format was
+changed. This optimizes the independent reference only; generated Lean timing
+still needs measurement and is not established by this result.
+
+The first hosted reference run at d2c4f9f passed but measured the original
+Prepare at 69.66 s and the full test at 77.92 s. Hosted Lean installation and
+cache-key generation succeeded. There was no exact cache hit, so this run
+provides no evidence of warm-cache performance.

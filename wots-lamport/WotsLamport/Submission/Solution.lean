@@ -1,4 +1,5 @@
 import WotsLamport.Submission.Sharing
+import WotsLamport.Submission.Shamir
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected

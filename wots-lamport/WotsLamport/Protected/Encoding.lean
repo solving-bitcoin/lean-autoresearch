@@ -17,7 +17,7 @@ def messageDigit (m : Message) (i : Fin 64) : Nat :=
   if i.val % 2 = 0 then m[i.val / 2].toNat / 16 else m[i.val / 2].toNat % 16
 
 theorem messageDigit_le (m : Message) (i : Fin 64) : messageDigit m i ≤ 15 := by
-  have hb := (m[i.val / 2]).toFin.isLt
+  have hb : (m[i.val / 2]).toNat < 256 := UInt8.toNat_lt_size _
   unfold messageDigit
   split <;> omega
 
@@ -52,7 +52,8 @@ theorem parse_encode (m : Message) : parseWord (encodeWord m) = m := by
   apply Vector.ext
   intro i hi
   have hsplit : 16 * (m[i].toNat / 16) + m[i].toNat % 16 = m[i].toNat := by omega
-  simp [parseWord, encodeWord, messageDigit, hi, show 2*i < 64 by omega,
+  simp [-UInt8.ofNat_add, -UInt8.ofNat_mul, parseWord, encodeWord, messageDigit,
+    show 2*i < 64 by omega,
     show 2*i+1 < 64 by omega, show 2*i/2 = i by omega,
     show (2*i+1)/2 = i by omega, show 2*i%2 = 0 by omega,
     show (2*i+1)%2 = 1 by omega, hsplit]
