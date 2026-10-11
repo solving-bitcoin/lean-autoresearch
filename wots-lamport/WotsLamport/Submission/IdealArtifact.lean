@@ -52,12 +52,15 @@ theorem labelTable_of_programmed_answers (h : Hash) (tape : ChainTape)
   have chainEq : chain h entry.1.2 (tapeKeys tape entry.1.1) =
       sharePositionNode tape position := by
     rw [chain_tape h tape consistent _ _ (Nat.le_of_lt nonpublic)]
-    rw [sameEntry]
-    rfl
+    have same : (⟨entry.1, nonpublic⟩ : {e : Fin 67 × Nat // e.2 < maximum e.1}) =
+        ⟨sharePositionEntry position, (sharePositionEdge position).property⟩ :=
+      Subtype.ext sameEntry
+    exact congrArg (fun e : {e : Fin 67 × Nat // e.2 < maximum e.1} =>
+      tape ⟨e.val.1, ⟨e.val.2, Nat.lt_succ_of_lt e.property⟩⟩) same
   change xorBytes _ (mask h pk nonce i.val value (entry.2+1)
     (chain h entry.1.2 (tapeKeys tape entry.1.1))) = _
   rw [chainEq, masks position]
-  simp only [indexedAnswerMask, dif_pos bound]
+  simp only [indexedAnswerMask, dif_pos bound, position]
 
 theorem prepare_of_programmed_answers (h : Hash) (tape : ChainTape)
     (consistent : TapeConsistent h tape) (coins : ByteArray) (labels : Fin 256 → Pair)

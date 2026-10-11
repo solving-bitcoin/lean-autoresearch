@@ -38,6 +38,8 @@ theorem uniform_hidden_selected_list_hit {I J : Type} [Fintype I] [Fintype J]
       have h := measure_exists_finset_le (uniformOn (Set.univ : Set (I → Label)))
         (fun i => {table | table i ∈ guesses}) (fun _ => (q : ENNReal)/2^256)
         Finset.univ (fun i _ => mass i)
+      change uniformOn (Set.univ : Set (I → Label))
+        {table | ∃ i, table i ∈ guesses} ≤ (Fintype.card I : ENNReal)*q/2^256
       simpa only [Set.mem_preimage, Set.mem_setOf_eq, guesses, Finset.mem_univ, true_and,
         Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_div_assoc] using h
     _ = _ := by simp

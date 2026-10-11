@@ -56,30 +56,29 @@ complete imported submission or its security certificate passed.
 | Direct byte-fold reader, complete updated lane equality, and guessing from the full selected-label table | MachineCoinRead.directFieldLoop_eq, LaneSharing.laneConstruction_eq, JointLabelGuessing | `1e00f92` |
 | Exact oracle overlay and inverse fibers | OracleOverlay | `0ab64e1` |
 | Joint uniform overlay law, selected-label trace guessing, and finite chain programming law | UniformOverlay, SelectedLabelTrace, FiniteChainLaw | `e533a8f` |
+| Actual mask and commitment programming reads and chain consistency | ArtifactProgramming | `3915686` |
 
 ## Current validation attempt
 
-Run 48 (`e533a8f`) checked **92 of 120 modules**. Four modules had direct
-errors (`HonestQueryBudget`, `ArtifactProgramming`, `SelectedTraceCoupling`,
-`FiniteArtifactLaw`); 24 dependents were blocked. `UniformOverlay`,
-`SelectedLabelTrace` and `FiniteChainLaw` now pass. Universal honest correctness
-and the complete optimized construction equality remain checked. Complete
-withholding and adaptive security reductions remain unchecked.
+Run 49 (`3915686`) checked **93 of 120 modules**. Five modules had direct
+errors (`HonestQueryBudget`, `SelectedTraceCoupling`, `FiniteArtifactLaw`,
+`IdealArtifact`, `ProgrammedQueryTrace`); 22 dependents were blocked.
+`ArtifactProgramming` now passes. Universal correctness, the artifact bound
+and optimized implementation equality remain checked. Full withholding and
+adaptive security reductions remain unchecked.
 
-**The generated lane tools again passed both SDK integration and independent
-complete reference-artifact/later-message correspondence.** The SDK suite took
-71.80 seconds total, with the unchanged 60-second per-tool limit enforced.
-The independent correspondence test took 122.91 seconds. Its three generated
-expansions took **10.106185909**, **11.481053803** and **10.196964865 seconds**.
-The exact artifact was **48,752,768 bytes**, with 8,192 released bytes.
-These are runtime diagnostics, not a security certificate or acceptance.
+**Generated lane SDK integration and independent complete reference-artifact /
+later-message correspondence passed again.** The SDK suite took 52.97 seconds
+in total, with its unchanged 60-second per-tool limit. Independent correspondence
+took 99.68 seconds. Generated expansions took **8.294349468**, **10.117486177**
+and **8.322558484 seconds**. The exact artifact was **48,752,768 bytes**, with
+8,192 released bytes. These diagnostics do not provide security certification.
 
-Compiler peak RSS was **4,156,682,240 bytes**; SDK native peak RSS was
-**795,156,480 bytes**; independent correspondence peak RSS was
-**792,580,096 bytes**. The runtime probe finished at 1,237.808 seconds.
-Successful source batches totaled 389.21 seconds across 28 invocations,
-excluding failed batches and retries. The separate Rust reference test passed
-in 39.38 seconds with 320,221,184 bytes peak RSS. All resource limits are unchanged.
+Compiler peak RSS was **3,421,114,368 bytes**; SDK native peak RSS was
+**884,457,472 bytes**; independent correspondence peak RSS was
+**786,014,208 bytes**. The runtime probe finished at 904.765 seconds. The separate
+Rust reference test passed in 39.29 seconds with 320,258,048 bytes peak RSS.
+All resource limits are unchanged.
 
 Run 47 (`0ab64e1`) remains the first completed generated-tool correspondence
 milestone: SDK suite 65.51 seconds, independent correspondence 121.91 seconds,
@@ -87,20 +86,19 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local fixes explicitly include the finite-address section hypotheses,
-name the oracle function in the mask proof, and normalize the trace event and
-ENNReal arithmetic. The query-budget proof unfolds its wrapper and numerical
-budget before direct theorem application, avoiding inferred local proof terms.
-The abstract composition refactor alone did not resolve its unfolding timeout.
-These latest repairs remain compiler-unchecked. No security statement, sampler,
+The latest local repairs expose event membership before rewriting, transport
+dependent chain indices via subtype equality, and normalize ENNReal division
+before arithmetic. For query-budget composition, both concrete programs are
+first abstracted in the goal, then their bounds are supplied after rewriting
+back individually. Direct application after unfolding alone still timed out.
+These new repairs remain compiler-unchecked. No security statement, sampler,
 executable construction, resource cap or acceptance gate was weakened.
 
-Publication resumed after explicit approval. The local review's nine downstream
-product-event repairs are now published. Source review found no additional
-mathematical gap in the joint sampler loss, full oracle/ciphertext coordinates,
-message/state coupling before message-specific partitioning, or three collision
-losses. This does not certify the remaining bridge proofs. The certificate
-remains absent and the score unranked.
+Publication resumed after explicit approval. Source review has found no
+additional mathematical gap in the joint sampler loss, full oracle/ciphertext
+coordinates, message/state coupling before message-specific partitioning, or
+three collision losses. This does not certify the remaining bridge proofs.
+The certificate remains absent and the score unranked.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer

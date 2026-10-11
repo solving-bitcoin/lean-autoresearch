@@ -74,7 +74,8 @@ theorem uniform_setup_target_mass (index : SetupTarget) (label : Label) :
     rw [uniform_product, Measure.prod_prod, measure_univ, mul_one,
       uniform_coordinate_mass]
     rw [bytes_card]
-    norm_num
+    simpa only [one_div] using
+      (show (1 : ENNReal)/2^256 ≤ (2 : ENNReal)/2^256 from by gcongr <;> norm_num)
   | inr cell =>
     have event_eq : {sample : HiddenSetup | setupTarget (Sum.inr cell) sample = label} =
         (Set.univ : Set HiddenChainTape) ×ˢ
@@ -127,6 +128,6 @@ theorem hidden_setup_program_difference {A : Type} (pk : PublicKey) (nonce : Byt
       Fintype.card_fin, Fintype.card_bool, chainEdge_card]
   calc
     _ ≤ (1501 : ENNReal)*q*((2 : ENNReal)/2^256) := by simpa only [card, Nat.cast_ofNat] using h
-    _ = _ := by ring
+    _ = _ := by simp only [div_eq_mul_inv]; ring
 
 end WotsLamport.Submission

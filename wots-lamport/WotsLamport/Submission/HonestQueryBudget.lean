@@ -167,11 +167,15 @@ set_option diagnostics true in
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
   unfold wrappedPrepareProgram honestSetupQueries
-  exact pair_query_bound (A := PublicKey) (B := ByteArray) (C := ByteArray)
-    (publicKeyProgram keys) (prepareProgram coins keys labels)
+  generalize publicEq : publicKeyProgram keys = publicProgram
+  generalize bodyEq : prepareProgram coins keys labels = bodyProgram
+  apply pair_query_bound publicProgram bodyProgram
     (fun pk body => keyCodec.encode pk ++ body)
     (67*15) (67*15 + (256*2 + 256*(2*1984*16)))
-    (publicKeyProgram_query_bound keys) (prepareProgram_query_bound coins keys labels)
+  · rw [← publicEq]
+    exact publicKeyProgram_query_bound keys
+  · rw [← bodyEq]
+    exact prepareProgram_query_bound coins keys labels
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

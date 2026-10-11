@@ -107,6 +107,7 @@ theorem finite_artifact_chain_event (tape : ChainTape)
     _ = _ := by
       congr 1
       ext sample
+      simp only [Set.mem_setOf_eq]
       rw [← finite_artifact_chain_programming_commute inputs contains pk nonce pkSize nonceSize
         nodes labels tape distinct sample.1 sample.2]
 
