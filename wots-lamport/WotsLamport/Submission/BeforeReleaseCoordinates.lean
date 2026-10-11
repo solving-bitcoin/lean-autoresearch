@@ -80,7 +80,7 @@ theorem before_release_fiber_bound (inputs : Finset OracleInput)
     by_cases same : ROM.run baseline program = ROM.run (beforeHash environment secret) program
     · apply Or.inl
       change guess.2 = (secret.2 guess.1).get false ∨ guess.2 = (secret.2 guess.1).get true
-      simpa only [← same] using win
+      simpa only [Set.mem_setOf_eq, ← same, guess] using win
     · exact Or.inr same
   have guessing : uniformOn (Set.univ : Set HiddenSetup) baselineWin ≤ (4 : ENNReal)/2^256 := by
     have event_eq : baselineWin = (Set.univ : Set HiddenChainTape) ×ˢ

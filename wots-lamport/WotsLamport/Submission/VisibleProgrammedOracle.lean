@@ -14,7 +14,7 @@ theorem overlayOracle_restrict {I D R : Type} (address : I → D) (answer : I �
       overlayOracle (fun i : {i // keep i} => address i.val)
         (fun i => answer i.val) baseline input := by
   classical
-  by_cases found : ∃ i, address i = input
+  rcases Classical.em (∃ i, address i = input) with found | found
   · obtain ⟨i,hi⟩ := found
     have kept : keep i := by by_contra absent; exact missing i absent hi
     subst input
@@ -29,10 +29,10 @@ theorem overlayOracle_baseline_congr {I D R : Type} (address : I → D) (answer 
     (a b : D → R) (input : D) (same : a input = b input) :
     overlayOracle address answer a input = overlayOracle address answer b input := by
   classical
-  unfold overlayOracle
-  split_ifs
-  · rfl
-  · exact same
+  letI : Decidable (∃ i, address i = input) := Classical.propDecidable _
+  rcases Classical.em (∃ i, address i = input) with found | found
+  · simp only [overlayOracle, dif_pos found]
+  · simpa only [overlayOracle, dif_neg found] using same
 
 def visibleArtifactCell (m : Message) : ArtifactCell → Prop
   | Sum.inl cell => sharePositionVisible m cell.1
@@ -92,11 +92,19 @@ theorem programmedHash_eq_visible_off_targets (m : Message) (nonce : ByteArray)
       apply labelsMissing cell.1
       rw [← he, ← opposite]
       exact commitmentQueryTarget_complete _ _ _ _ _
-  change overlayOracle _ answers (programChainOracle baseline tape) input = _
-  rw [overlayOracle_restrict _ answers (programChainOracle baseline tape)
-    (artifactCellAddress_injective _ _ _ _) (visibleArtifactCell m) input artifactMissing]
-  apply overlayOracle_baseline_congr
-  exact overlayOracle_restrict _ _ baseline (chain_address_injective tape distinct)
+  have artifactEq := overlayOracle_restrict
+    (artifactCellAddress (keyCodec.encode (tapePublicKey tape)) nonce
+      (sharePositionNode tape) labels) answers (programChainOracle baseline tape)
+    (artifactCellAddress_injective _ _ _ _) (visibleArtifactCell m) input artifactMissing
+  have chainEq := overlayOracle_restrict
+    (fun edge : ChainEdge => ByteArray.mk (tape edge.val).toArray)
+    (fun edge => tape (edgeNext edge)) baseline (chain_address_injective tape distinct)
     (fun edge => ¬hiddenAfterMessage m edge) input chainMissing
+  exact artifactEq.trans (overlayOracle_baseline_congr
+    (fun cell : {cell : ArtifactCell // visibleArtifactCell m cell} =>
+      artifactCellAddress (keyCodec.encode (tapePublicKey tape)) nonce
+        (sharePositionNode tape) labels cell.val)
+    (fun cell => answers cell.val) (programChainOracle baseline tape)
+    (visibleChainOracle m tape baseline) input chainEq)
 
 end WotsLamport.Submission

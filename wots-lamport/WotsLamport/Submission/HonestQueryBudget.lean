@@ -172,17 +172,12 @@ theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (lab
   apply pair_query_bound publicProgram bodyProgram
     (fun pk body => keyCodec.encode pk ++ body)
     (67*15) (67*15 + (256*2 + 256*(2*1984*16)))
-  · rw [← publicEq]
-    exact publicKeyProgram_query_bound keys
-  · rw [← bodyEq]
-    -- Compose this bound while its public-key computation is abstract.
-    -- Applying the concrete recursive predicate directly forces its expansion.
-    have hp := publicKeyProgram_query_bound keys
-    have ha := fun pk : PublicKey =>
-      afterPublicProgram_query_bound coins (keyCodec.encode pk) keys labels
-    unfold prepareProgram
-    generalize programEq : publicKeyProgram keys = publicProgram' at *
-    exact isTotalQueryBound_bind hp ha
+  · have hp := publicKeyProgram_query_bound keys
+    rw [publicEq] at hp
+    exact hp
+  · have hb := prepareProgram_query_bound coins keys labels
+    rw [bodyEq] at hb
+    exact hb
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

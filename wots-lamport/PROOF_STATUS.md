@@ -58,29 +58,32 @@ complete imported submission or its security certificate passed.
 | Joint uniform overlay law, selected-label trace guessing, and finite chain programming law | UniformOverlay, SelectedLabelTrace, FiniteChainLaw | `e533a8f` |
 | Actual mask and commitment programming reads and chain consistency | ArtifactProgramming | `3915686` |
 | Selected-label trace coupling, finite artifact/chain joint programming, and full answer coordinates | SelectedTraceCoupling, FiniteArtifactLaw, IdealArtifact, CombinedProgrammingLaw, ArtifactAnswerCoordinates | `fd186f4` |
+| Concrete pre-release query trace bound, field plaintext, ciphertext serialization and finite programming bridge | ProgrammedQueryTrace, FieldPlaintext, CiphertextArtifact, FiniteProgrammingBridge | `2b799bd` |
 
 ## Current validation attempt
 
-Run 50 (`fd186f4`) checked **98 of 120 modules**. Four modules had direct
-errors (`HonestQueryBudget`, `ProgrammedQueryTrace`, `FieldPlaintext`,
-`CiphertextArtifact`); 18 dependents were blocked. Newly checked modules are
-`SelectedTraceCoupling`, `FiniteArtifactLaw`, `IdealArtifact`,
-`CombinedProgrammingLaw` and `ArtifactAnswerCoordinates`. Universal correctness,
-the artifact bound and optimized implementation equality remain checked.
-Full withholding/adaptive security reductions remain unchecked.
+Run 51 (`2b799bd`) checked **102 of 120 modules**. Three modules had direct
+errors (`HonestQueryBudget`, `VisibleProgrammedOracle`, `BeforeReleaseCoordinates`);
+15 dependents were blocked. Newly checked modules are `ProgrammedQueryTrace`,
+`FieldPlaintext`, `CiphertextArtifact` and `FiniteProgrammingBridge`. Universal
+correctness, the artifact bound and optimized implementation equality remain
+checked. Complete withholding/adaptive security reductions remain unchecked.
 
-**Generated lane SDK integration and independent complete reference-artifact /
-later-message correspondence passed again.** The SDK suite took 52.90 seconds
-in total with the unchanged 60-second per-tool limit. Independent correspondence
-took 97.46 seconds. Generated expansions took **8.240818731**, **9.320599197**
-and **8.336925678 seconds**. The exact artifact was **48,752,768 bytes**, with
-8,192 released bytes. These diagnostics do not provide security certification.
+**Run 51 passed generated SDK integration**, observing the exact
+**48,752,768-byte artifact** and 8,192 released bytes. Compiler peak RSS was
+**3,421,396,992 bytes** and SDK native peak RSS **884,645,888 bytes**.
+The unchanged 1,800-second author cap expired during the independent
+reference-correspondence check. The retained phase is
+`checking-reference-correspondence`, entered 1,096.788 seconds after starting
+the runtime probe. That is not a completed test duration. No completed
+correspondence result or new per-tool timing is claimed for run 51.
 
-Compiler peak RSS was **3,421,118,464 bytes**; SDK native peak RSS was
-**880,812,032 bytes**; independent correspondence peak RSS was
-**883,326,976 bytes**. The runtime probe finished at 892.653 seconds. The separate
-Rust reference test passed in 39.34 seconds with 320,139,264 bytes peak RSS.
-All resource limits are unchanged.
+The last completed correspondence is run 50 (`fd186f4`): SDK suite 52.90 seconds,
+independent correspondence 97.46 seconds, generated expansions 8.240818731 /
+9.320599197 / 8.336925678 seconds. Its compiler, SDK-native and independent-native
+peaks were 3,421,118,464 / 880,812,032 / 883,326,976 bytes respectively. The
+executable has not changed. The separate run 51 Rust reference test passed in
+39.33 seconds with 320,217,088 bytes peak RSS. All resource limits are unchanged.
 
 Run 47 (`0ab64e1`) remains the first completed generated-tool correspondence
 milestone: SDK suite 65.51 seconds, independent correspondence 121.91 seconds,
@@ -88,13 +91,12 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs normalize the byte-label cardinality, unfold local
-field/position definitions and close a finite-index cast equality. The wrapper
-query bound now composes its prepared-program bound with the abstract bind
-argument already used in the earlier theorem, avoiding the concrete theorem
-application that still timed out. These repairs remain compiler-unchecked.
-No security statement, sampler, executable construction, resource cap or
-acceptance gate was weakened.
+The latest local repairs keep the query-bound goal abstract while transporting
+its proof, use explicit classical address cases, replace recursive rewriting
+with direct oracle-equality composition, and expose withholding-event membership.
+The previous attempt restored the concrete query predicate too early and still
+timed out. These repairs remain compiler-unchecked. No security statement,
+sampler, executable construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext
