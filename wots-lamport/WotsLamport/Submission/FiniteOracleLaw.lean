@@ -61,7 +61,7 @@ theorem program_finite_table_probability {A : Type} (p : Program A) (event : Set
     change (ROM.run (ROM.hash oracle) p ∈ event) ↔
       (ROM.run (ROM.hash (extendOracleTable inputs (inputs.restrict oracle))) p ∈ event)
     rw [agrees]
-  rw [he, ← Measure.map_apply (measurable_restrict inputs) MeasurableSet.of_discrete,
+  rw [he, ← Measure.map_apply inputs.measurable_restrict MeasurableSet.of_discrete,
     oracle_restriction_law]
 
 end WotsLamport.Submission

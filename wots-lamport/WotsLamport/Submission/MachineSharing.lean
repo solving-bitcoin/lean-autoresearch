@@ -1,4 +1,4 @@
-import WotsLamport.Submission.MachineHorner
+import WotsLamport.Submission.MachineCoinRead
 import WotsLamport.Submission.Layout
 
 namespace WotsLamport.Submission
@@ -9,7 +9,7 @@ open SecretRelease WotsLamport.Protected
 def machineLabelTable (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
     (i : Fin 256) (value : Bool) (label : Label) : ByteArray :=
   let polys := (List.range 16).map fun limb =>
-    machineCoefficients (polynomial coins label i.val limb value)
+    machineCoefficients (machinePolynomial coins label i.val limb value)
   concatenate ((slots i value).zipIdx.map fun ((j,k), index) =>
     let point := index+1
     let share := concatenate (polys.map fun p => writeLE 3 (evaluateMachinePolynomial p point))
@@ -28,7 +28,8 @@ theorem machineLabelTable_eq (h : Hash) (coins pk nonce : ByteArray) (keys : Key
     rw [slots_length]
     cases value <;> decide
   have hp : index+1 ≤ 1984 := by omega
-  simp only [List.map_map, Function.comp_def, evaluateMachinePolynomial_eq _ _ hp]
+  simp only [List.map_map, Function.comp_def, machinePolynomial_eq,
+    evaluateMachinePolynomial_eq _ _ hp]
 
 def machinePrepare (h : Hash) (coins : ByteArray) (keys : Keys)
     (labels : Fin 256 → Pair) : ByteArray :=

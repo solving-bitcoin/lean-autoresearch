@@ -7,25 +7,30 @@ from unittest.mock import patch
 import check_lean
 
 
-def fixture(root, cycle=False):
+def fixture(root, cycle=False, optimizations=False):
     directory = root/'WotsLamport/Submission'
     directory.mkdir(parents=True)
     (directory/'A.lean').write_text('import WotsLamport.Submission.B\n')
     (directory/'B.lean').write_text('import WotsLamport.Submission.A\n' if cycle else '')
     (directory/'C.lean').write_text('import WotsLamport.Submission.A\n')
     (directory/'D.lean').write_text('/- import WotsLamport.Submission.C -/\n')
+    if optimizations:
+        (directory/'MachineSharing.lean').write_text('import WotsLamport.Submission.D\n')
+        (directory/'CachedSharing.lean').write_text('import WotsLamport.Submission.MachineSharing\n')
 
 
-def exercise(failure=None, cycle=False):
+def exercise(failure=None, cycle=False, optimizations=False, rejected_optimization=None):
     with TemporaryDirectory() as directory:
         root = Path(directory)
-        fixture(root, cycle)
+        fixture(root, cycle, optimizations)
         calls = []
 
         def run(command):
             calls.append(tuple(map(str, command)))
             if command[:2] == ['lake', 'build'] and command[2].endswith('.B') and failure:
                 raise SystemExit(failure)
+            if command[:2] == ['lake', 'build'] and command[2].endswith('.'+str(rejected_optimization)):
+                raise SystemExit('optimization proof failed')
             return dict(stdout='', stderr='', peakMemoryBytes=1)
 
         with patch.object(check_lean, 'ROOT', root), patch.object(check_lean, 'guarded', run), \
@@ -52,7 +57,19 @@ def main():
         assert len(calls) == 1 and error == failure
     calls, error = exercise(cycle=True)
     assert not calls and error.startswith('AUTHOR_PROOFS_REJECTED: import cycle')
-    print('PASS: all modules on success; blocked dependents remain fatal; independent builds continue; resource failures and cycles stop')
+    for rejected, expected in [(None, 'cached'), ('CachedSharing', 'machine'), ('MachineSharing', None)]:
+        calls, error = exercise('ordinary elaboration failure', optimizations=True,
+                                rejected_optimization=rejected)
+        assert error.startswith('AUTHOR_PROOFS_REJECTED:')
+        probe = calls[-1]
+        if expected is None:
+            assert probe[-1].endswith('/scripts/check_runtime_probe.py')
+            assert not any(call[-1] == 'WotsLamport.Submission.CachedSharing' for call in calls)
+        else:
+            assert probe[-2:] == ('--construction', expected)
+            selected = 'CachedSharing' if expected == 'cached' else 'MachineSharing'
+            assert any(call[-1] == 'WotsLamport.Submission.'+selected for call in calls[:-1])
+    print('PASS: all modules on success; failures remain fatal; independent builds continue; resource/cycle failures stop; only compiled optimizations run')
 
 
 if __name__ == '__main__':

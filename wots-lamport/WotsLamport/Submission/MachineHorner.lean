@@ -1,4 +1,4 @@
-import WotsLamport.Submission.FieldBridge
+import WotsLamport.Submission.MachineFieldReduction
 
 namespace WotsLamport.Submission
 
@@ -6,7 +6,7 @@ namespace WotsLamport.Submission
 candidate. The coordinate bound ensures that UInt32 arithmetic cannot wrap. -/
 def machineHorner : List UInt32 → UInt32 → UInt32 → UInt32
   | [], _, initial => initial
-  | a :: rest, x, initial => machineHorner rest x ((a + x * initial) % 65537)
+  | a :: rest, x, initial => machineHorner rest x (reduceMachineField (a + x * initial))
 
 theorem machineHorner_step (a x acc : UInt32)
     (ha : a.toNat < prime) (hx : x.toNat ≤ 1984) (hs : acc.toNat < prime) :
@@ -34,7 +34,8 @@ theorem machineHorner_fold (coefficients : List UInt32) (x initial : UInt32)
     have hb : ((a + x * initial) % 65537).toNat < prime := by
       rw [hs]
       exact Nat.mod_lt _ (by decide)
-    change (machineHorner rest x ((a + x * initial) % 65537)).toNat = _
+    change (machineHorner rest x (reduceMachineField (a + x * initial))).toNat = _
+    rw [reduceMachineField_eq_mod]
     rw [ih (initial := (a + x * initial) % 65537)
       (hc := fun b hb => hc b (by simp [hb])) (hi := hb), hs]
     rfl

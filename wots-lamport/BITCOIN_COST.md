@@ -56,7 +56,8 @@ witnesses produced by this scheme, not arbitrary padded Script aliases.
 The one universal conversion artifact is **48,752,768 bytes**, comprising
 2,144 public-key bytes, a 32-byte nonce, 16,384 label-commitment bytes and
 48,734,208 encrypted-share bytes. The Rust end-to-end fixture measured this
-size; the universal Lean size proof is pending. This artifact stays offchain
+size; Lean checked the universal bound in `Layout.artifact_bound` at
+`e65c736`. This artifact stays offchain
 and is not included in either Bitcoin witness. The WOTS endpoints and Lamport
 commitments are included once, as constants in their respective scripts.
 The spent outputs have the same size P2TR commitment. Its creation transaction

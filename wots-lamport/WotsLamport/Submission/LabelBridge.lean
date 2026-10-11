@@ -1,4 +1,5 @@
 import WotsLamport.Submission.ByteBridge
+import Mathlib.Tactic.IntervalCases
 
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected

@@ -160,3 +160,30 @@ resource/dependency regression suite passed under the temporary reaping
 supervisor, peak RSS 107,085,824 bytes. The author-graph regression also passed.
 The additional generated-tool test reusing one artifact for three later
 messages compiled locally (peak 285,143,040 bytes), but has not run.
+
+## Run 34: exact runtime failure and source repairs
+
+Run 34 (`38095330840`, commit `baf5657`) completed the WOTS job with failure.
+The original generated tools built and packaged; the standard integration test
+reported 6 passed, 1 failed, 2 ignored, in 64.84 seconds. The failure is now
+identified: `garble` exceeded its 60-second SDK limit at 60.005 seconds, with
+no excessive side output and zero stdout/stderr bytes. The independent full
+artifact correspondence/reuse test was not reached. Limits were not raised.
+
+Lean checked `OracleSupport` and `MachineFieldReduction`. Two direct errors
+blocked the remaining graph: the narrowed imports omitted the field instance
+for `ZMod 65537`, and `FiniteOracleLaw` used an unqualified
+`measurable_restrict`. The follow-up repairs those imports/names and removes
+`MachineHorner`'s unnecessary dependency on interpolation. Its correspondence
+proof remains unchecked; the submitted entry still uses the original scheme.
+
+The follow-up diagnostic scheduler may select machine/cached implementations
+only after their full equality module successfully compiles. Failure-injection
+tests check successful selection, fallback after cached-proof failure, and
+fallback to the original after the machine-proof prerequisite fails. Every
+source failure still rejects the run. These local tests passed under the
+native guard at 20,258,816-byte peak RSS; they do not establish a Lean pass.
+
+The independent Rust reference job passed: Prepare 18.07 seconds, full
+fixed-artifact three-message test 23.83 seconds, peak RSS 320,389,120 bytes.
+Both the BLAKE3 and G1 previews passed. The next batch changes WOTS-only files.

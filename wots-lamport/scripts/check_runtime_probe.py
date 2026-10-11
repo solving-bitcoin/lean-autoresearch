@@ -1,10 +1,13 @@
 """Measure the current executable before the complete proof graph is ready.
 
-This authoring-only probe imports Sharing directly, uses the identical protected
-wrapper and CLI, and retains certificate=None. It never writes an acceptance
+This authoring-only probe imports a selected implementation together with its
+proofs, uses the protected wrapper and CLI, and retains certificate=None. The
+author source checker selects an optimization only after its full equality
+module compiled successfully. It never writes an acceptance
 report or an exported tool archive. The isolated full verifier still rebuilds
 and audits Solution before any actual bundle can be accepted.
 """
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -13,6 +16,15 @@ import boundary
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--construction', choices=('original', 'machine', 'cached'), default='original')
+    variant = parser.parse_args().construction
+    implementation = {
+        'original': ('Sharing', 'construction'),
+        'machine': ('MachineSharing', 'machineConstruction'),
+        'cached': ('CachedSharing', 'cachedConstruction'),
+    }
+    module, construction = implementation[variant]
     boundary.check_protected()
     boundary.check_source(ROOT/'WotsLamport/Submission')
     sys.path.insert(0, str(REPO/'secret-release/scripts'))
@@ -25,30 +37,31 @@ def main():
     report = ROOT/'.yukon/runtime-probe.json'
     report.unlink(missing_ok=True)
     try:
-        generated.write_text('''import SecretRelease.CLI
+        source = '''import SecretRelease.CLI
 import WotsLamport.Protected.Wire
-import WotsLamport.Submission.Sharing
+import WotsLamport.Submission.PROBE_MODULE
 
 namespace WotsLamport.Tests
 -- Diagnostic only: exactly the research construction, without a certificate.
 def runtimeProbeEntry : Option (SecretRelease.Candidate WotsLamport.Protected.challenge) :=
   some (WotsLamport.Protected.Entry.candidate {
-    construction := WotsLamport.Submission.construction
+    construction := WotsLamport.Submission.PROBE_CONSTRUCTION
     maxBytes := WotsLamport.Submission.artifactBytes
     certificate := none })
 end WotsLamport.Tests
 
 def main (args : List String) : IO UInt32 :=
   SecretRelease.CLI.main WotsLamport.Protected.wire WotsLamport.Tests.runtimeProbeEntry args
-''')
-        print('RUNTIME_PROBE: build original executable', flush=True)
+'''
+        generated.write_text(source.replace('PROBE_MODULE', module).replace('PROBE_CONSTRUCTION', construction))
+        print(f'RUNTIME_PROBE: build {variant} executable with its equality proofs', flush=True)
         build = guarded(['lake', 'build', 'secret-release-tools'], ROOT)
         print(build['stdout'], end='', flush=True)
         print(build['stderr'], end='', flush=True)
         metadata = package(ROOT, destination)
         assert metadata['status'] == 'uncertified' and metadata['certifiedBytes'] is None
         metadata.update(diagnostic=True, acceptance='not-audited',
-                        entrypoint='WotsLamport.Tests.runtimeProbeEntry')
+                        entrypoint='WotsLamport.Tests.runtimeProbeEntry', implementation=variant)
         (destination/'bundle.json').write_text(json.dumps(metadata, indent=2)+'\n')
         print('RUNTIME_PROBE: run standard SDK integration', flush=True)
         measured = run_tests(ROOT, destination)
@@ -70,6 +83,7 @@ def main (args : List String) : IO UInt32 :=
         print(independent['stdout'], end='', flush=True)
         print(independent['stderr'], end='', flush=True)
         result = dict(status='runtime-diagnostic-only', certificate=None,
+                      implementation=variant,
                       independentCorrespondence='passed',
                       independentNativePeakMemoryBytes=independent['peakMemoryBytes'],
                       compilerPeakMemoryBytes=build['peakMemoryBytes'], native=measured)

@@ -1,6 +1,7 @@
 import WotsLamport.Submission.Sharing
 import WotsLamport.Submission.Shamir
 import Mathlib.Data.ZMod.Basic
+import Mathlib.Algebra.Field.ZMod
 
 namespace WotsLamport.Submission
 open Polynomial

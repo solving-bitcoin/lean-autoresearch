@@ -30,34 +30,33 @@ complete imported submission or its security certificate passed.
 | Padded/selective polynomial privacy, exact coefficient-list encoding and marginal mixture | PaddedPolynomialLaw, PolynomialEncoding, SamplerMixture | `3d1bcb3` |
 | Every honest table row decrypts to its exact field shares | DecodingBridge | `3d1bcb3` |
 | Executable weighted-sharing construction after expansion refactor | Sharing | `6531e8e` |
+| Finite query support and measurable oracle-program families | OracleSupport | `baf5657` |
+| Exact UInt32 Fermat-prime reduction | MachineFieldReduction.reduceMachineField_toNat | `baf5657` |
 
 ## Current validation attempt
 
-Hosted run 33 at `e959f9e` exceeded the unchanged 1,800-second author-check
-limit. The timeout path discarded its captured source/runtime output, so no
-additional module or native pass is inferred. Cleanup showed a Rust reference
-test process had started. This does not identify the original SDK failure.
-The next batch preserves bounded timeout diagnostics, prints explicit module
-and runtime stages, and narrows tactic imports. It keeps the original
-executable and every resource limit unchanged.
+Hosted run 34 at `baf5657` returned complete source and runtime diagnostics
+within the unchanged author-check cap. It checked `OracleSupport` and
+`MachineFieldReduction`, including the exact UInt32 reduction theorem.
+The tactic-import reduction exposed a missing `Field (ZMod 65537)` instance
+in `FieldBridge`; this blocked its dependents, including `MachineHorner`.
+`FiniteOracleLaw` also failed on an unqualified measurability lemma name.
+The follow-up imports `Mathlib.Algebra.Field.ZMod`, qualifies
+`Finset.measurable_restrict`, and explicitly imports `IntervalCases` where used.
+Earlier repairs in blocked modules still await checking.
 
-Hosted run 32 at `3d1bcb3` failed the complete WOTS source build. It checked
-PaddedPolynomialLaw, PolynomialEncoding, SamplerMixture and DecodingBridge.
-The remaining direct errors are in CoinBlocks, DomainSeparation, Expansion,
-OracleSupport and VisibleCoefficientPrivacy; their dependents remain blocked.
-The next batch adds explicit finite indices/query syntax, controlled slice
-arithmetic, noncomputable distribution declarations and expansion repairs.
-Scoped recursion depth 4096 permits the 256-element expansion conversion;
-heartbeat, RSS and process time limits are unchanged.
+The runtime diagnostic built and packaged the original SRTools executable.
+The supplied-bundle test then failed specifically in `garble`: 60.005 seconds,
+`timeout=true`, `excessive_side_output=false`, and zero stdout/stderr bytes.
+The independent artifact correspondence test was not reached. No generated
+Lean pipeline or performance success is claimed.
 
-The authoring-only runtime diagnostic successfully built SRTools and packaged
-the four generated tools. Its supplied-bundle integration test failed after
-64.27 seconds with the SDK's combined timeout/side-output error. This is a
-real runtime failure, not acceptance. The SDK diagnostic now names the tool,
-elapsed time, timeout flag, output-overflow flag and side-output byte counts,
-without changing any limit. The candidate executable remains unchanged while
-that failure is isolated. It still has no certificate and `not-audited`
-metadata; the diagnostic cannot create acceptance or an exported archive.
+The next author check compiles all independent source modules first. Only an
+optimization whose complete equality module compiled successfully can be
+selected for the runtime diagnostic; otherwise it uses the original. The
+probe itself imports those proofs before building its executable. This does
+not change `Solution.entry`, suppress source failures, issue a certificate,
+or bypass the isolated verifier. All resource caps remain unchanged.
 
 Additional source work connects finite oracle restrictions to VCV's lazy
 random-oracle semantics, preserves query budgets, counts guesses against the
@@ -81,8 +80,26 @@ still uses the original construction.
 1,056-position ideal-tape collision bound. It does not supply the missing
 real-chain coupling. Broad tactic imports are being replaced by the specific
 tactics in use; this also awaits Lean validation under the same build cap.
-`MachineFieldReduction` separately attempts exact UInt32 Fermat-prime
-reduction. It is not used by the evaluator or candidate.
+`MachineFieldReduction.reduceMachineField_toNat` is checked. The proposed
+Horner evaluator now uses that reduction, with a new equality-to-modulo lemma
+and the complete evaluator correspondence still awaiting compilation. It no
+longer imports the unrelated polynomial/interpolation field bridge.
+`MachineCoinRead` additionally attempts exact residue-only coefficient
+decoding, avoiding intermediate 256-bit naturals while preserving every
+coefficient. It is part of the proposed machine preparation, still unchecked.
+The local follow-up also adds `QueryTargets` and `ChainProgrammingLaw`:
+complete parsers for the actual chain/mask/commitment query bytes and a
+uniform ideal-tape programming bound with an independent baseline/program.
+`ChainPartitionLaw` additionally separates the 67 public endpoints from the
+989 hidden ideal nodes, with an exact product-law attempt and a conditional
+programming bound after the public key is fixed. These do not establish the
+missing real-chain distribution coupling.
+`CachedSharing` proposes materializing the short chain prefixes once per
+setup and proving full artifact equality. `AdaptiveMaskedView` attempts a
+coefficient/pad bijection chosen from the unchanged complete ciphertext table,
+allowing artifact-dependent visibility without a union over messages.
+All five modules are unchecked;
+the executable still uses `construction` from `Sharing`.
 
 ## Obligations still open
 
@@ -116,8 +133,9 @@ laboratory.
 ## Independent evidence and boundaries
 
 The independent Rust implementation and Python arithmetic/format/boundary
-tests pass. They do not prove the candidate. Hosted run 32 measured Rust Prepare at 19.23 seconds, the full fixed-artifact
-three-message test at 26.51 seconds, and peak RSS at 320,348,160 bytes.
+tests pass. They do not prove the candidate. Hosted run 34 measured Rust Prepare
+at 18.07 seconds, the full fixed-artifact three-message test at 23.83 seconds,
+and peak RSS at 320,389,120 bytes.
 This does not predict Lean timing.
 
 The pinned Script comparison is reproduced in [BITCOIN_COST.md](BITCOIN_COST.md):

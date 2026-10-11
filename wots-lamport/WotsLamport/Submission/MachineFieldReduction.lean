@@ -52,4 +52,9 @@ theorem reduceMachineField_toNat (x : UInt32) :
     rw [← hn]
     omega
 
+theorem reduceMachineField_eq_mod (x : UInt32) : reduceMachineField x = x % 65537 := by
+  apply UInt32.toNat_inj.mp
+  rw [reduceMachineField_toNat, UInt32.toNat_mod]
+  rfl
+
 end WotsLamport.Submission

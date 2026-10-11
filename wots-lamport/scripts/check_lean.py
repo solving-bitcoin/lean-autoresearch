@@ -42,7 +42,7 @@ def main():
     check_source(ROOT/'WotsLamport/Submission')
     modules, dependencies = module_graph(ROOT)
     peak, failed = 0, []
-    rejected = set()
+    rejected, compiled = set(), set()
     for name in modules:
         blockers = [dependency for dependency in dependencies[name] if dependency in rejected]
         if blockers:
@@ -66,13 +66,21 @@ def main():
         print(result['stdout'], end='', flush=True)
         print(result['stderr'], end='', flush=True)
         print(f'COMPILED: {name}; {time.monotonic()-started:.2f}s', flush=True)
+        compiled.add(name)
         peak = max(peak, result['peakMemoryBytes'])
     # Diagnostic execution cannot suppress a source failure or create acceptance.
     # A complete source build proceeds directly to the normal isolated verifier.
     if failed:
         try:
-            print('CHECK: original executable runtime diagnostic', flush=True)
-            result = guarded([sys.executable, ROOT/'scripts/check_runtime_probe.py'])
+            command = [sys.executable, ROOT/'scripts/check_runtime_probe.py']
+            variant = 'original'
+            for module, choice in [('CachedSharing', 'cached'), ('MachineSharing', 'machine')]:
+                if f'WotsLamport.Submission.{module}' in compiled:
+                    variant = choice
+                    command += ['--construction', choice]
+                    break
+            print(f'CHECK: {variant} executable runtime diagnostic (source proofs compiled first)', flush=True)
+            result = guarded(command)
             print(result['stdout'], end='', flush=True)
             print(result['stderr'], end='', flush=True)
             peak = max(peak, result['peakMemoryBytes'])
