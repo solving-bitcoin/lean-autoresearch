@@ -105,41 +105,64 @@ theorem labelTableProgram_query_bound (coins pk nonce : ByteArray) (keys : Keys)
 theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (prepareProgram coins keys labels)
       (67*15 + 256*2 + 256*(2*1984*16)) := by
-  simp only [prepareProgram, map_eq_bind_pure_comp, Function.comp_def, Nat.add_assoc]
-  refine isTotalQueryBound_bind (oa := publicKeyProgram keys)
-    (n₁ := 67*15) (n₂ := 256*2 + 256*(2*1984*16)) (publicKeyProgram_query_bound keys) ?_
-  intro publicKeyValue
-  refine isTotalQueryBound_bind (n₁ := 256*2) (n₂ := 256*(2*1984*16)+0) ?_ ?_
-  · let f : Fin 256 → Program ByteArray := fun i => do
-      let left ← oracleQuery (commitmentQuery (keyCodec.encode publicKeyValue) (coins.extract 0 32)
+  let commitmentRow (pk : PublicKey) (i : Fin 256) : Program ByteArray := do
+      let left ← oracleQuery (commitmentQuery (keyCodec.encode pk) (coins.extract 0 32)
         i.val false ((labels i).get false))
-      let right ← oracleQuery (commitmentQuery (keyCodec.encode publicKeyValue) (coins.extract 0 32)
+      let right ← oracleQuery (commitmentQuery (keyCodec.encode pk) (coins.extract 0 32)
         i.val true ((labels i).get true))
       pure (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray)
-    have h := listMapM_query_bound (List.finRange 256) f 2 (by
+  let commitments (pk : PublicKey) := (List.finRange 256).mapM (commitmentRow pk)
+  let tableRow (pk : PublicKey) (i : Fin 256) : Program ByteArray := do
+      let left ← labelTableProgram coins (keyCodec.encode pk) (coins.extract 0 32)
+        keys i false ((labels i).get false)
+      let right ← labelTableProgram coins (keyCodec.encode pk) (coins.extract 0 32)
+        keys i true ((labels i).get true)
+      pure (left ++ right)
+  let tables (pk : PublicKey) := (List.finRange 256).mapM (tableRow pk)
+  have hc (pk : PublicKey) : IsTotalQueryBound (commitments pk) (256*2) := by
+    have h := listMapM_query_bound (List.finRange 256) (commitmentRow pk) 2 (by
       intro i _
-      simp only [f, map_eq_bind_pure_comp, Function.comp_def]
+      simp only [commitmentRow, map_eq_bind_pure_comp, Function.comp_def]
       exact isTotalQueryBound_bind (one_query_bound _)
         (fun left => isTotalQueryBound_bind (one_query_bound _)
           (fun right => pure_query_bound (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray) 0)))
-    simpa only [List.length_finRange, map_eq_bind_pure_comp, Function.comp_def] using h
-  · intro commitments
-    refine isTotalQueryBound_bind (n₁ := 256*(2*1984*16)) (n₂ := 0) ?_ ?_
-    · let f : Fin 256 → Program ByteArray := fun i => do
-        let left ← labelTableProgram coins (keyCodec.encode publicKeyValue) (coins.extract 0 32)
-          keys i false ((labels i).get false)
-        let right ← labelTableProgram coins (keyCodec.encode publicKeyValue) (coins.extract 0 32)
-          keys i true ((labels i).get true)
-        pure (left ++ right)
-      have h := listMapM_query_bound (List.finRange 256) f (2*1984*16) (by
-        intro i _
-        simp only [f, map_eq_bind_pure_comp, Function.comp_def]
-        exact isTotalQueryBound_bind (labelTableProgram_query_bound _ _ _ keys i false _)
-          (fun left => isTotalQueryBound_bind (labelTableProgram_query_bound _ _ _ keys i true _)
-            (fun right => pure_query_bound (left ++ right) 0)))
-      simpa only [List.length_finRange, map_eq_bind_pure_comp, Function.comp_def] using h
-    · intro tables
-      exact pure_query_bound _ 0
+    simpa only [commitments, List.length_finRange] using h
+  have ht (pk : PublicKey) : IsTotalQueryBound (tables pk) (256*(2*1984*16)) := by
+    have h := listMapM_query_bound (List.finRange 256) (tableRow pk) (2*1984*16) (by
+      intro i _
+      have row := isTotalQueryBound_bind
+        (oa := labelTableProgram coins (keyCodec.encode pk) (coins.extract 0 32)
+          keys i false ((labels i).get false))
+        (ob := fun left => do
+          let right ← labelTableProgram coins (keyCodec.encode pk) (coins.extract 0 32)
+            keys i true ((labels i).get true)
+          pure (left ++ right))
+        (labelTableProgram_query_bound _ _ _ keys i false _)
+        (fun left => isTotalQueryBound_bind
+          (oa := labelTableProgram coins (keyCodec.encode pk) (coins.extract 0 32)
+            keys i true ((labels i).get true))
+          (ob := fun right => pure (left ++ right))
+          (labelTableProgram_query_bound _ _ _ keys i true _)
+          (fun right => pure_query_bound (left ++ right) 0))
+      simpa only [tableRow, Nat.add_zero, two_mul, Nat.add_mul, map_eq_bind_pure_comp, Function.comp_def] using row)
+    simpa only [tables, List.length_finRange] using h
+  let afterPublic (pk : PublicKey) : Program ByteArray := do
+    let cs ← commitments pk
+    let ts ← tables pk
+    pure (coins.extract 0 32 ++ concatenate cs ++ concatenate ts)
+  have suffix (pk : PublicKey) :
+      IsTotalQueryBound (afterPublic pk) (256*2 + 256*(2*1984*16)) := by
+    have h := isTotalQueryBound_bind (oa := commitments pk)
+      (ob := fun cs => do
+        let ts ← tables pk
+        pure (coins.extract 0 32 ++ concatenate cs ++ concatenate ts))
+      (hc pk) (fun cs => isTotalQueryBound_bind (oa := tables pk)
+        (ob := fun ts => pure (coins.extract 0 32 ++ concatenate cs ++ concatenate ts))
+        (ht pk) (fun ts => pure_query_bound _ 0))
+    simpa only [afterPublic, Nat.add_zero] using h
+  have h := isTotalQueryBound_bind (oa := publicKeyProgram keys) (ob := afterPublic)
+    (publicKeyProgram_query_bound keys) suffix
+  simpa only [prepareProgram, afterPublic, commitments, tables, commitmentRow, tableRow, Nat.add_assoc] using h
 
 def honestSetupQueries : Nat := 2*(67*15) + 256*2 + 256*(2*1984*16)
 def honestReleaseQueries : Nat := honestSetupQueries + 67*15
@@ -151,10 +174,16 @@ theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (lab
         let body ← prepareProgram coins keys labels
         pure (keyCodec.encode publicKeyValue ++ body))
         (67*15 + (256*2 + 256*(2*1984*16))) := by
-    have h := isTotalQueryBound_bind (prepareProgram_query_bound coins keys labels)
+    have h := isTotalQueryBound_bind (oa := prepareProgram coins keys labels)
+      (ob := fun body => pure (keyCodec.encode publicKeyValue ++ body))
+      (prepareProgram_query_bound coins keys labels)
       (fun body => pure_query_bound (keyCodec.encode publicKeyValue ++ body) 0)
     simpa only [Nat.add_zero, Nat.add_assoc] using h
-  have h := isTotalQueryBound_bind (publicKeyProgram_query_bound keys) suffix
+  have h := isTotalQueryBound_bind (oa := publicKeyProgram keys)
+    (ob := fun publicKeyValue => do
+      let body ← prepareProgram coins keys labels
+      pure (keyCodec.encode publicKeyValue ++ body))
+    (publicKeyProgram_query_bound keys) suffix
   simpa only [wrappedPrepareProgram, honestSetupQueries, two_mul, Nat.add_assoc] using h
 
 /-- This counts the reified executable's chain, mask and commitment queries,

@@ -26,9 +26,11 @@ theorem measure_exists_finset_le {Ω I : Type} [MeasurableSpace Ω]
     (s : Finset I) (bound : ∀ i ∈ s, μ (events i) ≤ bounds i) :
     μ {ω | ∃ i ∈ s, ω ∈ events i} ≤ ∑ i ∈ s, bounds i := by
   classical
-  induction s using Finset.induction_on with
-  | empty => simp
-  | @insert i s hi ih =>
+  revert bound
+  refine Finset.induction_on s ?_ ?_
+  · intro bound
+    simp
+  · intro i s hi ih bound
     have he : {ω | ∃ j ∈ insert i s, ω ∈ events j} =
         events i ∪ {ω | ∃ j ∈ s, ω ∈ events j} := by ext ω; simp
     rw [he, Finset.sum_insert hi]

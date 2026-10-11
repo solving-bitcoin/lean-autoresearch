@@ -18,12 +18,13 @@ import boundary
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--construction', choices=('original', 'machine', 'cached'), default='original')
+    parser.add_argument('--construction', choices=('original', 'machine', 'cached', 'lane'), default='original')
     variant = parser.parse_args().construction
     implementation = {
         'original': ('Sharing', 'construction', 'Sharing'),
         'machine': ('MachineImplementation', 'machineConstruction', 'MachineSharing'),
         'cached': ('CachedImplementation', 'cachedConstruction', 'CachedSharing'),
+        'lane': ('LaneImplementation', 'laneConstruction', 'LaneSharing'),
     }
     module, construction, proof_module = implementation[variant]
     boundary.check_protected()

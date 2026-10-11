@@ -46,39 +46,47 @@ complete imported submission or its security certificate passed.
 | Complete cached construction equality, including every prepared byte | CachedSharing.cachedConstruction_eq | `807c1cf` |
 | Actual coefficient polynomial correspondence and chain tape | ActualPolynomialTable, ChainTape | `e806ba6` |
 | Nonce independence and restricted oracle-program representation | NonceTableLaw, NonceEnvironmentLaw, RestrictedOracleProgram | `e806ba6` |
+| Joint execution coupling, normalized good fibers and exact two-answer mask representation | JointOracleTrace, UniformGoodFiber, TwoHashMask | `05cd4d5` |
 
 ## Current validation attempt
 
-Run 39 (`e806ba6`) checked **65 of 81 modules**. Six modules had direct
-errors (`JointOracleTrace`, `CommonOracleDomain`, `Expansion`,
-`UniformGoodFiber`, `HonestQueryBudget`, `TwoHashMask`), and ten dependents
-were blocked. The reference job passed. The earlier 8 GiB memory failure
-in `Expansion` did not recur; its remaining failures were ordinary proof
-elaboration/kernel recursion errors. No WOTS native test ran.
+Run 40 (`05cd4d5`) checked **68 of 81 modules**. Four modules had direct
+errors (`MultiTargetTrace`, `CommonOracleDomain`, `Expansion`,
+`HonestQueryBudget`), and nine dependents were blocked. Newly accepted modules
+were `JointOracleTrace`, `UniformGoodFiber` and `TwoHashMask`. The final wrapper
+correctness theorem still failed during type normalization; the universal
+expansion theorem is not claimed as an accepted module. The reference job
+passed.
 
-Newly checked results include `ActualPolynomialTable`, `ChainTape`,
-`NonceTableLaw`, `NonceEnvironmentLaw` and `RestrictedOracleProgram`.
-Run 38 (`807c1cf`) had already checked `PolynomialTableLaw`,
-`AdaptiveMaskedView` and `CachedSharing.cachedConstruction_eq` before
-stopping at the memory cap. These results are supporting lemmas, not a
-completed security reduction.
+The cached executable **built successfully**, after its complete equality
+proof compiled, and reached the standard SDK integration test. `garble`
+**timed out at 60.000052718 seconds**, with zero stdout/stderr side output.
+The test process reported 64.41 seconds including its other checks. Full
+artifact correspondence and later-message native tests did not run. The
+selected cached implementation therefore fails the current runtime requirement.
 
-The cached implementation is selected because its full equality theorem has
-been checked, including every prepared artifact byte for every hash, coin
-string, key and label table. Native timing and byte-for-byte reference
-validation are still pending. This does not certify performance or security.
+The next batch introduces sixteen simultaneous scalar Horner accumulators and
+transposes coefficient storage across limbs. `LaneHorner` and `LaneSharing`
+attempt the complete correspondence, including every artifact byte. These
+proofs and the performance improvement are **unchecked**. The diagnostic asks
+for `lane` explicitly and runs it only after `LaneSharing` compiles; a rejected
+lane proof does not remeasure the known-slow cached implementation. The actual
+submission remains cached until the new equality is checked.
 
-The next batch separates wrapper plumbing from the abstract decoder law,
-normalizes query-budget associativity before proof application, and repairs
-set-membership, finite-instance and byte-extraction obligations. These edits
-remain unchecked until the pinned compiler accepts them.
+Other repairs address a generated finite-set induction instance, opaque
+mathematical enumeration, semireducible wrapper types, and explicit query
+continuations. New security proof attempts connect actual serialized mask and
+commitment addresses, joint key/oracle programming, exact ciphertext body
+serialization, full 64-byte pad randomness, visible field plaintext transport,
+selected-label-dependent query lists, and independent pre-release coordinates.
+They include no assumed candidate security theorem and remain unchecked.
+The final withholding, post-release and adaptive reductions remain open.
 
-This batch explicitly enables the existing optional runtime diagnostic after
-ordinary source errors. It runs inside the **same single 1,800-second author
-check**, with the unchanged memory and per-tool limits, and requires the
-selected optimized construction's complete equality proof first. Source
-failures remain fatal; the diagnostic cannot produce an accepted submission.
-Resource failures still stop immediately. The certificate remains absent.
+The optional diagnostic stays inside the **same single 1,800-second author
+check**, with unchanged memory and per-tool limits. Source errors remain fatal;
+resource failures stop immediately. The diagnostic cannot produce an accepted
+submission. Failure-injection tests cover both the requested-proof gate and
+the executable builder's independent proof gate. The certificate remains absent.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all
@@ -124,7 +132,7 @@ and fiber counts alone are not normalized probability laws. Source declarations 
 | Obligation | Remaining work |
 | --- | --- |
 | Universal honest correctness | Check Expansion through `construction_correct` for the exact protected wrapper |
-| Complete coefficient law | Check the remaining raw-nonce/environment and actual-polynomial specializations; the joint block/field law and sampling bound are checked |
+| Complete coefficient law | Check the byte-level plaintext specialization and integrate the checked joint nonce/field sampling law into actual games |
 | Joint visible-share privacy | Check the full sampled coefficient-table specialization, including all 16 limbs and all 512 labels |
 | Actual oracle programs | Complete measurable winning events and the honest query budget; executable reification is checked |
 | ROM reduction | Establish the real/ideal joint laws and bound chain collisions, hidden-node queries, mask/commitment programming and label guessing |

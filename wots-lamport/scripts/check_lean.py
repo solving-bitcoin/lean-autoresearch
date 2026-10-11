@@ -43,6 +43,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--runtime-probe', action='store_true',
                         help='also diagnose a compiled executable after source failures')
+    parser.add_argument('--runtime-construction', choices=('original', 'machine', 'cached', 'lane'),
+                        help='diagnose this exact implementation only after its complete proof compiles')
     args = parser.parse_args(argv)
     report = ROOT/'.yukon/author-sources.json'
     report.parent.mkdir(parents=True, exist_ok=True)
@@ -90,11 +92,18 @@ def main(argv=None):
         peak = max(peak, result['peakMemoryBytes'])
     # Diagnostic execution cannot suppress a source failure or create acceptance.
     # A complete source build proceeds directly to the normal isolated verifier.
-    if failed and args.runtime_probe:
+    requested_proof = {'original': 'Sharing', 'machine': 'MachineSharing',
+                       'cached': 'CachedSharing', 'lane': 'LaneSharing'}.get(args.runtime_construction)
+    probe_ready = requested_proof is None or f'WotsLamport.Submission.{requested_proof}' in compiled
+    if failed and args.runtime_probe and not probe_ready:
+        print(f'SKIPPED: {args.runtime_construction} diagnostic; its complete equality proof did not compile', flush=True)
+    if failed and args.runtime_probe and probe_ready:
         try:
             command = [sys.executable, ROOT/'scripts/check_runtime_probe.py']
             variant = 'original'
-            for module, choice in [('CachedSharing', 'cached'), ('MachineSharing', 'machine')]:
+            choices = [(requested_proof, args.runtime_construction)] if requested_proof else [
+                ('LaneSharing', 'lane'), ('CachedSharing', 'cached'), ('MachineSharing', 'machine')]
+            for module, choice in choices:
                 if f'WotsLamport.Submission.{module}' in compiled:
                     variant = choice
                     command += ['--construction', choice]

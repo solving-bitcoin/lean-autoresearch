@@ -131,7 +131,7 @@ theorem construction_correct : Correct (wrapped construction) := by
     ((wrapped construction).garbleBytes h coins p keys labels) m
     (signatureBytes (sign h keys m)) =
     some (pack ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val]))
-  rw [wrapped_garbleBytes_eq, wrapped_evaluate_prefix,
+  erw [wrapped_garbleBytes_eq, wrapped_evaluate_prefix,
     if_pos (sign_verifies h keys m)]
   have hcsize : (ByteArray.mk coins.toArray).size = randomnessBytes := coins.size_toArray
   have hc : 32 ≤ (ByteArray.mk coins.toArray).size := by rw [hcsize]; decide

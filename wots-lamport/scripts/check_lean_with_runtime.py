@@ -8,4 +8,4 @@ to the ordinary isolated verifier and mandatory native tests.
 from check_lean import main
 
 if __name__ == '__main__':
-    main(['--runtime-probe'])
+    main(['--runtime-probe', '--runtime-construction', 'lane'])

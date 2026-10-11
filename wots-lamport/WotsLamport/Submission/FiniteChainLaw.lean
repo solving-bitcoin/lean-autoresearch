@@ -149,6 +149,6 @@ theorem finiteChainProgram_event_bounds (event : Set (FiniteChainReal inputs)) :
     (uniformOn (Set.univ : Set (FiniteChainIdeal inputs)))
     (uniformOn (Set.univ : Set (FiniteChainReal inputs)))
     (finiteChainProgram inputs contains) _ _ (finiteChainProgram_good_law inputs contains) event
-  exact ⟨bounds.1.trans (add_le_add_left bad _), bounds.2.trans (add_le_add_left bad _)⟩
+  exact ⟨bounds.1.trans (add_le_add le_rfl bad), bounds.2.trans (add_le_add le_rfl bad)⟩
 
 end WotsLamport.Submission

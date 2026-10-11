@@ -1,9 +1,9 @@
 import WotsLamport.Submission.Threshold
 
 /-! Executable weighted-Shamir research candidate. No certificate is claimed.
-All source and proofs in this project still require actual Lean compilation.
-Field arithmetic, interpolation, exact bytes and joint ROM security obligations
-are listed in PROOF_STATUS.md; tests do not discharge them. -/
+PROOF_STATUS.md records which supporting modules the pinned compiler accepted.
+The complete wrapper, security certificate and native runtime validation remain
+separate requirements; reference tests do not discharge them. -/
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected
 

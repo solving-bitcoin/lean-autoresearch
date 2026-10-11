@@ -8,11 +8,13 @@ open SecretRelease MeasureTheory ProbabilityTheory
 every byte string of the stated length before any secrets are sampled. -/
 noncomputable def fullWidthInputs (n : Nat) : Finset OracleInput := by
   classical
+  letI := Fintype.ofFinite (Bytes n)
   exact Finset.univ.image (fun bytes : Bytes n => oracleInput (ByteArray.mk bytes.toArray))
 
 theorem fullWidthInputs_mem (n : Nat) (bytes : ByteArray) (size : bytes.size = n) :
     oracleInput bytes ∈ fullWidthInputs n := by
   classical
+  letI := Fintype.ofFinite (Bytes n)
   unfold fullWidthInputs
   exact Finset.mem_image.mpr ⟨⟨bytes.data, size⟩, Finset.mem_univ _, rfl⟩
 
