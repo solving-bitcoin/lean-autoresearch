@@ -127,68 +127,78 @@ theorem measurable_adaptive_event (a : AdaptiveAdversary) :
 
 theorem releaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
     (m : Message) : IsTotalQueryBound (releaseViewProgram coins keys labels m) honestReleaseQueries := by
+  let result : ByteArray → Signature → View challenge := fun artifact signature =>
+    ⟨m, artifact, signatureBytes signature, selectedOutputBytes labels m⟩
   unfold releaseViewProgram honestReleaseQueries
   with_reducible
-    simpa only [pairProgram] using
+    simpa only [pairProgram, result] using
       (pair_query_bound (wrappedPrepareProgram coins keys labels) (signProgram keys m)
-        (fun artifact signature => (⟨m, artifact, signatureBytes signature,
-          selectedOutputBytes labels m⟩ : View challenge)) honestSetupQueries (67*15)
+        result honestSetupQueries (67*15)
         (wrappedPrepareProgram_query_bound coins keys labels) (signProgram_query_bound keys m))
 
 theorem preReleaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
     (m : Message) : IsTotalQueryBound (preReleaseViewProgram coins keys labels m) honestSetupQueries := by
+  let result : ByteArray → PreReleaseView challenge := fun artifact => ⟨m, artifact⟩
   unfold preReleaseViewProgram
-  with_reducible exact bind_pure_query_bound (wrappedPrepareProgram coins keys labels)
-    (fun artifact => (⟨m, artifact⟩ : PreReleaseView challenge)) honestSetupQueries
-    (wrappedPrepareProgram_query_bound coins keys labels)
+  with_reducible
+    simpa only [result] using
+      (bind_pure_query_bound (wrappedPrepareProgram coins keys labels) result honestSetupQueries
+        (wrappedPrepareProgram_query_bound coins keys labels))
 
 theorem withholdingGameProgram_query_bound (m : Message)
     (a : PreReleaseView challenge → Program challenge.Claim)
     (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
     IsTotalQueryBound (withholdingGameProgram m a initial) (honestSetupQueries+q) := by
+  let wins : challenge.Claim → Bool := fun claim =>
+    decide (claim.2 = (initial.2.1 claim.1).get false ∨ claim.2 = (initial.2.1 claim.1).get true)
   change ∀ view, IsTotalQueryBound (a view) q at bound
   unfold withholdingGameProgram
-  with_reducible exact isTotalQueryBound_bind
-    (oa := preReleaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
-    (preReleaseViewProgram_query_bound _ _ _ m)
-    (fun view => bind_pure_query_bound (a view)
-      (fun claim => decide (claim.2 = (initial.2.1 claim.1).get false ∨
-        claim.2 = (initial.2.1 claim.1).get true)) q (bound view))
+  with_reducible
+    simpa only [wins] using
+      (isTotalQueryBound_bind
+        (oa := preReleaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
+        (preReleaseViewProgram_query_bound _ _ _ m)
+        (fun view => bind_pure_query_bound (a view) wins q (bound view)))
 
 theorem releaseGameProgram_query_bound (m : Message) (a : View challenge → Program challenge.Claim)
     (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
     IsTotalQueryBound (releaseGameProgram m a initial) (honestReleaseQueries+q) := by
+  let wins : challenge.Claim → Bool := fun claim =>
+    decide (claim.2 = (initial.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val]))
   change ∀ view, IsTotalQueryBound (a view) q at bound
   unfold releaseGameProgram
-  with_reducible exact isTotalQueryBound_bind
-    (oa := releaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
-    (releaseViewProgram_query_bound _ _ _ m)
-    (fun view => bind_pure_query_bound (a view)
-      (fun claim => decide (claim.2 = (initial.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val])))
-      q (bound view))
+  with_reducible
+    simpa only [wins] using
+      (isTotalQueryBound_bind
+        (oa := releaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
+        (releaseViewProgram_query_bound _ _ _ m)
+        (fun view => bind_pure_query_bound (a view) wins q (bound view)))
 
 theorem adaptiveGameProgram_query_bound (a : AdaptiveAdversary) (q₁ q₂ : Nat)
     (chooseBound : ROM.Bounded a.choose q₁)
     (finishBound : ∀ state, ROM.Bounded (a.finish state) q₂) (initial : InitialData) :
     IsTotalQueryBound (adaptiveGameProgram a initial) (honestReleaseQueries+q₁+q₂) := by
+  let view : ByteArray → Message → Signature → View challenge := fun artifact m signature =>
+    ⟨m, artifact, signatureBytes signature, selectedOutputBytes initial.2.1 m⟩
+  let wins : Message → challenge.Claim → Bool := fun m claim =>
+    decide (claim.2 = (initial.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val]))
   change ∀ artifact, IsTotalQueryBound (a.choose artifact) q₁ at chooseBound
-  change ∀ state view, IsTotalQueryBound (a.finish state view) q₂ at finishBound
+  change ∀ state v, IsTotalQueryBound (a.finish state v) q₂ at finishBound
   have budgetEq : honestReleaseQueries+q₁+q₂ = honestSetupQueries+(q₁+(67*15+q₂)) := by
     unfold honestReleaseQueries
     omega
   rw [budgetEq]
   unfold adaptiveGameProgram
-  with_reducible exact isTotalQueryBound_bind
-    (oa := wrappedPrepareProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
-    (wrappedPrepareProgram_query_bound (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
-    (fun artifact => isTotalQueryBound_bind (chooseBound artifact)
-      (fun selected => isTotalQueryBound_bind (oa := signProgram initial.1 selected.1)
-        (signProgram_query_bound initial.1 selected.1)
-        (fun signature => bind_pure_query_bound
-          (a.finish selected.2 ⟨selected.1, artifact, signatureBytes signature,
-            selectedOutputBytes initial.2.1 selected.1⟩)
-          (fun claim => decide
-            (claim.2 = (initial.2.1 claim.1).get (!(outputCodec.encode selected.1)[claim.1.val])))
-          q₂ (finishBound selected.2 _))))
+  with_reducible
+    simpa only [view, wins] using
+      (isTotalQueryBound_bind
+        (oa := wrappedPrepareProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
+        (wrappedPrepareProgram_query_bound (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
+        (fun artifact => isTotalQueryBound_bind (chooseBound artifact)
+          (fun selected => isTotalQueryBound_bind (oa := signProgram initial.1 selected.1)
+            (signProgram_query_bound initial.1 selected.1)
+            (fun signature => bind_pure_query_bound
+              (a.finish selected.2 (view artifact selected.1 signature)) (wins selected.1) q₂
+              (finishBound selected.2 _)))))
 
 end WotsLamport.Submission

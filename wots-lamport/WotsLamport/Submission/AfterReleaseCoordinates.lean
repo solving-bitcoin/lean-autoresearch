@@ -1,4 +1,5 @@
 import WotsLamport.Submission.CanonicalVisibleOracle
+import WotsLamport.Submission.CiphertextArtifact
 import WotsLamport.Submission.SelectedTraceCoupling
 
 namespace WotsLamport.Submission
@@ -28,11 +29,13 @@ theorem afterTape_hidden (m : Message) (environment : AfterEnvironment m) (secre
     (environment.1,secret.1,environment.2.1))
 
 noncomputable def afterCoefficientEquiv (m : Message) (labels : Fin 256 → Pair) :
-    AllocatedCoefficients ≃ AllocatedCoefficients :=
-  visibleCoefficientEquiv m labels
-    (canonicalLabelTable (fun i => (outputCodec.encode m)[i.val])
-      (fun i => (labels i).get (outputCodec.encode m)[i.val]))
-    (fun i => (canonicalLabelTable_selected _ labels i).symm)
+    AllocatedCoefficients ≃ AllocatedCoefficients := by
+  let bits : Fin 256 → Bool := fun i => (outputCodec.encode m)[i.val]
+  let selected : Fin 256 → Label := fun i => (labels i).get (bits i)
+  let canonical := canonicalLabelTable bits selected
+  have same : ∀ i, (labels i).get (bits i) = (canonical i).get (bits i) :=
+    fun i => (canonicalLabelTable_selected bits labels i).symm
+  exact visibleCoefficientEquiv m labels canonical same
 
 noncomputable def afterAnswers (m : Message) (environment : AfterEnvironment m)
     (secret : AfterHiddenSetup m)
@@ -121,7 +124,9 @@ theorem after_trace_difference_bound {A : Type} (m : Message) (nonce : ByteArray
     _ ≤ (989 : ENNReal)*q/2^256 + (256 : ENNReal)*q*2/2^256 := by
       simp only [Fintype.card_fin, Nat.cast_ofNat]
       gcongr
-    _ = (1501 : ENNReal)*q/2^256 := by ring
+    _ = (1501 : ENNReal)*q/2^256 := by
+      simp only [div_eq_mul_inv]
+      ring
 
 theorem after_release_fiber_bound (m : Message) (nonce : ByteArray)
     (environment : AfterEnvironment m)
@@ -165,7 +170,7 @@ theorem after_release_fiber_bound (m : Message) (nonce : ByteArray)
     rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
     have h := uniform_selected_table_guess (fun i : Fin 256 => (outputCodec.encode m)[i.val]) guess
     norm_num only [Fintype.card_fin, Nat.cast_ofNat] at h
-    exact h
+    convert h using 1 <;> norm_num
   have querying := after_trace_difference_bound m nonce environment coordinates baseline program q bound
   have h := (measure_mono subset).trans ((measure_union_le _ _).trans (add_le_add guessing querying))
   simpa only [add_assoc] using h
