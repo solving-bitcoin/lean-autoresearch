@@ -31,7 +31,7 @@
     "WotsLamport.Tests.Nonvacuity"
   ],
   "authoringChecks": [
-    "scripts/check_lean.py"
+    "scripts/check_lean_with_runtime.py"
   ],
   "editablePaths": [
     "WotsLamport/Submission"

@@ -4,8 +4,8 @@ import WotsLamport.Submission.Layout
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected
 
-/-- Proposed faster table generation. The candidate and diagnostic still use
-`labelTable` until this module's correspondence proofs have been checked. -/
+/-- Faster table generation has exactly the reference table bytes.
+The selected cached implementation uses this checked correspondence. -/
 theorem machineLabelTable_eq (h : Hash) (coins pk nonce : ByteArray) (keys : Keys)
     (i : Fin 256) (value : Bool) (label : Label) :
     machineLabelTable h coins pk nonce keys i value label =

@@ -2,8 +2,8 @@ import WotsLamport.Submission.MachineFieldReduction
 
 namespace WotsLamport.Submission
 
-/-- A proposed executable optimization. This module is not yet wired into the
-candidate. The coordinate bound ensures that UInt32 arithmetic cannot wrap. -/
+/-- The coordinate bound ensures that the selected machine evaluator
+cannot wrap its UInt32 arithmetic. Full construction equality is separate. -/
 theorem machineHorner_step (a x acc : UInt32)
     (ha : a.toNat < prime) (hx : x.toNat ≤ 1984) (hs : acc.toNat < prime) :
     ((a + x * acc) % 65537).toNat = (a.toNat + x.toNat * acc.toNat) % prime := by

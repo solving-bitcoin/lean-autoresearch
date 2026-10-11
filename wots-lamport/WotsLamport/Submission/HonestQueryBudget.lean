@@ -105,7 +105,7 @@ theorem labelTableProgram_query_bound (coins pk nonce : ByteArray) (keys : Keys)
 theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (prepareProgram coins keys labels)
       (67*15 + 256*2 + 256*(2*1984*16)) := by
-  simp only [prepareProgram, map_eq_bind_pure_comp, Function.comp_def]
+  simp only [prepareProgram, map_eq_bind_pure_comp, Function.comp_def, Nat.add_assoc]
   refine isTotalQueryBound_bind (oa := publicKeyProgram keys)
     (n₁ := 67*15) (n₂ := 256*2 + 256*(2*1984*16)) (publicKeyProgram_query_bound keys) ?_
   intro publicKeyValue
@@ -146,13 +146,16 @@ def honestReleaseQueries : Nat := honestSetupQueries + 67*15
 
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
-  simp only [wrappedPrepareProgram, map_eq_bind_pure_comp, Function.comp_def]
-  exact isTotalQueryBound_bind (oa := publicKeyProgram keys)
-    (n₁ := 67*15) (n₂ := 67*15 + 256*2 + 256*(2*1984*16))
-    (publicKeyProgram_query_bound keys) (fun publicKeyValue =>
-    isTotalQueryBound_bind (oa := prepareProgram coins keys labels)
-      (prepareProgram_query_bound coins keys labels)
-      (fun body => pure_query_bound (keyCodec.encode publicKeyValue ++ body) 0))
+  have suffix (publicKeyValue : PublicKey) :
+      IsTotalQueryBound (do
+        let body ← prepareProgram coins keys labels
+        pure (keyCodec.encode publicKeyValue ++ body))
+        (67*15 + (256*2 + 256*(2*1984*16))) := by
+    have h := isTotalQueryBound_bind (prepareProgram_query_bound coins keys labels)
+      (fun body => pure_query_bound (keyCodec.encode publicKeyValue ++ body) 0)
+    simpa only [Nat.add_zero, Nat.add_assoc] using h
+  have h := isTotalQueryBound_bind (publicKeyProgram_query_bound keys) suffix
+  simpa only [wrappedPrepareProgram, honestSetupQueries, two_mul, Nat.add_assoc] using h
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

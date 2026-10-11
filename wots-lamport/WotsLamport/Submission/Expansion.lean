@@ -40,6 +40,7 @@ theorem expandLabel_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   simp only [hlength, hrec, hvalid, hbytes, byteVector_decode_raw, Option.bind_eq_bind, Option.bind_some, Option.map_eq_map, Option.map_some, Option.pure_def,
     bne_self_eq_false, Bool.false_eq_true, ite_false,
     prepare_commitment_slice h coins keys labels hcoins i value, byteArray_bne_self]
+  rfl
 
 theorem concatenate_label_fold (labels : List Label) (initial : ByteArray) :
     (labels.map fun label => ByteArray.mk label.toArray).foldl
@@ -79,6 +80,23 @@ theorem expand_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   simpa only [List.map_map, Function.comp_def] using
     concatenate_labels ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val])
 
+/-- Expose only the wrapper's monadic plumbing, with abstract byte inputs. -/
+theorem wrapped_evaluateBytes_eq (s : Construction) (h : Hash)
+    (artifact active : ByteArray) (m : Message) :
+    (wrapped s).evaluateBytes h artifact m active =
+      (keyCodec.decode (artifact.extract 0 2144)).bind (fun pk =>
+        (keyCodec.decode active).bind (fun sig =>
+          if verifies h pk (encodeWord m) sig then
+            s.expand h pk (artifact.extract 2144 artifact.size) m sig
+          else none)) := rfl
+
+/-- Decode two values without simplifying their possibly large continuation. -/
+theorem decode_pair {A B : Type} (codec : ByteCodec A) (a b : A)
+    (next : A → A → Option B) :
+    (codec.decode (codec.encode a)).bind (fun x =>
+      (codec.decode (codec.encode b)).bind (fun y => next x y)) = next a b := by
+  rw [codec.decode_encode, Option.bind_some, codec.decode_encode, Option.bind_some]
+
 /-- Simplify the wrapper with an abstract body and construction, before
 substituting any large executable table definitions. -/
 theorem wrapped_evaluate_prefix (s : Construction) (h : Hash) (pk : PublicKey)
@@ -91,13 +109,10 @@ theorem wrapped_evaluate_prefix (s : Construction) (h : Hash) (pk : PublicKey)
   have bodyBytes : (keyCodec.encode pk ++ body).extract 2144
       (keyCodec.encode pk ++ body).size = body :=
     ByteArray.extract_append_eq_right size.symm ByteArray.size_append
-  change (some (keyCodec.encode pk ++ body)).bind (fun bytes => do
-    let decodedPk ← keyCodec.decode (bytes.extract 0 2144)
-    let decodedSig ← keyCodec.decode (keyCodec.encode sig)
+  rw [wrapped_evaluateBytes_eq, prefixBytes, bodyBytes]
+  exact decode_pair keyCodec pk sig (fun decodedPk decodedSig =>
     if verifies h decodedPk (encodeWord m) decodedSig then
-      s.expand h decodedPk (bytes.extract 2144 bytes.size) m decodedSig
-    else none) = _
-  simp only [Option.bind_eq_bind, Option.bind_some, prefixBytes, bodyBytes, keyCodec.decode_encode]
+      s.expand h decodedPk body m decodedSig else none)
 
 theorem wrapped_garbleBytes_eq (s : Construction) (h : Hash) (coins : Bytes s.randomnessBytes)
     (p : Unit) (keys : Keys) (labels : Fin 256 → Pair) :
@@ -112,7 +127,11 @@ This theorem concerns honest evaluation only; it is independent of the
 unproved pre-release, post-release and adaptive security reductions. -/
 theorem construction_correct : Correct (wrapped construction) := by
   intro h coins p keys labels m
-  rw [wrapped_garbleBytes_eq, challenge_reveal_input, wrapped_evaluate_prefix,
+  change (wrapped construction).evaluateBytes h
+    ((wrapped construction).garbleBytes h coins p keys labels) m
+    (signatureBytes (sign h keys m)) =
+    some (pack ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val]))
+  rw [wrapped_garbleBytes_eq, wrapped_evaluate_prefix,
     if_pos (sign_verifies h keys m)]
   have hcsize : (ByteArray.mk coins.toArray).size = randomnessBytes := coins.size_toArray
   have hc : 32 ≤ (ByteArray.mk coins.toArray).size := by rw [hcsize]; decide

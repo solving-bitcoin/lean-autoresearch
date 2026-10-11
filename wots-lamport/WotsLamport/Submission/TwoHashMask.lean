@@ -46,7 +46,11 @@ theorem fullMaskPad_prefix (answers : Fin 2 → Label) :
   have left := byteBlocks_extract 2 bytes 0
   have right := byteBlocks_extract 2 bytes 1
   rw [block] at left right
-  rw [maskPrefix_bytes, left, right, ByteArray.extract_extract, ByteArray.extract_append_extract] <;> rfl
+  rw [maskPrefix_bytes, left, right, ByteArray.extract_extract]
+  change (ByteArray.mk bytes.toArray).extract 0 48 =
+    (ByteArray.mk bytes.toArray).extract 0 32 ++ (ByteArray.mk bytes.toArray).extract 32 48
+  rw [ByteArray.extract_append_extract]
+  rfl
 
 theorem mask_as_fullMaskPad (h : Hash) (pk nonce : ByteArray) (wire : Nat) (value : Bool)
     (point : Nat) (node : Label) :

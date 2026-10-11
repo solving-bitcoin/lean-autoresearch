@@ -37,35 +37,48 @@ complete imported submission or its security certificate passed.
 | Distinct-label-pair marginal and guessing bounds | LabelGuessing | `d1648af` |
 | Exact joint 32-byte coin-block law and allocated index injection | CoinBlocks, CoefficientIndices | `d0bd1ac` |
 | Visible-coefficient privacy and exact query-domain separation/injectivity | VisibleCoefficientPrivacy, DomainSeparation, DomainInjectivity | `d0bd1ac` |
+| Joint coefficient sampling bias and exact field-table law | JointSampler, FieldTableLaw | `fba813c` |
+| Joint independent-pad masking and preserved visible observations | MaskLaw, MaskedViewLaw | `fba813c` |
+| Executable oracle reification, bounded execution traces and query parsers | OraclePrograms, OracleTrace, QueryTargets | `fba813c` |
+| Fresh-cell programming retaining the full oracle/cache jointly | FreshOracleProgramming | `fba813c` |
+| Uniform flat allocated polynomial table reindexing | PolynomialTableLaw | `807c1cf` |
+| Ciphertext-dependent coefficient/pad transport | AdaptiveMaskedView | `807c1cf` |
+| Complete cached construction equality, including every prepared byte | CachedSharing.cachedConstruction_eq | `807c1cf` |
+| Actual coefficient polynomial correspondence and chain tape | ActualPolynomialTable, ChainTape | `e806ba6` |
+| Nonce independence and restricted oracle-program representation | NonceTableLaw, NonceEnvironmentLaw, RestrictedOracleProgram | `e806ba6` |
 
 ## Current validation attempt
 
-Run 38 (`807c1cf`) checked **56 modules** before stopping at the unchanged
-8 GiB build cap in `Expansion` (peak 9,435,623,424 bytes). It newly checked
-`PolynomialTableLaw`, `AdaptiveMaskedView` and the complete
-`CachedSharing.cachedConstruction_eq` theorem. Three earlier modules had
-ordinary errors: `ActualPolynomialTable`, `HonestQueryBudget` and
-`JointOracleTrace`. Five dependents were blocked; later modules were not
-attempted after the resource failure. Results from completed earlier runs
-remain listed above. No WOTS native test ran.
+Run 39 (`e806ba6`) checked **65 of 81 modules**. Six modules had direct
+errors (`JointOracleTrace`, `CommonOracleDomain`, `Expansion`,
+`UniformGoodFiber`, `HonestQueryBudget`, `TwoHashMask`), and ten dependents
+were blocked. The reference job passed. The earlier 8 GiB memory failure
+in `Expansion` did not recur; its remaining failures were ordinary proof
+elaboration/kernel recursion errors. No WOTS native test ran.
 
-The cached implementation is now selected because its full equality theorem
-has been checked, including every prepared artifact byte for every hash,
-coin string, key and label table. Native timing and byte-for-byte reference
+Newly checked results include `ActualPolynomialTable`, `ChainTape`,
+`NonceTableLaw`, `NonceEnvironmentLaw` and `RestrictedOracleProgram`.
+Run 38 (`807c1cf`) had already checked `PolynomialTableLaw`,
+`AdaptiveMaskedView` and `CachedSharing.cachedConstruction_eq` before
+stopping at the memory cap. These results are supporting lemmas, not a
+completed security reduction.
+
+The cached implementation is selected because its full equality theorem has
+been checked, including every prepared artifact byte for every hash, coin
+string, key and label table. Native timing and byte-for-byte reference
 validation are still pending. This does not certify performance or security.
 
-The next batch replaces large concrete wrapper simplification with an abstract
-wrapper lemma, supplies explicit query-prefix parameters, avoids decidable
-instance search for a generic equality, and uses polynomial congruence without
-expanding the coefficient sum. Chain-table proofs now import only their actual
-oracle-program dependency; every source module remains mandatory.
+The next batch separates wrapper plumbing from the abstract decoder law,
+normalizes query-budget associativity before proof application, and repairs
+set-membership, finite-instance and byte-extraction obligations. These edits
+remain unchecked until the pinned compiler accepts them.
 
-New, unchecked proof attempts cover a common secret-independent finite oracle
-domain, normalization of good programming fibers, the finite chain/key/oracle
-joint law and collision loss, full 64-byte mask randomness, and simultaneous
-joint oracle programming. These do not yet establish the actual prepared
-artifact or the final withholding/adaptive games. No limits or theorem
-statements are weakened. The certificate remains absent.
+This batch explicitly enables the existing optional runtime diagnostic after
+ordinary source errors. It runs inside the **same single 1,800-second author
+check**, with the unchanged memory and per-tool limits, and requires the
+selected optimized construction's complete equality proof first. Source
+failures remain fatal; the diagnostic cannot produce an accepted submission.
+Resource failures still stop immediately. The certificate remains absent.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all
@@ -93,7 +106,7 @@ native tests. No acceptance or resource limit is relaxed.
 Executable machine definitions have been moved unchanged to
 `MachineImplementation`, separate from proof-only imports. Before building an
 optimized executable, `check_runtime_probe.py` explicitly compiles its complete
-equality module. This import refactor awaits rechecking. It does not replace
+equality module. The complete machine and cached equality modules passed after this import refactor. It does not replace
 Lean code with a native implementation, alter the selected candidate or imply
 a timing improvement.
 
@@ -111,9 +124,9 @@ and fiber counts alone are not normalized probability laws. Source declarations 
 | Obligation | Remaining work |
 | --- | --- |
 | Universal honest correctness | Check Expansion through `construction_correct` for the exact protected wrapper |
-| Complete coefficient law | Check independent byte blocks, allocated/padded coefficient tables, raw nonce and two-sided joint sampling-error bounds |
+| Complete coefficient law | Check the remaining raw-nonce/environment and actual-polynomial specializations; the joint block/field law and sampling bound are checked |
 | Joint visible-share privacy | Check the full sampled coefficient-table specialization, including all 16 limbs and all 512 labels |
-| Actual oracle programs | Check reification, measurable winning events and the honest query budget |
+| Actual oracle programs | Complete measurable winning events and the honest query budget; executable reification is checked |
 | ROM reduction | Establish the real/ideal joint laws and bound chain collisions, hidden-node queries, mask/commitment programming and label guessing |
 | Pre-release withholding | Prove `ROM.WithholdingSecure` against every bounded-query program |
 | Static post-release security | Prove `ROM.ReleaseSecure` with the selected labels supplied for free |

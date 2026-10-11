@@ -9,6 +9,7 @@ theorem uniform_set_mass {X : Type} [Fintype X] [MeasurableSpace X]
   classical
   rw [uniformOn_univ, Measure.count_apply MeasurableSet.of_discrete,
     Set.encard, ENat.card_eq_coe_fintype_card, Nat.card_eq_fintype_card]
+  simp
 
 /-- Counting a joint programming map on its good samples gives equality of
 restricted laws, provided the fiber count and sample-space ratio are proved.
@@ -41,7 +42,9 @@ theorem uniform_good_fiber_law {X Y : Type} [Fintype X] [Fintype Y]
       · exact And.left
       · rintro rfl
         exact ⟨rfl,hy⟩
-    rw [hout, uniform_set_mass, fibers y hy, ratio, Nat.cast_mul,
+    rw [hout, uniform_set_mass]
+    have fiber : Nat.card ↥{x : X | x ∈ goodX ∧ f x = y} = k := fibers y hy
+    rw [fiber, ratio, Nat.cast_mul,
       uniformOn_univ, Measure.count_singleton]
     simpa only [mul_one] using ENNReal.mul_div_mul_left 1 (Fintype.card Y : ENNReal)
       (c := (k : ENNReal)) (by exact_mod_cast hk) (by simp)
@@ -87,10 +90,10 @@ theorem good_law_event_bounds {X Y : Type} [MeasurableSpace X] [MeasurableSpace 
   · calc
       μ (f ⁻¹' event) ≤ μ (f ⁻¹' event ∩ goodX) + μ goodXᶜ := splitBound μ _ _
       _ = ν (event ∩ goodY) + μ goodXᶜ := by rw [good]
-      _ ≤ ν event + μ goodXᶜ := add_le_add_right (measure_mono Set.inter_subset_left) _
+      _ ≤ ν event + μ goodXᶜ := add_le_add (measure_mono Set.inter_subset_left) le_rfl
   · calc
       ν event ≤ ν (event ∩ goodY) + ν goodYᶜ := splitBound ν _ _
       _ = μ (f ⁻¹' event ∩ goodX) + μ goodXᶜ := by rw [← good, ← sameBad]
-      _ ≤ μ (f ⁻¹' event) + μ goodXᶜ := add_le_add_right (measure_mono Set.inter_subset_left) _
+      _ ≤ μ (f ⁻¹' event) + μ goodXᶜ := add_le_add (measure_mono Set.inter_subset_left) le_rfl
 
 end WotsLamport.Submission
