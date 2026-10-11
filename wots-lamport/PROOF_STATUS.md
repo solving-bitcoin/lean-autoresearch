@@ -40,21 +40,32 @@ complete imported submission or its security certificate passed.
 
 ## Current validation attempt
 
-Run 37 (`fba813c`) returned complete source diagnostics within the existing
-cap: **57 compiled modules, eight direct failures and 11 blocked modules**.
-Newly checked modules include CoefficientTableLaw, JointSampler, FieldTableLaw,
-MaskLaw, MaskedViewLaw, OraclePrograms, OracleTrace, QueryTargets and
-FreshOracleProgramming. This checks the joint coefficient bias bound and
-actual program reification, but not the full joint security reduction.
-CachedImplementation definitions also compiled; CachedSharing equality did not.
-No native WOTS test ran because sources failed.
+Run 38 (`807c1cf`) checked **56 modules** before stopping at the unchanged
+8 GiB build cap in `Expansion` (peak 9,435,623,424 bytes). It newly checked
+`PolynomialTableLaw`, `AdaptiveMaskedView` and the complete
+`CachedSharing.cachedConstruction_eq` theorem. Three earlier modules had
+ordinary errors: `ActualPolynomialTable`, `HonestQueryBudget` and
+`JointOracleTrace`. Five dependents were blocked; later modules were not
+attempted after the resource failure. Results from completed earlier runs
+remain listed above. No WOTS native test ran.
 
-The next batch repairs explicit tuple projections, finite cardinalities,
-classical event equality, pointwise measure order, finite-index normalization,
-cached vector lookup, query-accounting monadic maps and byte-array equality.
-The wrapper correctness proof now simplifies named projections before its
-concrete goal. These repairs are not yet compiler checked. No theorem statement
-or resource limit is weakened; the original candidate remains selected.
+The cached implementation is now selected because its full equality theorem
+has been checked, including every prepared artifact byte for every hash,
+coin string, key and label table. Native timing and byte-for-byte reference
+validation are still pending. This does not certify performance or security.
+
+The next batch replaces large concrete wrapper simplification with an abstract
+wrapper lemma, supplies explicit query-prefix parameters, avoids decidable
+instance search for a generic equality, and uses polynomial congruence without
+expanding the coefficient sum. Chain-table proofs now import only their actual
+oracle-program dependency; every source module remains mandatory.
+
+New, unchecked proof attempts cover a common secret-independent finite oracle
+domain, normalization of good programming fibers, the finite chain/key/oracle
+joint law and collision loss, full 64-byte mask randomness, and simultaneous
+joint oracle programming. These do not yet establish the actual prepared
+artifact or the final withholding/adaptive games. No limits or theorem
+statements are weakened. The certificate remains absent.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all
@@ -69,7 +80,7 @@ building the diagnostic executable. Its bounded timeout output retained only
 the last 8 KB, losing the earlier direct source diagnostics. The run provides
 no machine runtime or artifact-correspondence result. Run 34 had built the
 original executable and established a `garble` timeout at 60.005 seconds,
-with no side-output overflow. The original candidate remains selected.
+with no side-output overflow. The cached candidate is selected following the checked equality in run 38.
 
 The follow-up persists each source result and prints that diagnostic record
 even after an outer timeout. Failure-injection tests verify that diagnostics
@@ -92,9 +103,8 @@ sampling, actual oracle programs, query traces, domain separation, ideal chain
 collisions/partitions/programming, and ciphertext-preserving adaptive views.
 The actual joint real/ideal reduction remains open. `FreshOracleProgramming`
 attempts a fresh-cell joint law retaining the whole oracle and fixed cache;
-`OracleOverlay` attempts joint key/oracle programming fiber counts. Both local
-drafts are unchecked, and fiber counts alone are not normalized probability
-laws. Source declarations in blocked modules do not count as checked results.
+`OracleOverlay` attempts joint key/oracle programming fiber counts. The fresh-cell law passed run 37; the overlay fibers remain unchecked,
+and fiber counts alone are not normalized probability laws. Source declarations in blocked modules do not count as checked results.
 
 ## Obligations still open
 

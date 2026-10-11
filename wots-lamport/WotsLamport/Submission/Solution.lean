@@ -1,3 +1,8 @@
+import WotsLamport.Submission.UniformOverlay
+import WotsLamport.Submission.TwoHashMask
+import WotsLamport.Submission.FiniteChainLaw
+import WotsLamport.Submission.CommonOracleDomain
+import WotsLamport.Submission.UniformGoodFiber
 import WotsLamport.Submission.ChainTape
 import WotsLamport.Submission.CachedSharing
 import WotsLamport.Submission.ChainCollisionLaw
@@ -50,7 +55,7 @@ namespace WotsLamport.Submission
 open WotsLamport.Protected
 
 /-- Research candidate only. No certificate, score or security theorem. -/
-def submission : Option Entry := some ⟨construction, artifactBytes, none⟩
+def submission : Option Entry := some ⟨cachedConstruction, artifactBytes, none⟩
 def entry : Option (SecretRelease.Candidate challenge) := submission.map Entry.candidate
 
 end WotsLamport.Submission

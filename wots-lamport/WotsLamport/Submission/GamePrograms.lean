@@ -26,14 +26,14 @@ theorem run_releaseViewProgram (m : Message) (ω : ROM.Sample (wrapped construct
     ROM.run (ROM.hash ω.2.2.2)
       (releaseViewProgram (ByteArray.mk ω.2.2.1.toArray) ω.1 ω.2.1 m) =
       ROM.view (wrapped construction) () m ω := by
-  simp only [releaseViewProgram, run_bind, run_pure, run_wrappedPrepareProgram, run_signProgram]
+  simp only [releaseViewProgram, run_bind, run_map, run_pure, run_wrappedPrepareProgram, run_signProgram]
   rfl
 
 theorem run_preReleaseViewProgram (m : Message) (ω : ROM.Sample (wrapped construction)) :
     ROM.run (ROM.hash ω.2.2.2)
       (preReleaseViewProgram (ByteArray.mk ω.2.2.1.toArray) ω.1 ω.2.1 m) =
       ROM.preReleaseView (wrapped construction) () m ω := by
-  simp only [preReleaseViewProgram, run_bind, run_pure, run_wrappedPrepareProgram]
+  simp only [preReleaseViewProgram, run_bind, run_map, run_pure, run_wrappedPrepareProgram]
   rfl
 
 def releaseGameProgram (m : Message) (a : View challenge → Program challenge.Claim)
@@ -60,7 +60,7 @@ theorem releaseGame_success (m : Message) (a : View challenge → Program challe
     (ω : ROM.Sample (wrapped construction)) :
     ROM.run (ROM.hash ω.2.2.2) (releaseGameProgram m a (ω.1, ω.2.1, ω.2.2.1)) = true ↔
       ω ∈ ROM.winEvent (wrapped construction) () m a := by
-  simp only [releaseGameProgram, run_bind, run_pure, run_releaseViewProgram, decide_eq_true_eq]
+  simp only [releaseGameProgram, run_bind, run_map, run_pure, run_releaseViewProgram, decide_eq_true_eq]
   rfl
 
 theorem withholdingGame_success (m : Message)
@@ -69,13 +69,13 @@ theorem withholdingGame_success (m : Message)
       ω ∈ ROM.preReleaseEvent (wrapped construction)
         (fun _ _ _ _ labels claim => claim.2 = (labels claim.1).get false ∨
           claim.2 = (labels claim.1).get true) () m a := by
-  simp only [withholdingGameProgram, run_bind, run_pure, run_preReleaseViewProgram, decide_eq_true_eq]
+  simp only [withholdingGameProgram, run_bind, run_map, run_pure, run_preReleaseViewProgram, decide_eq_true_eq]
   rfl
 
 theorem adaptiveGame_success (a : AdaptiveAdversary) (ω : ROM.Sample (wrapped construction)) :
     ROM.run (ROM.hash ω.2.2.2) (adaptiveGameProgram a (ω.1, ω.2.1, ω.2.2.1)) = true ↔
       ω ∈ adaptiveEvent (wrapped construction) a := by
-  simp only [adaptiveGameProgram, run_bind, run_pure, run_wrappedPrepareProgram,
+  simp only [adaptiveGameProgram, run_bind, run_map, run_pure, run_wrappedPrepareProgram,
     run_signProgram, decide_eq_true_eq]
   rfl
 
@@ -115,41 +115,54 @@ theorem measurable_adaptive_event (a : AdaptiveAdversary) :
 
 theorem releaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
     (m : Message) : IsTotalQueryBound (releaseViewProgram coins keys labels m) honestReleaseQueries := by
-  exact isTotalQueryBound_bind (wrappedPrepareProgram_query_bound coins keys labels)
-    (fun artifact => isTotalQueryBound_bind (signProgram_query_bound keys m)
-      (fun signature => pure_query_bound ⟨m, artifact, signatureBytes signature, selectedOutputBytes labels m⟩ 0))
+  simp only [releaseViewProgram, preReleaseViewProgram, map_eq_bind_pure_comp, Function.comp_def]
+  exact isTotalQueryBound_bind (oa := wrappedPrepareProgram coins keys labels)
+    (wrappedPrepareProgram_query_bound coins keys labels)
+    (fun artifact => isTotalQueryBound_bind (oa := signProgram keys m) (signProgram_query_bound keys m)
+      (fun signature => pure_query_bound (⟨m, artifact, signatureBytes signature, selectedOutputBytes labels m⟩ : View challenge) 0))
 
 theorem preReleaseViewProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
     (m : Message) : IsTotalQueryBound (preReleaseViewProgram coins keys labels m) honestSetupQueries := by
-  exact isTotalQueryBound_bind (wrappedPrepareProgram_query_bound coins keys labels)
-    (fun artifact => pure_query_bound ⟨m, artifact⟩ 0)
+  simp only [releaseViewProgram, preReleaseViewProgram, map_eq_bind_pure_comp, Function.comp_def]
+  exact isTotalQueryBound_bind (oa := wrappedPrepareProgram coins keys labels)
+    (wrappedPrepareProgram_query_bound coins keys labels)
+    (fun artifact => pure_query_bound (⟨m, artifact⟩ : PreReleaseView challenge) 0)
 
 theorem withholdingGameProgram_query_bound (m : Message)
     (a : PreReleaseView challenge → Program challenge.Claim)
     (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
     IsTotalQueryBound (withholdingGameProgram m a initial) (honestSetupQueries+q) := by
-  exact isTotalQueryBound_bind (preReleaseViewProgram_query_bound _ _ _ m)
+  simp only [withholdingGameProgram, map_eq_bind_pure_comp, Function.comp_def]
+  exact isTotalQueryBound_bind
+    (oa := preReleaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
+    (preReleaseViewProgram_query_bound _ _ _ m)
     (fun view => isTotalQueryBound_bind (bound view) (fun claim => pure_query_bound _ 0))
 
 theorem releaseGameProgram_query_bound (m : Message) (a : View challenge → Program challenge.Claim)
     (q : Nat) (bound : ROM.Bounded a q) (initial : InitialData) :
     IsTotalQueryBound (releaseGameProgram m a initial) (honestReleaseQueries+q) := by
-  exact isTotalQueryBound_bind (releaseViewProgram_query_bound _ _ _ m)
+  simp only [releaseGameProgram, map_eq_bind_pure_comp, Function.comp_def]
+  exact isTotalQueryBound_bind
+    (oa := releaseViewProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1 m)
+    (releaseViewProgram_query_bound _ _ _ m)
     (fun view => isTotalQueryBound_bind (bound view) (fun claim => pure_query_bound _ 0))
 
 theorem adaptiveGameProgram_query_bound (a : AdaptiveAdversary) (q₁ q₂ : Nat)
     (chooseBound : ROM.Bounded a.choose q₁)
     (finishBound : ∀ state, ROM.Bounded (a.finish state) q₂) (initial : InitialData) :
     IsTotalQueryBound (adaptiveGameProgram a initial) (honestReleaseQueries+q₁+q₂) := by
-  have h := isTotalQueryBound_bind (wrappedPrepareProgram_query_bound
+  have h := isTotalQueryBound_bind
+    (oa := wrappedPrepareProgram (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
+    (wrappedPrepareProgram_query_bound
       (ByteArray.mk initial.2.2.toArray) initial.1 initial.2.1)
     (fun artifact => isTotalQueryBound_bind (chooseBound artifact)
-      (fun selected => isTotalQueryBound_bind (signProgram_query_bound initial.1 selected.1)
+      (fun selected => isTotalQueryBound_bind (oa := signProgram initial.1 selected.1)
+        (signProgram_query_bound initial.1 selected.1)
         (fun signature => isTotalQueryBound_bind (finishBound selected.2
           ⟨selected.1, artifact, signatureBytes signature, selectedOutputBytes initial.2.1 selected.1⟩)
           (fun claim => pure_query_bound
             (decide (claim.2 = (initial.2.1 claim.1).get (!(outputCodec.encode selected.1)[claim.1.val]))) 0))))
-  simpa only [adaptiveGameProgram, honestReleaseQueries, Nat.add_zero,
+  simpa only [adaptiveGameProgram, map_eq_bind_pure_comp, Function.comp_def, honestReleaseQueries, Nat.add_zero,
     Nat.add_assoc, Nat.add_left_comm, Nat.add_comm] using h
 
 end WotsLamport.Submission

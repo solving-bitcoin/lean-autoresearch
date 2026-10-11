@@ -91,6 +91,7 @@ theorem labelTableProgram_query_bound (coins pk nonce : ByteArray) (keys : Keys)
     have hk := slots_chain_depth i value entry.1
       (List.fst_mem_of_mem_zipIdx he)
     rcases entry with ⟨⟨j,k⟩,index⟩
+    simp only [row, map_eq_bind_pure_comp, Function.comp_def]
     exact isTotalQueryBound_bind ((chainProgram_query_bound k (keys j)).mono hk)
       (fun node => isTotalQueryBound_bind (maskProgram_query_bound pk nonce i.val value (index+1) node)
         (fun pad => pure_query_bound _ 0))
@@ -105,7 +106,8 @@ theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : F
     IsTotalQueryBound (prepareProgram coins keys labels)
       (67*15 + 256*2 + 256*(2*1984*16)) := by
   simp only [prepareProgram, map_eq_bind_pure_comp, Function.comp_def]
-  refine isTotalQueryBound_bind (publicKeyProgram_query_bound keys) ?_
+  refine isTotalQueryBound_bind (oa := publicKeyProgram keys)
+    (n₁ := 67*15) (n₂ := 256*2 + 256*(2*1984*16)) (publicKeyProgram_query_bound keys) ?_
   intro publicKeyValue
   refine isTotalQueryBound_bind (n₁ := 256*2) (n₂ := 256*(2*1984*16)+0) ?_ ?_
   · let f : Fin 256 → Program ByteArray := fun i => do
@@ -116,6 +118,7 @@ theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : F
       pure (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray)
     have h := listMapM_query_bound (List.finRange 256) f 2 (by
       intro i _
+      simp only [f, map_eq_bind_pure_comp, Function.comp_def]
       exact isTotalQueryBound_bind (one_query_bound _)
         (fun left => isTotalQueryBound_bind (one_query_bound _)
           (fun right => pure_query_bound (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray) 0)))
@@ -130,6 +133,7 @@ theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : F
         pure (left ++ right)
       have h := listMapM_query_bound (List.finRange 256) f (2*1984*16) (by
         intro i _
+        simp only [f, map_eq_bind_pure_comp, Function.comp_def]
         exact isTotalQueryBound_bind (labelTableProgram_query_bound _ _ _ keys i false _)
           (fun left => isTotalQueryBound_bind (labelTableProgram_query_bound _ _ _ keys i true _)
             (fun right => pure_query_bound (left ++ right) 0)))
@@ -143,8 +147,11 @@ def honestReleaseQueries : Nat := honestSetupQueries + 67*15
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
   simp only [wrappedPrepareProgram, map_eq_bind_pure_comp, Function.comp_def]
-  exact isTotalQueryBound_bind (publicKeyProgram_query_bound keys) (fun publicKeyValue =>
-    isTotalQueryBound_bind (prepareProgram_query_bound coins keys labels)
+  exact isTotalQueryBound_bind (oa := publicKeyProgram keys)
+    (n₁ := 67*15) (n₂ := 67*15 + 256*2 + 256*(2*1984*16))
+    (publicKeyProgram_query_bound keys) (fun publicKeyValue =>
+    isTotalQueryBound_bind (oa := prepareProgram coins keys labels)
+      (prepareProgram_query_bound coins keys labels)
       (fun body => pure_query_bound (keyCodec.encode publicKeyValue ++ body) 0))
 
 /-- This counts the reified executable's chain, mask and commitment queries,

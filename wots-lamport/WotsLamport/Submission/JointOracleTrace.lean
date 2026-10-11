@@ -12,7 +12,7 @@ theorem event_transfer_of_coupling {Ω A : Type} [MeasurableSpace Ω]
   classical
   have hs : real ⁻¹' event ⊆ (ideal ⁻¹' event) ∪ {ω | real ω ≠ ideal ω} := by
     intro ω hω
-    by_cases he : real ω = ideal ω
+    rcases Classical.em (real ω = ideal ω) with he | he
     · exact Or.inl (he ▸ hω)
     · exact Or.inr he
   exact (measure_mono hs).trans (measure_union_le _ _)

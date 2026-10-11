@@ -18,7 +18,7 @@ theorem actual_polynomial_table (coins : Bytes randomnessBytes) (labels : Fin 25
       (Shamir.coefficientPrefix (nonconstant_count_bound slot.2.1)
         (polynomialTableEquiv (actualFieldTable coins) slot)) := by
   rw [actual_polynomial_as_coefficients]
-  congr 1
+  refine congrArg (Shamir.coefficientPolynomial (labelLimb labels slot) (k := threshold slot.2.1-1)) ?_
   funext degree
   rw [polynomial_coefficient_block coins ((labels slot.1).get slot.2.1)
     slot.1 slot.2.2 slot.2.1 degree]

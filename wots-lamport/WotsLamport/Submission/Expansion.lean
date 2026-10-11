@@ -79,34 +79,43 @@ theorem expand_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   simpa only [List.map_map, Function.comp_def] using
     concatenate_labels ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val])
 
-set_option maxRecDepth 4096 in
+/-- Simplify the wrapper with an abstract body and construction, before
+substituting any large executable table definitions. -/
+theorem wrapped_evaluate_prefix (s : Construction) (h : Hash) (pk : PublicKey)
+    (body : ByteArray) (m : Message) (sig : Signature) :
+    (wrapped s).evaluateBytes h (keyCodec.encode pk ++ body) m (signatureBytes sig) =
+      if verifies h pk (encodeWord m) sig then s.expand h pk body m sig else none := by
+  have size : (keyCodec.encode pk).size = 2144 := keyCodec_size pk
+  have prefixBytes : (keyCodec.encode pk ++ body).extract 0 2144 = keyCodec.encode pk :=
+    ByteArray.extract_append_eq_left size.symm
+  have bodyBytes : (keyCodec.encode pk ++ body).extract 2144
+      (keyCodec.encode pk ++ body).size = body :=
+    ByteArray.extract_append_eq_right size.symm ByteArray.size_append
+  change (some (keyCodec.encode pk ++ body)).bind (fun bytes => do
+    let decodedPk ← keyCodec.decode (bytes.extract 0 2144)
+    let decodedSig ← keyCodec.decode (keyCodec.encode sig)
+    if verifies h decodedPk (encodeWord m) decodedSig then
+      s.expand h decodedPk (bytes.extract 2144 bytes.size) m decodedSig
+    else none) = _
+  simp only [Option.bind_eq_bind, Option.bind_some, prefixBytes, bodyBytes, keyCodec.decode_encode]
+
+theorem wrapped_garbleBytes_eq (s : Construction) (h : Hash) (coins : Bytes s.randomnessBytes)
+    (p : Unit) (keys : Keys) (labels : Fin 256 → Pair) :
+    (wrapped s).garbleBytes h coins p keys labels =
+      keyCodec.encode (publicKey h keys) ++ s.prepare h (ByteArray.mk coins.toArray) keys labels := rfl
+
+theorem challenge_reveal_input (h : Hash) (keys : Keys) (m : Message) :
+    challenge.inputs.reveal h keys m = signatureBytes (sign h keys m) := rfl
+
 /-- Exact correctness of the protected, public-key-prefixed construction.
 This theorem concerns honest evaluation only; it is independent of the
 unproved pre-release, post-release and adaptive security reductions. -/
 theorem construction_correct : Correct (wrapped construction) := by
   intro h coins p keys labels m
-  change Fin 256 → Pair at labels
-  let body := prepare h (ByteArray.mk coins.toArray) keys labels
-  let pkbytes := keyCodec.encode (publicKey h keys)
-  have hp : pkbytes.size = 2144 := keyCodec_size (publicKey h keys)
-  have hprefix : (pkbytes ++ body).extract 0 2144 = pkbytes :=
-    ByteArray.extract_append_eq_left hp.symm
-  have hbody : (pkbytes ++ body).extract 2144 (pkbytes ++ body).size = body := by
-    exact ByteArray.extract_append_eq_right hp.symm ByteArray.size_append
+  rw [wrapped_garbleBytes_eq, challenge_reveal_input, wrapped_evaluate_prefix,
+    if_pos (sign_verifies h keys m)]
   have hcsize : (ByteArray.mk coins.toArray).size = randomnessBytes := coins.size_toArray
   have hc : 32 ≤ (ByteArray.mk coins.toArray).size := by rw [hcsize]; decide
-  simp only [Scheme.evaluateBytes, Scheme.garbleBytes, wrapped, construction,
-    challenge, wotsDisclosure, signatureBytes, Lamport, id_eq,
-    Option.bind_eq_bind, Option.bind_some]
-  change (do
-    let pk ← keyCodec.decode ((pkbytes ++ body).extract 0 2144)
-    let sig ← keyCodec.decode (keyCodec.encode (sign h keys m))
-    if verifies h pk (encodeWord m) sig then
-      expand h pk ((pkbytes ++ body).extract 2144 (pkbytes ++ body).size) m sig
-    else none) =
-      some (pack ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val]))
-  simp only [hprefix, pkbytes, keyCodec.decode_encode, Option.bind_eq_bind, Option.bind_some, Option.map_eq_map, Option.map_some, Option.pure_def]
-  rw [if_pos (sign_verifies h keys m), hbody]
   exact expand_prepared h (ByteArray.mk coins.toArray) keys labels hc m
 
 end WotsLamport.Submission

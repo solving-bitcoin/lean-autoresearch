@@ -1,4 +1,4 @@
-import WotsLamport.Submission.HonestQueryBudget
+import WotsLamport.Submission.OraclePrograms
 
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected

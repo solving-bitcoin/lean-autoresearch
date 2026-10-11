@@ -42,7 +42,8 @@ theorem cachedPrepare_eq (h : Hash) (coins : ByteArray) (keys : Keys)
   simp only [cachedPrepare, machinePrepare, cachedLabelTable_eq]
 
 /-- Full extensional equality, including every prepared artifact byte.
-This candidate remains unused pending compilation and performance evidence. -/
+Checked before selecting this implementation; native performance remains a
+separate validation requirement. -/
 theorem cachedConstruction_eq : cachedConstruction = construction := by
   have hp : cachedPrepare = prepare := by funext h coins keys labels; exact cachedPrepare_eq h coins keys labels
   unfold cachedConstruction construction
