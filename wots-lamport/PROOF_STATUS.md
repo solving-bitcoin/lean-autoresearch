@@ -57,27 +57,29 @@ complete imported submission or its security certificate passed.
 | Exact oracle overlay and inverse fibers | OracleOverlay | `0ab64e1` |
 | Joint uniform overlay law, selected-label trace guessing, and finite chain programming law | UniformOverlay, SelectedLabelTrace, FiniteChainLaw | `e533a8f` |
 | Actual mask and commitment programming reads and chain consistency | ArtifactProgramming | `3915686` |
+| Selected-label trace coupling, finite artifact/chain joint programming, and full answer coordinates | SelectedTraceCoupling, FiniteArtifactLaw, IdealArtifact, CombinedProgrammingLaw, ArtifactAnswerCoordinates | `fd186f4` |
 
 ## Current validation attempt
 
-Run 49 (`3915686`) checked **93 of 120 modules**. Five modules had direct
-errors (`HonestQueryBudget`, `SelectedTraceCoupling`, `FiniteArtifactLaw`,
-`IdealArtifact`, `ProgrammedQueryTrace`); 22 dependents were blocked.
-`ArtifactProgramming` now passes. Universal correctness, the artifact bound
-and optimized implementation equality remain checked. Full withholding and
-adaptive security reductions remain unchecked.
+Run 50 (`fd186f4`) checked **98 of 120 modules**. Four modules had direct
+errors (`HonestQueryBudget`, `ProgrammedQueryTrace`, `FieldPlaintext`,
+`CiphertextArtifact`); 18 dependents were blocked. Newly checked modules are
+`SelectedTraceCoupling`, `FiniteArtifactLaw`, `IdealArtifact`,
+`CombinedProgrammingLaw` and `ArtifactAnswerCoordinates`. Universal correctness,
+the artifact bound and optimized implementation equality remain checked.
+Full withholding/adaptive security reductions remain unchecked.
 
 **Generated lane SDK integration and independent complete reference-artifact /
-later-message correspondence passed again.** The SDK suite took 52.97 seconds
-in total, with its unchanged 60-second per-tool limit. Independent correspondence
-took 99.68 seconds. Generated expansions took **8.294349468**, **10.117486177**
-and **8.322558484 seconds**. The exact artifact was **48,752,768 bytes**, with
+later-message correspondence passed again.** The SDK suite took 52.90 seconds
+in total with the unchanged 60-second per-tool limit. Independent correspondence
+took 97.46 seconds. Generated expansions took **8.240818731**, **9.320599197**
+and **8.336925678 seconds**. The exact artifact was **48,752,768 bytes**, with
 8,192 released bytes. These diagnostics do not provide security certification.
 
-Compiler peak RSS was **3,421,114,368 bytes**; SDK native peak RSS was
-**884,457,472 bytes**; independent correspondence peak RSS was
-**786,014,208 bytes**. The runtime probe finished at 904.765 seconds. The separate
-Rust reference test passed in 39.29 seconds with 320,258,048 bytes peak RSS.
+Compiler peak RSS was **3,421,118,464 bytes**; SDK native peak RSS was
+**880,812,032 bytes**; independent correspondence peak RSS was
+**883,326,976 bytes**. The runtime probe finished at 892.653 seconds. The separate
+Rust reference test passed in 39.34 seconds with 320,139,264 bytes peak RSS.
 All resource limits are unchanged.
 
 Run 47 (`0ab64e1`) remains the first completed generated-tool correspondence
@@ -86,13 +88,13 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs expose event membership before rewriting, transport
-dependent chain indices via subtype equality, and normalize ENNReal division
-before arithmetic. For query-budget composition, both concrete programs are
-first abstracted in the goal, then their bounds are supplied after rewriting
-back individually. Direct application after unfolding alone still timed out.
-These new repairs remain compiler-unchecked. No security statement, sampler,
-executable construction, resource cap or acceptance gate was weakened.
+The latest local repairs normalize the byte-label cardinality, unfold local
+field/position definitions and close a finite-index cast equality. The wrapper
+query bound now composes its prepared-program bound with the abstract bind
+argument already used in the earlier theorem, avoiding the concrete theorem
+application that still timed out. These repairs remain compiler-unchecked.
+No security statement, sampler, executable construction, resource cap or
+acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

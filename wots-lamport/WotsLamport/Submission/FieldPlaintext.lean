@@ -42,6 +42,7 @@ theorem idealPlaintext_as_fields (coins : Bytes randomnessBytes) (labels : Fin 2
   simp only [List.getElem_map, List.getElem_range, List.getElem_finRange]
   rw [evaluatePolynomial_eq_val,
     actual_polynomial_table coins labels (position.val.1,position.val.2.1,⟨limb,hl⟩)]
+  rfl
 
 def sharePositionVisible (m : Message) (position : SharePosition) : Prop :=
   encodeWord m (sharePositionEntry position).1 ≤ (sharePositionEntry position).2
@@ -61,7 +62,7 @@ theorem sharePosition_visible_coordinate (m : Message) (position : SharePosition
   have member : (sharePositionEntry position,position.val.2.2.val) ∈
       visibleSlots m position.val.1 position.val.2.1 := by
     apply List.mem_filter.mpr
-    exact ⟨indexed, by simpa only [decide_eq_true_eq] using visible⟩
+    exact ⟨indexed, by simpa only [decide_eq_true_eq, sharePositionVisible] using visible⟩
   unfold visibleCoordinates
   apply List.mem_toFinset.mpr
   exact List.mem_map.mpr ⟨position.val.2.2.val+1,
@@ -83,6 +84,7 @@ theorem fieldPlaintext_visible_transport (m : Message) (a b : Fin 256 → Pair)
   apply congrArg concatenate
   apply List.map_congr_left
   intro limb _
+  dsimp only
   rw [visibleCoefficientEquiv_eval m a b selected c
     (position.val.1,position.val.2.1,limb) _ (sharePosition_visible_coordinate m position visible)]
 

@@ -74,8 +74,8 @@ theorem uniform_setup_target_mass (index : SetupTarget) (label : Label) :
     rw [uniform_product, Measure.prod_prod, measure_univ, mul_one,
       uniform_coordinate_mass]
     rw [bytes_card]
-    simpa only [one_div] using
-      (show (1 : ENNReal)/2^256 ≤ (2 : ENNReal)/2^256 from by gcongr <;> norm_num)
+    convert (show (1 : ENNReal)/2^256 ≤ (2 : ENNReal)/2^256 from by gcongr <;> norm_num)
+      using 1 <;> norm_num
   | inr cell =>
     have event_eq : {sample : HiddenSetup | setupTarget (Sum.inr cell) sample = label} =
         (Set.univ : Set HiddenChainTape) ×ˢ

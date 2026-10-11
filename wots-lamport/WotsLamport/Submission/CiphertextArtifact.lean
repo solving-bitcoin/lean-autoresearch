@@ -42,7 +42,7 @@ theorem idealLabelTable_ciphertext (coins : ByteArray) (labels : Fin 256 → Pai
     (indexedAnswerMask answers i value entry.2) = _
   simp only [indexedAnswerMask, dif_pos bound]
   rw [← artifactCiphertextCoordinates_row coins labels answers position]
-  simp only [indexedCiphertextPrefix, dif_pos bound]
+  simp only [indexedCiphertextPrefix, dif_pos bound, position]
 
 /-- Exact full-body independence in ciphertext coordinates, retaining every
 commitment and every serialized share in its original position. -/
