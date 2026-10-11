@@ -32,7 +32,8 @@ theorem conditionedMaskedView_transport {C I K : Type} {n : Nat}
   refine Prod.ext rfl (Prod.ext (observed _ _) ?_)
   funext i
   change (if visible sample.1 i then
-      some (xorVector (sample.1 i) (b sample.1 (e sample.1 sample.2) i)) else none) = _
+      some (xorVector (sample.1 i) (b sample.1 (e sample.1 sample.2) i)) else none) =
+    (if visible sample.1 i then some (xorVector (sample.1 i) (a sample.1 sample.2 i)) else none)
   by_cases hv : visible sample.1 i = true
   · simp only [if_pos hv, visibleEqual _ _ i hv]
   · simp only [if_neg hv]

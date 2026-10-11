@@ -16,7 +16,7 @@ theorem event_bound_of_agree_on_good {Ω : Type} [MeasurableSpace Ω]
 
 /-- Pointwise comparison of conditional output events integrates to the full
 joint event without assuming that the event factors into independent pieces. -/
-theorem product_event_bound {T A B : Type}
+theorem product_event_bound {T A B : Type} [Finite T] [Finite A] [Finite B]
     [MeasurableSpace T] [MeasurableSpace A] [MeasurableSpace B]
     [DiscreteMeasurableSpace T] [DiscreteMeasurableSpace A] [DiscreteMeasurableSpace B]
     (μ : Measure T) (ν : Measure A) (ρ : Measure B)
@@ -26,11 +26,12 @@ theorem product_event_bound {T A B : Type}
     (μ.prod ν) a ≤ (μ.prod ρ) b + loss := by
   rw [Measure.prod_apply MeasurableSet.of_discrete,
     Measure.prod_apply MeasurableSet.of_discrete]
+  change (∫⁻ t, ν {x | (t,x) ∈ a} ∂μ) ≤ (∫⁻ t, ρ {y | (t,y) ∈ b} ∂μ) + loss
   calc
     _ ≤ ∫⁻ t, ρ {y | (t,y) ∈ b} + loss ∂μ := lintegral_mono bound
     _ = _ := by rw [lintegral_add_left Measurable.of_discrete]; simp
 
-theorem product_event_constant_bound {T A : Type}
+theorem product_event_constant_bound {T A : Type} [Finite T] [Finite A]
     [MeasurableSpace T] [MeasurableSpace A]
     [DiscreteMeasurableSpace T] [DiscreteMeasurableSpace A]
     (μ : Measure T) (ν : Measure A) [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]

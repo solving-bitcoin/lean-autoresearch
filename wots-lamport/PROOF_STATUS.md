@@ -47,40 +47,40 @@ complete imported submission or its security certificate passed.
 | Actual coefficient polynomial correspondence and chain tape | ActualPolynomialTable, ChainTape | `e806ba6` |
 | Nonce independence and restricted oracle-program representation | NonceTableLaw, NonceEnvironmentLaw, RestrictedOracleProgram | `e806ba6` |
 | Joint execution coupling, normalized good fibers and exact two-answer mask representation | JointOracleTrace, UniformGoodFiber, TwoHashMask | `05cd4d5` |
+| Complete protected honest correctness and actual artifact-address injection | Expansion.construction_correct, ArtifactAddresses | `f0b2e08` |
+| Common finite oracle domain, visible coefficient transport and sixteen-limb Horner projection | CommonOracleDomain, VisibleCoefficientTransport, LaneImplementation, LaneHorner | `f0b2e08` |
 
 ## Current validation attempt
 
-Run 40 (`05cd4d5`) checked **68 of 81 modules**. Four modules had direct
-errors (`MultiTargetTrace`, `CommonOracleDomain`, `Expansion`,
-`HonestQueryBudget`), and nine dependents were blocked. Newly accepted modules
-were `JointOracleTrace`, `UniformGoodFiber` and `TwoHashMask`. The final wrapper
-correctness theorem still failed during type normalization; the universal
-expansion theorem is not claimed as an accepted module. The reference job
-passed.
+Run 41 (`f0b2e08`) checked **74 of 104 modules**. Seven modules had direct
+errors and 23 dependents were blocked. Newly accepted modules include
+`ArtifactAddresses`, `CommonOracleDomain`, `Expansion`,
+`VisibleCoefficientTransport`, `LaneImplementation` and `LaneHorner`.
+In particular, **`Expansion.construction_correct` now proves exact honest
+correctness of the protected public-key-prefixed construction for every
+hash, coin vector, fixed distinct-pair label table and 32-byte message.**
+This is correctness, not a security certificate or native performance result.
+The reference job passed.
 
-The cached executable **built successfully**, after its complete equality
-proof compiled, and reached the standard SDK integration test. `garble`
-**timed out at 60.000052718 seconds**, with zero stdout/stderr side output.
-The test process reported 64.41 seconds including its other checks. Full
-artifact correspondence and later-message native tests did not run. The
-selected cached implementation therefore fails the current runtime requirement.
+The complete lane equality failed on a renamed list lemma, so the proof gate
+correctly **skipped the lane runtime diagnostic**. No lane timing is reported.
+The last completed native measurement remains run 40 (`05cd4d5`): the cached
+executable built successfully after its equality proof compiled, but standard
+SDK `garble` timed out at **60.000052718 seconds**, with zero stdout/stderr side
+output. The test process took 64.41 seconds. Full artifact correspondence and
+later-message native tests did not run. The selected cached implementation
+therefore still fails the runtime requirement.
 
-The next batch introduces sixteen simultaneous scalar Horner accumulators and
-transposes coefficient storage across limbs. `LaneHorner` and `LaneSharing`
-attempt the complete correspondence, including every artifact byte. These
-proofs and the performance improvement are **unchecked**. The diagnostic asks
-for `lane` explicitly and runs it only after `LaneSharing` compiles; a rejected
-lane proof does not remeasure the known-slow cached implementation. The actual
-submission remains cached until the new equality is checked.
-
-Other repairs address a generated finite-set induction instance, opaque
-mathematical enumeration, semireducible wrapper types, and explicit query
-continuations. New security proof attempts connect actual serialized mask and
-commitment addresses, joint key/oracle programming, exact ciphertext body
-serialization, full 64-byte pad randomness, visible field plaintext transport,
-selected-label-dependent query lists, and independent pre-release coordinates.
-They include no assumed candidate security theorem and remain unchecked.
-The final withholding, post-release and adaptive reductions remain open.
+The next batch repairs the lane list lemma, explicit finite-set induction,
+finite product measurability, conditional-view normalization, a negated
+identity proof, and query-continuation normalization. It also adds **unchecked**
+proof attempts for the complete protected withholding game and its original
+numerical target, restriction of programmed oracles to visible cells, full
+64-byte mask transport, canonical visible-oracle separation, selected-label
+trace bounds, and exact nonce/coefficient reindexing with joint sampler error.
+These are not assumed security claims. The final post-release and adaptive
+reductions and all new or repaired declarations still require compilation.
+The actual submission remains cached and uncertified.
 
 The optional diagnostic stays inside the **same single 1,800-second author
 check**, with unchanged memory and per-tool limits. Source errors remain fatal;

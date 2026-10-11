@@ -70,6 +70,13 @@ import WotsLamport.Submission.FieldPlaintext
 import WotsLamport.Submission.BeforeReleaseCoordinates
 import WotsLamport.Submission.ProductEventBounds
 import WotsLamport.Submission.LaneSharing
+import WotsLamport.Submission.PreReleaseFiniteGame
+import WotsLamport.Submission.VisibleProgrammedOracle
+import WotsLamport.Submission.FieldArtifactCoordinates
+import WotsLamport.Submission.VisibleTapeOracle
+import WotsLamport.Submission.SelectedTraceCoupling
+import WotsLamport.Submission.NonceCoefficientCoordinates
+import WotsLamport.Submission.CanonicalVisibleOracle
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected

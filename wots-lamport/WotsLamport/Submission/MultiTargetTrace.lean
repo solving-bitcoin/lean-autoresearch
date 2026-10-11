@@ -26,8 +26,11 @@ theorem measure_exists_finset_le {Ω I : Type} [MeasurableSpace Ω]
     (s : Finset I) (bound : ∀ i ∈ s, μ (events i) ≤ bounds i) :
     μ {ω | ∃ i ∈ s, ω ∈ events i} ≤ ∑ i ∈ s, bounds i := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   revert bound
-  refine Finset.induction_on s ?_ ?_
+  refine Finset.induction_on (motive := fun t =>
+    (∀ i ∈ t, μ (events i) ≤ bounds i) →
+      μ {ω | ∃ i ∈ t, ω ∈ events i} ≤ ∑ i ∈ t, bounds i) s ?_ ?_
   · intro bound
     simp
   · intro i s hi ih bound

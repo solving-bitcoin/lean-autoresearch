@@ -9,7 +9,7 @@ theorem laneCoefficients_project (coins : ByteArray) (label : Label) (wire : Nat
     (laneCoefficients coins label wire value).map (fun row => row.get limb) =
       machineCoefficients (machinePolynomial coins label wire limb.val value) := by
   simp only [laneCoefficients, machineCoefficients, machinePolynomial,
-    List.map_map, List.reverse_map, Function.comp_def, HornerLanes.get_ofFn]
+    List.map_map, ← List.map_reverse, Function.comp_def, HornerLanes.get_ofFn]
 
 theorem laneEvaluate_project (coins : ByteArray) (label : Label) (wire : Nat)
     (value : Bool) (limb : Fin 16) (x : Nat) :

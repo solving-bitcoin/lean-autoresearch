@@ -15,7 +15,7 @@ theorem canonicalPartner_ne (label : Label) : canonicalPartner label ≠ label :
   split_ifs with he
   · subst label
     decide +kernel
-  · exact he.symm
+  · exact fun equal => he equal.symm
 
 noncomputable def canonicalPair (selected : Label) (bit : Bool) : Pair :=
   if bit then ⟨(canonicalPartner selected, selected), canonicalPartner_ne selected⟩
