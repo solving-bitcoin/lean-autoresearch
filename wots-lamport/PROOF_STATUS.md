@@ -51,36 +51,41 @@ complete imported submission or its security certificate passed.
 | Common finite oracle domain, visible coefficient transport and sixteen-limb Horner projection | CommonOracleDomain, VisibleCoefficientTransport, LaneImplementation, LaneHorner | `f0b2e08` |
 | Complete lane construction equality and finite trace/product transport | LaneSharing.laneConstruction_eq, MultiTargetTrace, GoodKernelSubstitution, CanonicalLabels, CiphertextConditionedPrivacy, ProductEventBounds | `e8e1f95` |
 | Withholding reduction budget fits the protected numerical target | WithholdingBudget.withholding_bound_fits_target (arithmetic only) | `cd334f2` |
+| Chain collision probability, ideal chain programming, and adaptive target arithmetic | ChainCollisionLaw, ChainProgrammingLaw, AdaptiveBudget | `cd24df3` |
 
 ## Current validation attempt
 
-Run 43 (`cd334f2`) checked **81 of 120 modules**. Three modules had direct
-errors (`ChainCollisionLaw`, `HonestQueryBudget`, `AdaptiveBudget`); 36 dependents
-were blocked. `WithholdingBudget` now passes, but this is arithmetic, not the
-withholding-security theorem. Complete lane equality and universal honest
-correctness remain checked. The reference, BLAKE3 and G1 jobs all passed.
+Run 44 (`cd24df3`) checked **84 of 120 modules**. Two modules had direct
+errors (`ChainPartitionLaw`, `HonestQueryBudget`); 34 dependents were blocked.
+`ChainCollisionLaw`, `ChainProgrammingLaw` and `AdaptiveBudget` now pass. The
+last result is numerical target arithmetic, not adaptive security. Complete
+lane equality and universal honest correctness passed for that revision.
+Successful source-build batches totaled **328.89 seconds** across 25 invocations;
+this excludes failed batches and individual retries.
 
-Successful source-build batches totaled **334.94 seconds** across 27 invocations
-(run 42's successful individual checks totaled about 889 seconds). This excludes
-failed batches and their individual retries. Nevertheless, the unchanged
-**1,800-second author cap expired during the runtime diagnostic**. Cleanup
-reported an active generated `garble` process. The retained log contains no
-completed lane timing or full native artifact correspondence result; no SDK
-success is inferred from the cleanup information.
+The lane executable built successfully (6,193 build jobs), with compiler peak
+RSS **4,356,411,392 bytes**, within the unchanged hosted 8 GiB build cap. Its
+SDK `garble` then timed out at **60.003264428 seconds**, with zero stdout/stderr
+side output. The retained progress phase is `checking-sdk`; it records
+998.896 seconds elapsed before SDK execution. No SDK pass, full generated
+artifact correspondence, or later-message generated-tool result is claimed.
+This was a concrete per-tool timeout, not the outer author time cap.
 
-The last completed native measurement remains run 40 (`05cd4d5`): cached
-SDK `garble` timed out at **60.000052718 seconds** with zero stdout/stderr side
-output. Full artifact correspondence and later-message native tests did not run.
-Run 43's independent Rust full-artifact/later-message test passed in **29.78
-seconds**, with **320,315,392 bytes** peak RSS. It does not establish Lean runtime
-performance or security.
+Run 44's independent Rust full-artifact/later-message test passed in **39.32
+seconds**, with **320,233,472 bytes** peak RSS. Prepare took 30.912 seconds and
+three later-message expansions each took about 2.0–2.1 seconds. These are Rust
+reference measurements, not Lean runtime or security evidence.
 
-The next batch removes a redundant solved-goal tactic, normalizes the sampler
-fraction and final pure binds, and explicitly unfolds the query-program wrappers.
-Uniform-product and auxiliary sampling lemmas now request finiteness without
-requiring caller-supplied enumerations. The complete withholding/adaptive
-reduction modules remain unchecked. The selected implementation stays lane;
-the certificate remains absent and the score unranked.
+The follow-up makes the endpoint arithmetic coercion explicit and constructs
+query-bound terms before matching concrete program wrappers, avoiding expensive
+unfolding during elaboration. It also replaces the lane coefficient reader's
+per-block temporary lists with a direct recursive byte fold. A new proof relates
+that fold to the original machine Horner reader for every byte array, offset,
+length and initial accumulator; complete lane equality must compile again
+before this modified executable can run. This optimization and its proof are
+**not yet compiler-checked or benchmarked**. The sampler, serialization, native
+backend and resource limits are unchanged. The certificate remains absent and
+the score unranked.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer

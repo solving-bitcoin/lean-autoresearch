@@ -117,7 +117,6 @@ theorem pair_query_bound {A B C : Type} (oa : Program A) (ob : Program B)
     (f : A → B → C) (n₁ n₂ : Nat)
     (ha : IsTotalQueryBound oa n₁) (hb : IsTotalQueryBound ob n₂) :
     IsTotalQueryBound (do let a ← oa; let b ← ob; pure (f a b)) (n₁+n₂) := by
-  simp only [map_eq_bind_pure_comp, Function.comp_def]
   exact isTotalQueryBound_bind ha (fun a => bind_pure_query_bound ob (f a) n₂ hb)
 
 theorem commitmentRowProgram_query_bound (pk nonce : ByteArray) (labels : Fin 256 → Pair)
@@ -154,25 +153,23 @@ theorem afterPublicProgram_query_bound (coins pk : ByteArray) (keys : Keys)
 theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (prepareProgram coins keys labels)
       (67*15 + (256*2 + 256*(2*1984*16))) := by
-  unfold prepareProgram
-  exact isTotalQueryBound_bind (oa := publicKeyProgram keys)
+  have h := isTotalQueryBound_bind (oa := publicKeyProgram keys)
     (ob := fun pk => afterPublicProgram coins (keyCodec.encode pk) keys labels)
     (n₁ := 67*15) (n₂ := 256*2 + 256*(2*1984*16))
     (publicKeyProgram_query_bound keys)
     (fun pk => afterPublicProgram_query_bound coins (keyCodec.encode pk) keys labels)
+  simpa only [prepareProgram] using h
 
 def honestSetupQueries : Nat := 67*15 + (67*15 + (256*2 + 256*(2*1984*16)))
 def honestReleaseQueries : Nat := honestSetupQueries + 67*15
 
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
-  simp only [wrappedPrepareProgram, honestSetupQueries, map_eq_bind_pure_comp, Function.comp_def]
-  exact isTotalQueryBound_bind (oa := publicKeyProgram keys)
-    (ob := fun pk => prepareProgram coins keys labels >>= fun body => pure (keyCodec.encode pk ++ body))
-    (n₁ := 67*15) (n₂ := 67*15 + (256*2 + 256*(2*1984*16)))
-    (publicKeyProgram_query_bound keys) (fun pk =>
-      bind_pure_query_bound (prepareProgram coins keys labels) (fun body => keyCodec.encode pk ++ body)
-        _ (prepareProgram_query_bound coins keys labels))
+  have h := pair_query_bound (publicKeyProgram keys) (prepareProgram coins keys labels)
+    (fun pk body => keyCodec.encode pk ++ body)
+    (67*15) (67*15 + (256*2 + 256*(2*1984*16)))
+    (publicKeyProgram_query_bound keys) (prepareProgram_query_bound coins keys labels)
+  simpa only [wrappedPrepareProgram, honestSetupQueries] using h
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

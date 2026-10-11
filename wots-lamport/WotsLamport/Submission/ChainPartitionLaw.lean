@@ -18,7 +18,7 @@ def chainPartitionEquiv : ChainTape ≃ PublicKey × HiddenChainTape where
     by_cases hk : k.val < maximum j
     · simp [hk]
     · have he : k = (⟨maximum j, Nat.lt_succ_self _⟩ : Fin (maximum j+1)) :=
-        Fin.ext (by have := k.isLt; omega)
+        Fin.ext (by change k.val = maximum j; have := k.isLt; omega)
       subst k
       simp [tapePublicKey]
   right_inv sample := by

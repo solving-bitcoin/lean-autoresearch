@@ -21,6 +21,34 @@ theorem readMachineField_eq (bytes : ByteArray) (start length : Nat) :
     evaluatePolynomial_mod_fold]
   simp only [List.foldr_map, readLE]
 
+/-- The direct reader is the same machine Horner fold for every byte array,
+start, length and accumulator, including out-of-bounds default bytes. -/
+theorem directFieldLoop_eq (bytes : ByteArray) (start length : Nat) (initial : UInt32) :
+    directFieldLoop bytes start length initial =
+      machineHorner
+        (machineCoefficients ((List.range length).map fun j => bytes[start+j]!.toNat))
+        256 initial := by
+  induction length generalizing initial with
+  | zero => rfl
+  | succ length ih =>
+    have byteBound : bytes[start+length]!.toNat < prime :=
+      (UInt8.toNat_lt_size _).trans (by decide : 256 < prime)
+    have byteMod := Nat.mod_eq_of_lt byteBound
+    simp only [directFieldLoop, List.range_succ, List.map_append, List.map_singleton,
+      machineCoefficients, List.reverse_append, List.reverse_cons, List.reverse_nil,
+      List.nil_append, List.cons_append, List.map_cons, List.map_nil,
+      machineHorner, byteMod]
+    exact ih _
+
+theorem readDirectField_eq_machine (bytes : ByteArray) (start length : Nat) :
+    readDirectField bytes start length = readMachineField bytes start length := by
+  unfold readDirectField readMachineField evaluateMachinePolynomial
+  rw [directFieldLoop_eq]
+
+theorem readDirectField_eq (bytes : ByteArray) (start length : Nat) :
+    readDirectField bytes start length = readLE bytes start length % prime := by
+  rw [readDirectField_eq_machine, readMachineField_eq]
+
 theorem machinePolynomial_eq (coins : ByteArray) (label : Label) (wire limb : Nat)
     (value : Bool) : machinePolynomial coins label wire limb value =
       polynomial coins label wire limb value := by

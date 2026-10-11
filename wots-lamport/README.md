@@ -240,8 +240,10 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. The selected lane implementation has a checked complete equality
-(run 42), but no completed native timing and no security certificate. See
+immediately. The lane implementation passed complete equality through run 44,
+then its SDK `garble` hit the unchanged 60-second limit. The follow-up direct
+coin reader must pass its equality proofs before runtime validation. There is
+no security certificate. See
 [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
 
 Runtime phase evidence is retained atomically across an outer timeout. It is

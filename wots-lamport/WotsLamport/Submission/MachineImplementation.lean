@@ -24,6 +24,16 @@ def readMachineField (bytes : ByteArray) (start length : Nat) : Nat :=
   evaluateMachinePolynomial
     (machineCoefficients ((List.range length).map fun j => bytes[start+j]!.toNat)) 256
 
+/-- Read high bytes first into a field accumulator without allocating a
+range, mapped byte list, reversed list, or machine coefficient list. -/
+def directFieldLoop (bytes : ByteArray) (start : Nat) : Nat → UInt32 → UInt32
+  | 0, initial => initial
+  | length+1, initial => directFieldLoop bytes start length
+      (reduceMachineField (UInt32.ofNat bytes[start+length]!.toNat + 256*initial))
+
+def readDirectField (bytes : ByteArray) (start length : Nat) : Nat :=
+  (directFieldLoop bytes start length 0).toNat
+
 def machinePolynomial (coins : ByteArray) (label : Label) (wire limb : Nat)
     (value : Bool) : List Nat :=
   let id := 2*wire + if value then 1 else 0

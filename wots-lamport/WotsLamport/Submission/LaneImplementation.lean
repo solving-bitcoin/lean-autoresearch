@@ -72,7 +72,7 @@ def laneCoefficients (coins : ByteArray) (label : Label) (wire : Nat) (value : B
   (List.range (threshold value)).reverse.map fun degree =>
     HornerLanes.ofFn fun limb => UInt32.ofNat
       ((if degree = 0 then readLE ⟨label.toArray⟩ (2*limb.val) 2 else
-        readMachineField coins (32+((id*16+limb.val)*1023+degree-1)*32) 32) % prime)
+        readDirectField coins (32+((id*16+limb.val)*1023+degree-1)*32) 32) % prime)
 
 def laneEvaluate (coefficients : List HornerLanes) (x : Nat) : HornerLanes :=
   lanesHorner (UInt32.ofNat x) coefficients 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
