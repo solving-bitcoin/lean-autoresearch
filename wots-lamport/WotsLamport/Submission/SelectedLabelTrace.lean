@@ -24,7 +24,7 @@ theorem uniform_selected_table_list_hit {I : Type} [Fintype I]
     obtain ⟨n,hn,he⟩ := List.mem_iff_getElem.mp member
     refine ⟨(i,⟨n,lt_of_lt_of_le hn (bound _)⟩),Finset.mem_univ _,?_⟩
     change (_[n]?).getD fallback = _
-    rw [getElem?_pos hn, Option.getD_some, he]
+    rw [getElem?_pos _ _ hn, Option.getD_some, he]
   have mass (index : I × Fin q) :
       uniformOn (Set.univ : Set (I → Pair)) (event index) ≤ (2 : ENNReal)/2^256 :=
     uniform_selected_table_guess_fixed bits
@@ -59,6 +59,6 @@ theorem uniform_no_label_guess {I : Type} [Fintype I] (claim : I × Label) :
         uniformOn (Set.univ : Set (I → Pair)) {table | claim.2 = (table claim.1).get true} :=
       measure_union_le _ _
     _ ≤ (2 : ENNReal)/2^256 + (2 : ENNReal)/2^256 := add_le_add left right
-    _ = _ := by rw [← add_div]; norm_num
+    _ = _ := by rw [ENNReal.div_add_div_same]; norm_num
 
 end WotsLamport.Submission

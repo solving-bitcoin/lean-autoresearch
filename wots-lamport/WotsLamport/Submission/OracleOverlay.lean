@@ -55,9 +55,10 @@ noncomputable def overlayFiberEquiv {I D R : Type} (address : I → D)
     left_inv baseline := by
       apply Subtype.ext
       funext input
+      change overlayOracle address (fun i => baseline.val (address i)) fixed input = baseline.val input
       rcases Classical.em (∃ i, address i = input) with found | found
       · obtain ⟨i,rfl⟩ := found
-        exact overlayOracle_at address _ fixed injective i
+        exact overlayOracle_at address (fun j => baseline.val (address j)) fixed injective i
       · have missing : ∀ i, address i ≠ input := by intro i hi; exact found ⟨i,hi⟩
         rw [overlayOracle_off address _ fixed input missing]
         have he := congrFun baseline.property input

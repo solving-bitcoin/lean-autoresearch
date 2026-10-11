@@ -53,42 +53,39 @@ complete imported submission or its security certificate passed.
 | Withholding reduction budget fits the protected numerical target | WithholdingBudget.withholding_bound_fits_target (arithmetic only) | `cd334f2` |
 | Chain collision probability, ideal chain programming, and adaptive target arithmetic | ChainCollisionLaw, ChainProgrammingLaw, AdaptiveBudget | `cd24df3` |
 | Public/hidden chain partition, message-visible signature partition, exact nonce and joint coefficient-sampling law | ChainPartitionLaw, MessagePartition, NonceCoefficientCoordinates | `a03a0ac` |
+| Direct byte-fold reader, complete updated lane equality, and guessing from the full selected-label table | MachineCoinRead.directFieldLoop_eq, LaneSharing.laneConstruction_eq, JointLabelGuessing | `1e00f92` |
 
 ## Current validation attempt
 
-Run 45 (`a03a0ac`) checked **83 of 120 modules**. Four modules had direct
-errors (`MachineCoinRead`, `HonestQueryBudget`, `OracleOverlay`,
-`JointLabelGuessing`); 33 dependents were blocked. `ChainPartitionLaw`,
-`MessagePartition` and `NonceCoefficientCoordinates` now pass. These establish
-intermediate partition and sampling laws, not the complete security reductions.
-The modified reader's module failed on an explicit UInt32 numeral conversion,
-so the runtime gate correctly **skipped** the modified lane executable. Its
-complete equality and performance remain unverified. Universal honest
-correctness of the mathematical construction remains checked.
+Run 46 (`1e00f92`) checked **88 of 120 modules**. Three modules had direct
+errors (`HonestQueryBudget`, `OracleOverlay`, `SelectedLabelTrace`); 29 dependents
+were blocked. `MachineCoinRead` and the complete machine/cached/lane equality
+chain now pass for the direct byte-fold reader. `JointLabelGuessing` also passes.
+Universal honest correctness remains checked. These results do not establish
+the complete withholding or adaptive security reductions.
 
-Successful source-build batches totaled **458.82 seconds** across 30 invocations;
-this excludes failed batches and individual retries. Run 45 produced no native
-lane timing. The last native result is run 44 (`cd24df3`): its lane executable
-built successfully (6,193 jobs, compiler peak RSS **4,356,411,392 bytes**) and
-SDK `garble` timed out at **60.003264428 seconds**, with zero stdout/stderr side
-output. No SDK pass, full generated artifact correspondence, or later-message
-generated-tool result is claimed.
+Successful source-build batches totaled **505.55 seconds** across 29 invocations;
+this excludes failed batches and individual retries. The unchanged **1,800-second
+author cap expired while building the diagnostic executable**. The retained
+phase is `building-executable`, entered 9.178 seconds after starting the runtime
+probe and checking full lane equality. It does not report a completed executable
+build or SDK execution. No new native timing or compiler peak is claimed.
 
-Run 45's independent Rust full-artifact/later-message test passed in **25.42
-seconds**, with **320,352,256 bytes** peak RSS. Prepare took 19.177 seconds and
-three later-message expansions each took about 1.5–1.6 seconds. The Rust code
-was unchanged; these measurements do not validate or benchmark the new Lean
-reader.
+The last native SDK result is run 44 (`cd24df3`), before the direct reader: its
+lane executable built successfully (6,193 jobs, compiler peak RSS
+4,356,411,392 bytes), and `garble` timed out at **60.003264428 seconds** with zero
+stdout/stderr side output. The optimized reader has not yet been timed. No SDK
+pass, full generated artifact correspondence, or later-message generated-tool
+result is claimed. Run 46's unchanged Rust full-artifact/later-message test
+passed in **23.58 seconds**; this does not benchmark the Lean reader.
 
-The follow-up explicitly proves the UInt32 base conversion, supplies classical
-decisions without expensive instance searches, and normalizes an event preimage
-before rewriting it. Query-bound application abstracts the concrete computations after obtaining
-their bounds, avoiding expansion of the oracle program during elaboration. The statements and
-heartbeat limits are unchanged. These fixes still require compiler checking.
-The lane coefficient reader remains a direct recursive byte fold whose complete
-equality must compile before execution. No sampler, serialization, native
-backend, resource cap, or acceptance gate was changed. The certificate remains
-absent and the score unranked.
+The follow-up explicitly reduces the overlay inverse's lambda/subtype expression,
+uses the pinned list-indexing API and ENNReal division lemma, and applies the
+wrapper query-bound composition to already obtained proof terms without the
+previous dependent generalizations. Elaboration diagnostics are enabled for that
+one wrapper theorem; no heartbeat limit is raised. The fixes remain unchecked.
+No statement, sampler, serialization, backend, resource cap, or acceptance gate
+was changed. The certificate remains absent and the score unranked.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer

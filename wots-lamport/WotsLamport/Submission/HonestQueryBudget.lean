@@ -163,15 +163,16 @@ theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : F
 def honestSetupQueries : Nat := 67*15 + (67*15 + (256*2 + 256*(2*1984*16)))
 def honestReleaseQueries : Nat := honestSetupQueries + 67*15
 
+set_option diagnostics true in
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
   have hp := publicKeyProgram_query_bound keys
   have hb := prepareProgram_query_bound coins keys labels
-  unfold wrappedPrepareProgram honestSetupQueries
-  generalize publicEq : publicKeyProgram keys = publicProgram at *
-  generalize bodyEq : prepareProgram coins keys labels = bodyProgram at *
-  exact pair_query_bound publicProgram bodyProgram (fun pk body => keyCodec.encode pk ++ body)
+  have h := pair_query_bound (A := PublicKey) (B := ByteArray) (C := ByteArray)
+    (publicKeyProgram keys) (prepareProgram coins keys labels)
+    (fun pk body => keyCodec.encode pk ++ body)
     (67*15) (67*15 + (256*2 + 256*(2*1984*16))) hp hb
+  simpa only [wrappedPrepareProgram, honestSetupQueries] using h
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated
