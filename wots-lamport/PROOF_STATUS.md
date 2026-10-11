@@ -62,13 +62,22 @@ complete imported submission or its security certificate passed.
 
 | Pre-release canonical label and nonce/coefficient coordinates | BeforeReleaseCoordinates | `ad5f54f` |
 
+| Restricted programmed oracle agrees away from hidden targets | VisibleProgrammedOracle | `642de89` |
+
 ## Current validation attempt
 
-Run 52 (`ad5f54f`) checked **103 of 120 modules**. Two modules had direct
-errors (`HonestQueryBudget`, `VisibleProgrammedOracle`); 15 dependents were
-blocked. `BeforeReleaseCoordinates` is newly checked. Universal correctness,
-the artifact bound and optimized implementation equality remain checked.
-Complete withholding/adaptive security reductions remain unchecked.
+Run 53 (`642de89`) checked **104 of 120 modules**. Three modules had direct
+errors (`HonestQueryBudget`, `FieldArtifactCoordinates`, `VisibleTapeOracle`);
+13 dependents were blocked. `VisibleProgrammedOracle` is newly checked.
+Universal correctness, the artifact bound and optimized implementation equality
+remain checked. Complete withholding/adaptive security reductions remain unchecked.
+
+The unchanged 1,800-second author cap expired during executable building in
+run 53. Its retained runtime phase is `building-executable`, entered 8.889 seconds
+after starting the runtime probe; this is not the build duration. There is no
+completed SDK or correspondence result for run 53. The separate Rust reference
+test passed in 38.15 seconds with 320,262,144 bytes peak RSS. Successful source
+batches took 598.487 seconds across 34 batches, excluding failed batches/retries.
 
 **Run 52 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -89,12 +98,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs apply the setup query-bound theorem directly to its
-goal, explicitly type the restricted address subtype, and use the checked
-`programChainOracle_eq_overlay` bridge before composing oracle equalities.
-The previous attempt still expanded the setup predicate during theorem
-application. These repairs remain compiler-unchecked. No security statement,
-sampler, executable construction, resource cap or acceptance gate was weakened.
+The latest local repairs restrict elaborator unfolding during the final setup
+query-bound theorem application, use the explicit commitment-coordinate theorem,
+and expose the endpoint `Fin` equality as a natural-number equality. These
+repairs remain compiler-unchecked. No security statement, sampler, executable
+construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

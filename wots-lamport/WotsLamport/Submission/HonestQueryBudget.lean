@@ -176,7 +176,7 @@ theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (lab
     rw [publicEq] at hp
     exact hp
   · rw [← bodyEq]
-    apply prepareProgram_query_bound
+    with_reducible exact prepareProgram_query_bound coins keys labels
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

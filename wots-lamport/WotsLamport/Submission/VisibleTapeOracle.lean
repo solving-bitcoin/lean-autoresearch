@@ -11,7 +11,10 @@ theorem chainTape_visible_eq (m : Message) (a b : ChainTape)
   by_cases edge : position.2.val < maximum position.1
   · exact congrFun visible ⟨⟨position,edge⟩, Nat.not_lt.mpr disclosed⟩
   · have last : position.2 = (⟨maximum position.1, Nat.lt_succ_self _⟩ : Fin (maximum position.1+1)) :=
-      Fin.ext (by have := position.2.isLt; omega)
+      Fin.ext (by
+        change position.2.val = maximum position.1
+        have := position.2.isLt
+        omega)
     have he := congrFun endpoints position.1
     change a ⟨position.1, _⟩ = b ⟨position.1, _⟩ at he
     change a ⟨position.1,position.2⟩ = b ⟨position.1,position.2⟩

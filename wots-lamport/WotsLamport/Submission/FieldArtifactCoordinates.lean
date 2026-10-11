@@ -47,7 +47,7 @@ theorem fieldArtifactAnswers_visible_transport (m : Message) (a b : Fin 256 → 
   | inl cell =>
     rw [fieldArtifactAnswers_mask, fieldArtifactAnswers_mask,
       fieldPlaintext_visible_transport m a b selected c cell.1 visible]
-  | inr cell => rfl
+  | inr cell => simp only [fieldArtifactAnswers_commitment]
 
 theorem visibleArtifactCellAddress_transport (m : Message) (pk nonce : ByteArray)
     (nodes : SharePosition → Label) (a b : Fin 256 → Pair)
