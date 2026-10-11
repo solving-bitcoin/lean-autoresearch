@@ -68,23 +68,27 @@ complete imported submission or its security certificate passed.
 
 | Canonical visible oracle after coefficient transport | CanonicalVisibleOracle | `346336e` |
 
+| Reified game execution/query bounds and conditional post-release trace/guessing bound | GamePrograms, AfterReleaseCoordinates | `1b590f8` |
+
 ## Current validation attempt
 
-Run 55 (`346336e`) checked **108 of 120 modules**. Two modules had direct
-errors (`GamePrograms`, `AfterReleaseCoordinates`); 10 dependents were blocked.
-`CanonicalVisibleOracle` is newly checked. Universal correctness, the artifact
-bound, honest query budget and optimized implementation equality remain checked.
-Complete withholding/adaptive security reductions remain unchecked.
+Run 56 (`1b590f8`) checked **110 of 120 modules**. Three modules had direct
+errors (`GameReductions`, `GroupedOracleLaw`, `AfterReleaseLaw`); seven dependents
+were blocked. `GamePrograms` and `AfterReleaseCoordinates` are newly checked.
+Universal correctness, the artifact bound, honest query budget and optimized
+implementation equality remain checked. Complete withholding/adaptive security
+reductions remain unchecked.
 
-The unchanged 1,800-second author cap expired during SDK checking in run 55.
-Executable compilation completed with 3,421,167,616 bytes peak RSS. The retained
-runtime phase is `checking-sdk`, entered 1,160.919 seconds after starting the
-runtime probe; this is not an SDK duration. There is no completed SDK or
-correspondence result for run 55. The separate Rust reference test passed in
-39.35 seconds with 320,270,336 bytes peak RSS. Successful source batches took
-517.382 seconds across 34 batches, excluding failed batches/retries.
-Runs 53 and 54 reached the author cap during executable building. Both G1 and
-BLAKE3 previews passed run 54; BLAKE3 also passed run 55.
+The unchanged 1,800-second author cap expired during executable building in
+run 56. Its retained runtime phase is `building-executable`, entered 9.154
+seconds after starting the runtime probe; this is not a build duration. There
+is no completed SDK or correspondence result for run 56. The separate Rust
+reference test passed in 29.79 seconds with 320,409,600 bytes peak RSS.
+Successful source batches took 678.824 seconds across 36 batches, excluding
+failed batches/retries. BLAKE3 passed run 56; both shared previews passed run 54.
+Run 55 completed executable compilation (3,421,167,616 bytes peak RSS) but reached
+the author cap during SDK checking. Full validation has not passed within the
+unchanged limits.
 
 **Run 52 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -105,12 +109,12 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs correct restricted-unfolding block syntax, elaborate
-view constructors and claim predicates before restricting unfolding, explicitly
-name the after-release coefficient transport, add its ciphertext import, and
-normalize extended-nonnegative-real arithmetic. These repairs remain
-compiler-unchecked. No security statement, sampler, executable construction,
-resource cap or acceptance gate was weakened.
+The latest local repairs explicitly instantiate the fixed-message event equality,
+correct measure-map composition order, derive the oracle probability instance,
+target the intended finite product measure, and expose set membership plus the
+finite-field measurable space. These repairs remain compiler-unchecked. No
+security statement, sampler, executable construction, resource cap or acceptance
+gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

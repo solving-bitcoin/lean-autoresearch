@@ -3,6 +3,8 @@ import WotsLamport.Submission.AfterReleaseCoordinates
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleComp
 
+local instance : MeasurableSpace (ZMod 65537) := ⊤
+
 abbrev AfterInnerSample := HiddenChainTape × (Fin 256 → Pair) × AllocatedCoefficients
 abbrev AfterInnerEnvironment (m : Message) := MessageVisibleTape m × AllocatedCoefficients
 
@@ -93,7 +95,7 @@ theorem after_finish_joint_bound (m : Message) (nonce : ByteArray) (pk : PublicK
     {sample | ¬Function.Injective (afterTape m (pk,sample.1) sample.2)}
     ((512 : ENNReal)/2^256 + (1501 : ENNReal)*q/2^256) (by
       intro environment
-      simpa only [add_comm] using after_finish_fiber_bound m nonce (pk,environment)
+      simpa only [Set.mem_setOf_eq, add_comm] using after_finish_fiber_bound m nonce (pk,environment)
         coordinates baseline finish q bound)
   rw [← uniform_product, afterInner_bad_law] at h
   exact h

@@ -7,6 +7,9 @@ open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
 local instance : MeasurableSpace Keys := ⊤
 local instance : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance : IsProbabilityMeasure oracleLaw := by
+  unfold oracleLaw
+  infer_instance
 
 def flattenInitialSample (sample : InitialData × ROM.Oracle) : ROM.Sample (wrapped construction) :=
   (sample.1.1, sample.1.2.1, sample.1.2.2, sample.2)
@@ -31,8 +34,9 @@ theorem grouped_sample_law :
       (MeasurableEquiv.prodAssoc :
         (Keys × ((Fin 256 → Pair) × Bytes randomnessBytes)) × ROM.Oracle ≃ᵐ
           Keys × ((Fin 256 → Pair) × Bytes randomnessBytes) × ROM.Oracle) := rfl
-  rw [regroup, ← Measure.map_map MeasurableEquiv.prodAssoc.measurable
-    (measurable_id.prodMap MeasurableEquiv.prodAssoc.measurable)]
+  rw [regroup, ← Measure.map_map
+    (measurable_id.prodMap MeasurableEquiv.prodAssoc.measurable)
+    MeasurableEquiv.prodAssoc.measurable]
   rw [uniform_product, uniform_product, Measure.prodAssoc_prod,
     ← Measure.map_prod_map _ _ measurable_id MeasurableEquiv.prodAssoc.measurable,
     Measure.map_id, Measure.prodAssoc_prod]
@@ -66,10 +70,11 @@ theorem protected_game_finite_joint_law (game : InitialData → Program Bool)
   rw [← grouped_sample_law, Measure.map_apply flattenInitialSample_measurable originalMeasurable]
   change ((uniformOn (Set.univ : Set InitialData)).prod oracleLaw)
     {sample | ROM.run (ROM.hash sample.2) (game sample.1) = true} = _
-  rw [uniform_product, Measure.prod_apply groupedMeasurable,
+  rw [uniform_product (A := InitialData) (B := inputs → Label),
+    Measure.prod_apply groupedMeasurable,
     Measure.prod_apply MeasurableSet.of_discrete]
   apply lintegral_congr
   intro initial
-  simpa only [Set.mem_singleton_iff] using agrees initial
+  simpa only [Set.mem_singleton_iff, Set.mem_preimage, Set.mem_setOf_eq] using agrees initial
 
 end WotsLamport.Submission

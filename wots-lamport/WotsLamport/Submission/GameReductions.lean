@@ -28,6 +28,7 @@ theorem adaptive_implies_release (s : Scheme challenge) (secure : AdaptiveSecure
   have finishBound : ∀ state, ROM.Bounded ((fixedMessageAdversary m a).finish state) q :=
     fun _ => bound
   have h := secure (fixedMessageAdversary m a) 0 q (by simpa using hq) chooseBound finishBound
-  simpa only [Nat.zero_add, fixedMessage_event] using h
+  rw [fixedMessage_event s m a] at h
+  simpa only [Nat.zero_add] using h
 
 end WotsLamport.Submission
