@@ -21,12 +21,12 @@ def xorVectorEquiv {n : Nat} (pad : Bytes n) : Bytes n ≃ Bytes n where
 theorem xorVector_bytes {n : Nat} (bytes pad : Bytes n) :
     ByteArray.mk (xorVector bytes pad).toArray =
       xorBytes (ByteArray.mk bytes.toArray) (ByteArray.mk pad.toArray) := by
-  apply ByteArray.ext_getElem (by simp)
+  apply ByteArray.ext_getElem (by simp only [xorBytes_size, vectorBytes_size])
   intro j hj hj'
-  have hjn : j < n := by simpa using hj
-  rw [← getElem!_pos (xorBytes _ _) j hj', xorBytes_get _ _ j (by simpa using hjn)]
-  rw [getElem!_pos (ByteArray.mk bytes.toArray) j (by simpa using hjn),
-    getElem!_pos (ByteArray.mk pad.toArray) j (by simpa using hjn)]
+  have hjn : j < n := by simpa only [vectorBytes_size] using hj
+  rw [← getElem!_pos (xorBytes _ _) j hj', xorBytes_get _ _ j (by simpa only [vectorBytes_size] using hjn)]
+  rw [getElem!_pos (ByteArray.mk bytes.toArray) j (by simpa only [vectorBytes_size] using hjn),
+    getElem!_pos (ByteArray.mk pad.toArray) j (by simpa only [vectorBytes_size] using hjn)]
   simp only [ByteArray.getElem_eq_getElem_data, Vector.getElem_toArray,
     xorVector, Vector.getElem_ofFn]
 

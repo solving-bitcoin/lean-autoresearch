@@ -33,7 +33,7 @@ theorem expandLabel_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   change expandLabel h _ _ _ m _ i value = some (ByteArray.mk label.toArray)
   simp only [expandLabel, decodeShares_prepared h coins keys labels hcoins m i value]
   dsimp only [label] at hlength hrec hbytes
-  simp only [hlength, hrec, hvalid, hbytes, byteVector_decode_raw, Option.bind_some,
+  simp only [hlength, hrec, hvalid, hbytes, byteVector_decode_raw, Option.bind_eq_bind, Option.bind_some, Option.map_eq_map, Option.map_some, Option.pure_def,
     bne_self_eq_false, Bool.false_eq_true, ite_false,
     prepare_commitment_slice h coins keys labels hcoins i value] <;> rfl
 
@@ -69,15 +69,16 @@ theorem expand_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   unfold expand
   rw [hs]
   simp only [bne_self_eq_false, Bool.false_eq_true, ite_false,
-    prepare_nonce h coins keys labels hcoins, hm]
-  congr 1
+    prepare_nonce h coins keys labels hcoins, hm, Option.bind_eq_bind, Option.bind_some,
+    Option.map_eq_map, Option.map_some, Option.pure_def]
+  apply congrArg some
   simpa only [List.map_map, Function.comp_def] using
     concatenate_labels ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val])
 
+set_option maxRecDepth 4096 in
 /-- Exact correctness of the protected, public-key-prefixed construction.
 This theorem concerns honest evaluation only; it is independent of the
 unproved pre-release, post-release and adaptive security reductions. -/
-set_option maxRecDepth 4096 in
 theorem construction_correct : Correct (wrapped construction) := by
   intro h coins p keys labels m
   change Fin 256 → Pair at labels
@@ -97,7 +98,7 @@ theorem construction_correct : Correct (wrapped construction) := by
       expand h pk ((pkbytes ++ body).extract 2144 (pkbytes ++ body).size) m sig
     else none) =
       some (pack ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val]))
-  simp only [hprefix, pkbytes, keyCodec.decode_encode, Option.bind_some]
+  simp only [hprefix, pkbytes, keyCodec.decode_encode, Option.bind_eq_bind, Option.bind_some, Option.map_eq_map, Option.map_some, Option.pure_def]
   rw [if_pos (sign_verifies h keys m), hbody]
   exact expand_prepared h (ByteArray.mk coins.toArray) keys labels hc m
 

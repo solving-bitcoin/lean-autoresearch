@@ -35,8 +35,22 @@ complete imported submission or its security certificate passed.
 | UInt32 Horner, residue-only coefficient reading and complete machine artifact/construction equality | MachineHorner, MachineCoinRead, MachineSharing (required by the selected diagnostic gate) | `d1648af` |
 | Finite oracle law and VCV eager/lazy semantics bridge | FiniteOracleLaw, OracleMeasureBridge | `d1648af` |
 | Distinct-label-pair marginal and guessing bounds | LabelGuessing | `d1648af` |
+| Exact joint 32-byte coin-block law and allocated index injection | CoinBlocks, CoefficientIndices | `d0bd1ac` |
+| Visible-coefficient privacy and exact query-domain separation/injectivity | VisibleCoefficientPrivacy, DomainSeparation, DomainInjectivity | `d0bd1ac` |
 
 ## Current validation attempt
+
+Run 36 (`d0bd1ac`) returned complete source diagnostics within the existing
+cap: **47 compiled modules, eight direct failures and 20 blocked modules**.
+It directly confirmed the machine-definition refactor and its full equality
+proofs, coin-block independence, coefficient indexing, visible-coefficient
+privacy, domain separation/injectivity and the finite-oracle bridge. No native
+WOTS test ran because sources failed. The next batch repairs the reported
+cardinality simplification, measure instances/order proof, vector sizes,
+monadic maps, fresh-cell API name, redundant tactic, cached indexing and
+`Expand` option simplification/scoped-option syntax. These repairs are not yet
+compiler checked. Cached executable definitions are also isolated from the
+already checked machine definitions. No statement or resource limit changes.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all

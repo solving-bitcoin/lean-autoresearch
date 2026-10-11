@@ -9,7 +9,7 @@ coefficient blocks, including the final unused true-label coefficients. -/
 noncomputable def coefficientSlotEquiv : CoefficientSlot ≃ Fin coefficientCount :=
   Equiv.ofBijective coefficientIndex
     ((Fintype.bijective_iff_injective_and_card _).mpr
-      ⟨coefficientIndex_injective, by simp [CoefficientSlot, coefficientCount]⟩)
+      ⟨coefficientIndex_injective, by simp only [CoefficientSlot, Fintype.card_prod, Fintype.card_fin]; rfl⟩)
 
 noncomputable def coefficientFamilyEquiv (F : Type) :
     (Fin coefficientCount → F) ≃ (Fin 512 → Fin 16 → Fin 1023 → F) where

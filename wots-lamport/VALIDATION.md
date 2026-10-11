@@ -214,3 +214,21 @@ without the optional runtime probe; successful sources still require the full
 isolated verifier and native suite. The optional probe now explicitly checks
 the equality module before building executable-only imports. This refactor,
 plus the new fresh-cell and programming-fiber proof drafts, awaits Lean.
+
+
+## Run 36: complete source report
+
+Run 36 (`38099940311`, commit `d0bd1ac`) compiled 47 modules and reported
+eight direct failures: CoefficientTableLaw, JointSampler, MaskLaw,
+CachedSharing, OraclePrograms, QueryTargets, Expansion and
+FreshOracleProgramming. Twenty dependent modules were blocked. The new
+per-module report survived and showed the precise compiler errors. No native
+WOTS pass is claimed; the optional probe was skipped after source failures.
+
+The machine-definition split and full machine equivalence rechecked. The
+report also directly confirms CoinBlocks, CoefficientIndices,
+VisibleCoefficientPrivacy, DomainSeparation and DomainInjectivity. The
+independent Rust job passed: Prepare 30.91 seconds, full test 39.25 seconds,
+peak RSS 320,229,376 bytes. The next batch fixes only the observed proof/API
+issues and separates unproved cached definitions from the checked machine
+module. Its Lean validation remains pending.

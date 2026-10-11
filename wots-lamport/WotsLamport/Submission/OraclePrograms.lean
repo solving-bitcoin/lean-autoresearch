@@ -11,6 +11,10 @@ open SecretRelease WotsLamport.Protected OracleSpec OracleComp
     ROM.run h (p >>= next) = ROM.run h (next (ROM.run h p)) := by
   exact evalWithAnswerFn_bind (QueryImpl.ofFn h) p next
 
+@[simp] theorem run_map {A B : Type} (h : Hash) (p : Program A) (f : A → B) :
+    ROM.run h (f <$> p) = f (ROM.run h p) := by
+  exact evalWithAnswerFn_map (QueryImpl.ofFn h) f p
+
 @[simp] theorem run_query (h : Hash) (input : ByteArray) :
     ROM.run h (oracleQuery input : Program Label) = h input := by
   change simulateQ (QueryImpl.ofFn h) (liftM ((ByteArray →ₒ Label).query input)) = _
@@ -32,10 +36,10 @@ def sequenceFin {A : Type} : (n : Nat) → (Fin n → Program A) → Program (Fi
 
 theorem run_sequenceFin {A : Type} (h : Hash) (n : Nat) (f : Fin n → Program A) :
     ROM.run h (sequenceFin n f) = fun i => ROM.run h (f i) := by
-  induction n generalizing f with
+  induction n with
   | zero => funext i; exact Fin.elim0 i
   | succ n ih =>
-    simp only [sequenceFin, run_bind, run_pure, ih]
+    simp only [sequenceFin, run_bind, run_map, run_pure, ih]
     funext i
     exact Fin.cases rfl (fun _ => rfl) i
 
@@ -59,11 +63,13 @@ def signProgram (keys : Keys) (m : Message) : Program Signature :=
 
 theorem run_publicKeyProgram (h : Hash) (keys : Keys) :
     ROM.run h (publicKeyProgram keys) = publicKey h keys := by
-  simp [publicKeyProgram, run_sequenceFin, run_chainProgram, publicKey]
+  simp only [publicKeyProgram, run_sequenceFin, run_chainProgram]
+  rfl
 
 theorem run_signProgram (h : Hash) (keys : Keys) (m : Message) :
     ROM.run h (signProgram keys m) = sign h keys m := by
-  simp [signProgram, run_sequenceFin, run_chainProgram, sign]
+  simp only [signProgram, run_sequenceFin, run_chainProgram]
+  rfl
 
 def maskProgram (pk nonce : ByteArray) (wire : Nat) (value : Bool)
     (point : Nat) (node : Label) : Program ByteArray := do
@@ -90,12 +96,12 @@ theorem run_labelTableProgram (h : Hash) (coins pk nonce : ByteArray) (keys : Ke
     (i : Fin 256) (value : Bool) (label : Label) :
     ROM.run h (labelTableProgram coins pk nonce keys i value label) =
       labelTable h coins pk nonce keys i value label := by
-  simp only [labelTableProgram, run_bind, run_pure, run_listMapM]
+  simp only [labelTableProgram, run_bind, run_map, run_pure, run_listMapM]
   unfold labelTable
   congr 1
   apply List.map_congr_left
   rintro ⟨⟨j,k⟩,index⟩ _
-  simp only [run_bind, run_pure, run_chainProgram, run_maskProgram]
+  simp only [run_bind, run_map, run_pure, run_chainProgram, run_maskProgram]
 
 def prepareProgram (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) : Program ByteArray := do
   let publicKeyValue ← publicKeyProgram keys
@@ -113,7 +119,7 @@ def prepareProgram (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
 
 theorem run_prepareProgram (h : Hash) (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     ROM.run h (prepareProgram coins keys labels) = prepare h coins keys labels := by
-  simp only [prepareProgram, run_bind, run_pure, run_publicKeyProgram, run_listMapM,
+  simp only [prepareProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_listMapM,
     run_query, run_labelTableProgram, prepare, commitment_as_query]
 
 /-- Reification exposes the actual honest oracle calls to query accounting.
@@ -128,7 +134,7 @@ theorem run_wrappedPrepareProgram (h : Hash) (coins : Bytes randomnessBytes)
     (keys : Keys) (labels : Fin 256 → Pair) :
     ROM.run h (wrappedPrepareProgram (ByteArray.mk coins.toArray) keys labels) =
       (wrapped construction).garbleBytes h coins () keys labels := by
-  simp only [wrappedPrepareProgram, run_bind, run_pure, run_publicKeyProgram, run_prepareProgram]
+  simp only [wrappedPrepareProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_prepareProgram]
   rfl
 
 end WotsLamport.Submission

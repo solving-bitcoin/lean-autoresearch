@@ -101,8 +101,12 @@ local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
 noncomputable def fieldLaw : Measure (Fin 65537) :=
   (uniformOn (Set.univ : Set (Fin sampleSize))).map reduceInteger
 
-instance : IsProbabilityMeasure fieldLaw :=
-  Measure.isProbabilityMeasure_map Measurable.of_discrete.aemeasurable
+instance : IsProbabilityMeasure fieldLaw := by
+  letI : Nonempty (Fin sampleSize) := ⟨⟨0, by
+    change 0 < 2^256
+    exact pow_pos (by decide) _⟩⟩
+  unfold fieldLaw
+  exact Measure.isProbabilityMeasure_map Measurable.of_discrete.aemeasurable
 
 /-- All coordinates are handled jointly. The loss is at most n/2^256 for
 every event in the complete field table, in both directions. -/
@@ -114,6 +118,8 @@ theorem joint_field_event_bounds (n : Nat) (event : Set (Fin n → Fin 65537)) :
         (Measure.pi (fun _ : Fin n => fieldLaw)) event + (n : ENNReal)*exceptionWeight := by
   have hscalar : ordinaryWeight • uniformOn (Set.univ : Set (Fin 65537)) ≤ fieldLaw := by
     rw [fieldLaw, reduced_integer_mixture]
+    intro event
+    rw [Measure.add_apply]
     exact le_add_right le_rfl
   exact probability_event_bounds _ _ (ordinaryWeight^n) ((n : ENNReal)*exceptionWeight)
     (finite_product_domination _ _ ordinaryWeight hscalar n)

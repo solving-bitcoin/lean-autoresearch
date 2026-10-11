@@ -1,3 +1,4 @@
+import WotsLamport.Submission.CachedImplementation
 import WotsLamport.Submission.MachineSharing
 
 namespace WotsLamport.Submission
@@ -7,7 +8,9 @@ open SecretRelease WotsLamport.Protected
 optimization still calls the supplied hash; it does not substitute a backend. -/
 theorem cachedChainNode_eq (h : Hash) (keys : Keys) (j : Fin 67) (k : Nat)
     (hk : k < 16) : cachedChainNode (prepareChainCache h keys) j k = chain h k (keys j) := by
-  simp only [cachedChainNode, getElem!_pos _ _ hk, prepareChainCache, Vector.getElem_ofFn]
+  unfold cachedChainNode
+  rw [getElem!_pos ((prepareChainCache h keys)[j.val]) k hk]
+  simp only [prepareChainCache, Vector.getElem_ofFn]
 
 theorem cached_slot_node_bound (i : Fin 256) (value : Bool) (entry : Fin 67 × Nat)
     (member : entry ∈ slots i value) : entry.2 < 16 := by

@@ -23,7 +23,7 @@ def main():
     implementation = {
         'original': ('Sharing', 'construction', 'Sharing'),
         'machine': ('MachineImplementation', 'machineConstruction', 'MachineSharing'),
-        'cached': ('MachineImplementation', 'cachedConstruction', 'CachedSharing'),
+        'cached': ('CachedImplementation', 'cachedConstruction', 'CachedSharing'),
     }
     module, construction, proof_module = implementation[variant]
     boundary.check_protected()

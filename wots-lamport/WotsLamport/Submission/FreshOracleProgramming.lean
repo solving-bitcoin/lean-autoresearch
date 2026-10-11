@@ -17,8 +17,8 @@ theorem fresh_cell_joint_law (input : D) :
     evalSPMF (do
       let oracle ← uniformSample (D → R)
       pure (oracle input, oracle)) := by
-  simpa only [Function.update_same] using
-    evalSPMF_uniformSample_bind_update_map input (fun oracle => (oracle input, oracle))
+  simpa only [Function.update_self] using
+    evalSPMF_uniformSample_bind_update_map input (fun oracle : D → R => (oracle input, oracle))
 
 /-- The same joint law holds in the presence of an already fixed cache,
 provided the new input has not been cached. Reusing a cached address does
@@ -36,10 +36,12 @@ theorem fresh_cached_cell_joint_law (cache : (D →ₒ R).QueryCache)
       (tableExtending cache (Function.update baseline input answer) input,
         tableExtending cache (Function.update baseline input answer)) =
       (answer, tableExtending (cache.cacheQuery input answer) baseline) := by
-    simp only [← tableExtending_update_of_none cache baseline fresh answer,
-      Function.update_same, tableExtending_cacheQuery]
+    apply Prod.ext
+    · simp only [tableExtending, fresh, Option.getD_none, Function.update_self]
+    · exact (tableExtending_update_of_none cache baseline fresh answer).symm.trans
+        (tableExtending_cacheQuery cache baseline input answer).symm
   simpa only [replace] using
     evalSPMF_uniformSample_bind_update_map input
-      (fun baseline => (tableExtending cache baseline input, tableExtending cache baseline))
+      (fun baseline : D → R => (tableExtending cache baseline input, tableExtending cache baseline))
 
 end WotsLamport.Submission

@@ -30,7 +30,6 @@ theorem maskQueryTarget_complete (pk nonce : ByteArray) (wire : Nat) (value : Bo
   let header := domain "WOTS-LAMPORT/mask/v1" pk nonce wire value ++ writeLE 2 point
   have hs : (maskQuery pk nonce wire value point node block).size = header.size+33 := by
     simp only [maskQuery, ByteArray.size_append, vectorBytes_size, writeLE_size, header]
-    omega
   unfold maskQueryTarget
   rw [if_pos (maskQuery_size pk nonce wire value point node block), hs]
   have hstart : header.size+33-33 = header.size := by omega
