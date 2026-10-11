@@ -1,3 +1,4 @@
+import WotsLamport.Submission.ChainPartitionLaw
 import WotsLamport.Submission.FieldTableLaw
 import WotsLamport.Submission.ProductEventBounds
 import WotsLamport.Submission.ActualPolynomialTable
@@ -22,6 +23,7 @@ def nonceCoefficientEquiv (n : Nat) :
 theorem nonceCoefficientEquiv_nonce (n : Nat) (coins : Bytes ((n+1)*32)) :
     ByteArray.mk (nonceCoefficientEquiv n coins).1.toArray =
       (ByteArray.mk coins.toArray).extract 0 32 := by
+  change ByteArray.mk ((byteBlocksEquiv (n+1) coins) 0).toArray = _
   have h := byteBlocks_extract (n+1) coins 0
   simpa only [Fin.val_zero, Nat.zero_mul, Nat.zero_add, Nat.one_mul] using h
 
@@ -39,9 +41,9 @@ theorem blockFields_event_bounds (n : Nat) (event : Set (Fin n → Fin 65537)) :
       uniformOn (Set.univ : Set (Fin n → Bytes 32)) ((blockFields n) ⁻¹' event) +
         (n : ENNReal)*Sampler.exceptionWeight := by
   have h := tableFields_event_bounds n event
-  change uniformOn (Set.univ : Set (Bytes (n*32)))
-      ((byteBlocksEquiv n) ⁻¹' ((blockFields n) ⁻¹' event)) ≤ _ ∧ _ at h
-  rw [Shamir.uniform_event_equiv] at h
+  have reindex : (tableFields n) ⁻¹' event =
+      (byteBlocksEquiv n) ⁻¹' ((blockFields n) ⁻¹' event) := rfl
+  rw [reindex, Shamir.uniform_event_equiv] at h
   have ideal : uniformOn (Set.univ : Set (Fin n → Fin 65537)) =
       Measure.pi (fun _ : Fin n => uniformOn (Set.univ : Set (Fin 65537))) := by
     simpa using (uniformOn_pi (f := fun _ : Fin n => (Set.univ : Set (Fin 65537))))

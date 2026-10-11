@@ -1,4 +1,6 @@
 import WotsLamport.Protected.Target
+import Mathlib.Data.Rat.Cast.Lemmas
+import Mathlib.Data.Rat.Cast.Order
 import Mathlib.Data.ENNReal.Inv
 import Mathlib.Tactic.Linarith
 
@@ -23,7 +25,10 @@ theorem withholding_bound_fits_target (q : Nat) :
   have realBound :
       (((4 : NNReal)/2^256 + (3002 : NNReal)*q/2^256) +
         (1056 : NNReal)^2/2^256) + (1056 : NNReal)^2/2^256 ≤
-          (romTarget.error q : NNReal) := by exact_mod_cast rationalBound
+          (romTarget.error q : NNReal) := by
+    simpa only [NNRat.cast_add, NNRat.cast_div, NNRat.cast_mul, NNRat.cast_pow,
+      NNRat.cast_natCast, NNRat.cast_ofNat] using
+      (NNRat.cast_mono (K := NNReal) rationalBound)
   have castBound := ENNReal.coe_le_coe.mpr realBound
   simpa only [ENNReal.coe_add, ENNReal.coe_div (by positivity : (2 : NNReal)^256 ≠ 0),
     ENNReal.coe_pow, ENNReal.coe_mul, ENNReal.coe_natCast, ENNReal.coe_ofNat,

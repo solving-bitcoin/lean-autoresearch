@@ -103,23 +103,40 @@ theorem run_labelTableProgram (h : Hash) (coins pk nonce : ByteArray) (keys : Ke
   rintro ⟨⟨j,k⟩,index⟩ _
   simp only [run_bind, run_map, run_pure, run_chainProgram, run_maskProgram]
 
+def commitmentRowProgram (pk nonce : ByteArray) (labels : Fin 256 → Pair)
+    (i : Fin 256) : Program ByteArray := do
+  let left ← oracleQuery (commitmentQuery pk nonce i.val false ((labels i).get false))
+  let right ← oracleQuery (commitmentQuery pk nonce i.val true ((labels i).get true))
+  pure (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray)
+
+def commitmentsProgram (pk nonce : ByteArray) (labels : Fin 256 → Pair) :
+    Program (List ByteArray) :=
+  (List.finRange 256).mapM (commitmentRowProgram pk nonce labels)
+
+def tablePairProgram (coins pk nonce : ByteArray) (keys : Keys) (labels : Fin 256 → Pair)
+    (i : Fin 256) : Program ByteArray := do
+  let left ← labelTableProgram coins pk nonce keys i false ((labels i).get false)
+  let right ← labelTableProgram coins pk nonce keys i true ((labels i).get true)
+  pure (left ++ right)
+
+def tablesProgram (coins pk nonce : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
+    Program (List ByteArray) :=
+  (List.finRange 256).mapM (tablePairProgram coins pk nonce keys labels)
+
+def afterPublicProgram (coins pk : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
+    Program ByteArray := do
+  let commitments ← commitmentsProgram pk (coins.extract 0 32) labels
+  let tables ← tablesProgram coins pk (coins.extract 0 32) keys labels
+  pure (coins.extract 0 32 ++ concatenate commitments ++ concatenate tables)
+
 def prepareProgram (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) : Program ByteArray := do
   let publicKeyValue ← publicKeyProgram keys
-  let pk := keyCodec.encode publicKeyValue
-  let nonce := coins.extract 0 32
-  let commitments ← (List.finRange 256).mapM fun i => do
-    let left ← oracleQuery (commitmentQuery pk nonce i.val false ((labels i).get false))
-    let right ← oracleQuery (commitmentQuery pk nonce i.val true ((labels i).get true))
-    pure (ByteArray.mk left.toArray ++ ByteArray.mk right.toArray)
-  let tables ← (List.finRange 256).mapM fun i => do
-    let left ← labelTableProgram coins pk nonce keys i false ((labels i).get false)
-    let right ← labelTableProgram coins pk nonce keys i true ((labels i).get true)
-    pure (left ++ right)
-  pure (nonce ++ concatenate commitments ++ concatenate tables)
+  afterPublicProgram coins (keyCodec.encode publicKeyValue) keys labels
 
 theorem run_prepareProgram (h : Hash) (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     ROM.run h (prepareProgram coins keys labels) = prepare h coins keys labels := by
-  simp only [prepareProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_listMapM,
+  simp only [prepareProgram, afterPublicProgram, commitmentsProgram, commitmentRowProgram,
+    tablesProgram, tablePairProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_listMapM,
     run_query, run_labelTableProgram, prepare, commitment_as_query]
 
 /-- Reification exposes the actual honest oracle calls to query accounting.

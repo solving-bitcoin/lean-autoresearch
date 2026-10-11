@@ -236,3 +236,10 @@ new oracle assumption, relaxed certificate or larger resource limit is used.
 The shared `garblePacked_eq` correspondence theorem and large-buffer native
 regression passed hosted validation at `50e6007`. This representation result
 does not establish the WOTS executable's performance or security.
+
+Author preview checks ready dependency layers in one Lake invocation to reduce
+graph startup overhead, retaining one Lean thread and the same single author
+time cap. Ordinary failures are rechecked per target; resource failures stop
+immediately. The selected lane implementation has a checked complete equality
+(run 42), but no completed native timing and no security certificate. See
+[PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.

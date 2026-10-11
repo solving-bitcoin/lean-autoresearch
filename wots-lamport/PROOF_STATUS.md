@@ -50,37 +50,41 @@ complete imported submission or its security certificate passed.
 | Complete protected honest correctness and actual artifact-address injection | Expansion.construction_correct, ArtifactAddresses | `f0b2e08` |
 | Common finite oracle domain, visible coefficient transport and sixteen-limb Horner projection | CommonOracleDomain, VisibleCoefficientTransport, LaneImplementation, LaneHorner | `f0b2e08` |
 
+| Complete lane construction equality and finite trace/product transport | LaneSharing.laneConstruction_eq, MultiTargetTrace, GoodKernelSubstitution, CanonicalLabels, CiphertextConditionedPrivacy, ProductEventBounds | `e8e1f95` |
+
 ## Current validation attempt
 
-Run 41 (`f0b2e08`) checked **74 of 104 modules**. Seven modules had direct
-errors and 23 dependents were blocked. Newly accepted modules include
-`ArtifactAddresses`, `CommonOracleDomain`, `Expansion`,
-`VisibleCoefficientTransport`, `LaneImplementation` and `LaneHorner`.
-In particular, **`Expansion.construction_correct` now proves exact honest
-correctness of the protected public-key-prefixed construction for every
-hash, coin vector, fixed distinct-pair label table and 32-byte message.**
-This is correctness, not a security certificate or native performance result.
-The reference job passed.
+Run 42 (`e8e1f95`) checked **80 of 112 modules**. Four modules had direct
+errors (`ChainCollisionLaw`, `HonestQueryBudget`, `NonceCoefficientCoordinates`,
+`WithholdingBudget`); 28 dependents were blocked. The complete
+`LaneSharing.laneConstruction_eq` now passed, as did `MultiTargetTrace`,
+`GoodKernelSubstitution`, `CanonicalLabels`, `CiphertextConditionedPrivacy`
+and `ProductEventBounds`. The reference, BLAKE3 and G1 jobs passed.
 
-The complete lane equality failed on a renamed list lemma, so the proof gate
-correctly **skipped the lane runtime diagnostic**. No lane timing is reported.
-The last completed native measurement remains run 40 (`05cd4d5`): the cached
-executable built successfully after its equality proof compiled, but standard
-SDK `garble` timed out at **60.000052718 seconds**, with zero stdout/stderr side
-output. The test process took 64.41 seconds. Full artifact correspondence and
-later-message native tests did not run. The selected cached implementation
-therefore still fails the runtime requirement.
+The lane runtime diagnostic passed its proof gate, but the unchanged
+**1,800-second author cap expired during runtime preparation**. There is no
+completed lane timing or complete native artifact correspondence result.
+The last completed native measurement remains run 40 (`05cd4d5`): cached
+SDK `garble` timed out at **60.000052718 seconds** with zero stdout/stderr side
+output. Full artifact correspondence and later-message tests did not run.
 
-The next batch repairs the lane list lemma, explicit finite-set induction,
-finite product measurability, conditional-view normalization, a negated
-identity proof, and query-continuation normalization. It also adds **unchecked**
-proof attempts for the complete protected withholding game and its original
-numerical target, restriction of programmed oracles to visible cells, full
-64-byte mask transport, canonical visible-oracle separation, selected-label
-trace bounds, and exact nonce/coefficient reindexing with joint sampler error.
-These are not assumed security claims. The final post-release and adaptive
-reductions and all new or repaired declarations still require compilation.
-The actual submission remains cached and uncertified.
+The next batch repairs explicit equality instances, query-program composition,
+nonce/table reindexing and nonnegative-rational casts. Eight new **unchecked**
+modules connect the adaptive game through conditional chain partitions,
+ciphertext-preserving field coordinates, both query phases, actual biased
+coins and the protected ROM. Their claimed total is three tape-collision
+losses, one complete coefficient-sampler loss, chosen-wire guessing and the
+two phase query bounds, all against the original target. They are proof
+attempts, not accepted security results. The selected implementation is now
+lane, following its complete checked equality; its runtime remains unmeasured.
+The certificate remains absent and the score unranked.
+
+To avoid repeated Lake graph startup, author checks batch ready dependency
+layers within the same capped process and with one Lean thread. A successful
+batch exit certifies all requested targets; an ordinary failure triggers
+individual target checks. Resource failures stop without retries. Neither
+logs nor existing olean files are used as evidence of compilation. The isolated
+verifier and native proof gates are unchanged.
 
 The optional diagnostic stays inside the **same single 1,800-second author
 check**, with unchanged memory and per-tool limits. Source errors remain fatal;
@@ -101,7 +105,7 @@ building the diagnostic executable. Its bounded timeout output retained only
 the last 8 KB, losing the earlier direct source diagnostics. The run provides
 no machine runtime or artifact-correspondence result. Run 34 had built the
 original executable and established a `garble` timeout at 60.005 seconds,
-with no side-output overflow. The cached candidate is selected following the checked equality in run 38.
+with no side-output overflow. The cached candidate was selected following the checked equality in run 38; lane replaced it after run 42.
 
 The follow-up persists each source result and prints that diagnostic record
 even after an outer timeout. Failure-injection tests verify that diagnostics
@@ -122,7 +126,7 @@ The remaining security modules are proof attempts with explicit premises,
 not assumptions admitted into a candidate certificate. They cover coefficient
 sampling, actual oracle programs, query traces, domain separation, ideal chain
 collisions/partitions/programming, and ciphertext-preserving adaptive views.
-The actual joint real/ideal reduction remains open. `FreshOracleProgramming`
+The actual joint real/ideal reduction remains unchecked. `FreshOracleProgramming`
 attempts a fresh-cell joint law retaining the whole oracle and fixed cache;
 `OracleOverlay` attempts joint key/oracle programming fiber counts. The fresh-cell law passed run 37; the overlay fibers remain unchecked,
 and fiber counts alone are not normalized probability laws. Source declarations in blocked modules do not count as checked results.
@@ -131,7 +135,7 @@ and fiber counts alone are not normalized probability laws. Source declarations 
 
 | Obligation | Remaining work |
 | --- | --- |
-| Universal honest correctness | Check Expansion through `construction_correct` for the exact protected wrapper |
+| Universal honest correctness | Checked in run 41; carry the theorem into the final certificate |
 | Complete coefficient law | Check the byte-level plaintext specialization and integrate the checked joint nonce/field sampling law into actual games |
 | Joint visible-share privacy | Check the full sampled coefficient-table specialization, including all 16 limbs and all 512 labels |
 | Actual oracle programs | Complete measurable winning events and the honest query budget; executable reification is checked |

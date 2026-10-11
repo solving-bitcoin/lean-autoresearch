@@ -9,6 +9,8 @@ open SecretRelease MeasureTheory ProbabilityTheory
 noncomputable def collisionFiberEquiv {I A : Type} (i j : I) (different : i ≠ j) :
     {f : I → A // f i = f j} ≃ ({k : I // k ≠ i} → A) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq A := Classical.decEq A
   exact {
     toFun := fun f k => f.val k.val
     invFun := fun g => ⟨fun k => if hk : k = i then g ⟨j, different.symm⟩ else g ⟨k,hk⟩,
@@ -30,6 +32,8 @@ theorem uniform_coordinate_collision {I A : Type} [Fintype I] [Fintype A] [Nonem
     uniformOn (Set.univ : Set (I → A)) {f | f i = f j} =
       1 / (Fintype.card A : ENNReal) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq A := Classical.decEq A
   have hcard : Fintype.card {f : I → A // f i = f j} =
       Fintype.card A ^ (Fintype.card I-1) := by
     rw [Fintype.card_congr (collisionFiberEquiv (A := A) i j different)]
@@ -57,6 +61,8 @@ theorem uniform_table_collision_bound {I A : Type} [Fintype I] [Fintype A] [None
     uniformOn (Set.univ : Set (I → A)) {f | ¬ Function.Injective f} ≤
       (Fintype.card I : ENNReal)^2 / (Fintype.card A : ENNReal) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq A := Classical.decEq A
   let μ := uniformOn (Set.univ : Set (I → A))
   let event : I × I → Set (I → A) := fun ij => {f | ij.1 ≠ ij.2 ∧ f ij.1 = f ij.2}
   have hs : {f : I → A | ¬ Function.Injective f} ⊆

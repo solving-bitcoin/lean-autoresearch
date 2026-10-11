@@ -77,12 +77,13 @@ import WotsLamport.Submission.VisibleTapeOracle
 import WotsLamport.Submission.SelectedTraceCoupling
 import WotsLamport.Submission.NonceCoefficientCoordinates
 import WotsLamport.Submission.CanonicalVisibleOracle
+import WotsLamport.Submission.AdaptiveFiniteGame
 
 namespace WotsLamport.Submission
 open WotsLamport.Protected
 
 /-- Research candidate only. No certificate, score or security theorem. -/
-def submission : Option Entry := some ⟨cachedConstruction, artifactBytes, none⟩
+def submission : Option Entry := some ⟨laneConstruction, artifactBytes, none⟩
 def entry : Option (SecretRelease.Candidate challenge) := submission.map Entry.candidate
 
 end WotsLamport.Submission

@@ -61,35 +61,64 @@ def main(argv=None):
     modules, dependencies = module_graph(ROOT)
     peak, failed = 0, []
     rejected, compiled = set(), set()
-    for name in modules:
-        blockers = [dependency for dependency in dependencies[name] if dependency in rejected]
-        if blockers:
-            print(f"BLOCKED: {name}: failed prerequisites {', '.join(blockers)}", flush=True)
-            rejected.add(name)
-            failed.append(name)
-            record(name, 'blocked', prerequisites=blockers)
-            continue
-        try:
-            started = time.monotonic()
-            print(f'CHECK: {name}', flush=True)
+    pending = list(modules)
+
+    def build(batch):
+        nonlocal peak
+        started = time.monotonic()
+        print('CHECK: ' + ', '.join(batch), flush=True)
+        for name in batch:
             record(name, 'checking')
-            result = guarded(['lake', 'build', name])
+        try:
+            result = guarded(['lake', 'build', *batch])
         except SystemExit as error:
-            # Resource failures stop immediately; ordinary failures allow
-            # independent source modules to be checked in this same run.
-            record(name, 'failed', diagnostic=str(error)[-8192:])
+            # A resource failure ends the one author run immediately. Ordinary
+            # batch failures are retried individually to obtain authoritative
+            # exit codes; logs and cached olean files never establish success.
             if 'exceeded' in str(error) or 'timed out' in str(error):
+                for name in batch:
+                    record(name, 'failed', diagnostic=str(error)[-8192:])
                 raise
+            if len(batch) > 1:
+                print('Batch failed; checking each target separately', flush=True)
+                for name in batch:
+                    build([name])
+                return
+            name = batch[0]
+            record(name, 'failed', diagnostic=str(error)[-8192:])
             print(str(error), flush=True)
             rejected.add(name)
             failed.append(name)
-            continue
+            return
         print(result['stdout'], end='', flush=True)
         print(result['stderr'], end='', flush=True)
-        print(f'COMPILED: {name}; {time.monotonic()-started:.2f}s', flush=True)
-        compiled.add(name)
-        record(name, 'compiled', seconds=time.monotonic()-started)
+        elapsed = time.monotonic()-started
+        for name in batch:
+            print(f'COMPILED: {name}', flush=True)
+            compiled.add(name)
+            record(name, 'compiled', batch=batch, batchSeconds=elapsed)
         peak = max(peak, result['peakMemoryBytes'])
+
+    while pending:
+        ready = []
+        for name in pending[:]:
+            blockers = [dependency for dependency in dependencies[name] if dependency in rejected]
+            if blockers:
+                print(f"BLOCKED: {name}: failed prerequisites {', '.join(blockers)}", flush=True)
+                rejected.add(name)
+                failed.append(name)
+                record(name, 'blocked', prerequisites=blockers)
+                pending.remove(name)
+            elif all(dependency in compiled for dependency in dependencies[name]):
+                ready.append(name)
+        if ready:
+            # One Lake graph setup for this dependency layer. The inherited
+            # LEAN_NUM_THREADS=1 and aggregate guards remain unchanged.
+            build(ready)
+            for name in ready:
+                pending.remove(name)
+        elif pending:
+            raise SystemExit('AUTHOR_PROOFS_REJECTED: no ready modules')
     # Diagnostic execution cannot suppress a source failure or create acceptance.
     # A complete source build proceeds directly to the normal isolated verifier.
     requested_proof = {'original': 'Sharing', 'machine': 'MachineSharing',

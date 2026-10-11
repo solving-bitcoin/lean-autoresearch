@@ -31,9 +31,9 @@ def exercise(failure=None, cycle=False, optimizations=False, rejected_optimizati
 
         def run(command):
             calls.append(tuple(map(str, command)))
-            if command[:2] == ['lake', 'build'] and command[2].endswith('.B') and failure:
+            if command[:2] == ['lake', 'build'] and any(target.endswith('.B') for target in command[2:]) and failure:
                 raise SystemExit(failure)
-            if command[:2] == ['lake', 'build'] and command[2].endswith('.'+str(rejected_optimization)):
+            if command[:2] == ['lake', 'build'] and any(target.endswith('.'+str(rejected_optimization)) for target in command[2:]):
                 raise SystemExit('optimization proof failed')
             return dict(stdout='', stderr='', peakMemoryBytes=1)
 
@@ -118,17 +118,21 @@ def main():
     check_probe_proof_gate('lane')
     calls, error = exercise()
     assert error is None
-    assert [call[-1] for call in calls] == [f'WotsLamport.Submission.{name}' for name in 'BACD']
+    assert calls == [('lake', 'build', 'WotsLamport.Submission.B', 'WotsLamport.Submission.D'),
+                     ('lake', 'build', 'WotsLamport.Submission.A'),
+                     ('lake', 'build', 'WotsLamport.Submission.C')]
     calls, error = exercise('ordinary elaboration failure')
     assert error.startswith('AUTHOR_PROOFS_REJECTED:')
     assert all(f'WotsLamport.Submission.{name}' in error for name in 'BAC')
-    assert [call[-1] for call in calls[:2]] == ['WotsLamport.Submission.B', 'WotsLamport.Submission.D']
-    assert len(calls) == 3 and calls[-1][-1].endswith('/scripts/check_runtime_probe.py')
+    assert calls[:3] == [('lake', 'build', 'WotsLamport.Submission.B', 'WotsLamport.Submission.D'),
+                         ('lake', 'build', 'WotsLamport.Submission.B'),
+                         ('lake', 'build', 'WotsLamport.Submission.D')]
+    assert len(calls) == 4 and calls[-1][-1].endswith('/scripts/check_runtime_probe.py')
     for failure in ['aggregate RSS exceeded', 'build timed out']:
         calls, error = exercise(failure)
         assert len(calls) == 1 and error == failure
     calls, error = exercise('ordinary elaboration failure', runtime_probe=False)
-    assert error.startswith('AUTHOR_PROOFS_REJECTED:') and len(calls) == 2
+    assert error.startswith('AUTHOR_PROOFS_REJECTED:') and len(calls) == 3
     calls, error = exercise(cycle=True)
     assert not calls and error.startswith('AUTHOR_PROOFS_REJECTED: import cycle')
     for rejected, expected in [(None, 'cached'), ('CachedSharing', 'machine'), ('MachineSharing', None)]:
