@@ -60,30 +60,28 @@ complete imported submission or its security certificate passed.
 | Selected-label trace coupling, finite artifact/chain joint programming, and full answer coordinates | SelectedTraceCoupling, FiniteArtifactLaw, IdealArtifact, CombinedProgrammingLaw, ArtifactAnswerCoordinates | `fd186f4` |
 | Concrete pre-release query trace bound, field plaintext, ciphertext serialization and finite programming bridge | ProgrammedQueryTrace, FieldPlaintext, CiphertextArtifact, FiniteProgrammingBridge | `2b799bd` |
 
+| Pre-release canonical label and nonce/coefficient coordinates | BeforeReleaseCoordinates | `ad5f54f` |
+
 ## Current validation attempt
 
-Run 51 (`2b799bd`) checked **102 of 120 modules**. Three modules had direct
-errors (`HonestQueryBudget`, `VisibleProgrammedOracle`, `BeforeReleaseCoordinates`);
-15 dependents were blocked. Newly checked modules are `ProgrammedQueryTrace`,
-`FieldPlaintext`, `CiphertextArtifact` and `FiniteProgrammingBridge`. Universal
-correctness, the artifact bound and optimized implementation equality remain
-checked. Complete withholding/adaptive security reductions remain unchecked.
+Run 52 (`ad5f54f`) checked **103 of 120 modules**. Two modules had direct
+errors (`HonestQueryBudget`, `VisibleProgrammedOracle`); 15 dependents were
+blocked. `BeforeReleaseCoordinates` is newly checked. Universal correctness,
+the artifact bound and optimized implementation equality remain checked.
+Complete withholding/adaptive security reductions remain unchecked.
 
-**Run 51 passed generated SDK integration**, observing the exact
-**48,752,768-byte artifact** and 8,192 released bytes. Compiler peak RSS was
-**3,421,396,992 bytes** and SDK native peak RSS **884,645,888 bytes**.
-The unchanged 1,800-second author cap expired during the independent
-reference-correspondence check. The retained phase is
-`checking-reference-correspondence`, entered 1,096.788 seconds after starting
-the runtime probe. That is not a completed test duration. No completed
-correspondence result or new per-tool timing is claimed for run 51.
+**Run 52 passed generated SDK integration and full independent reference
+correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
+released bytes. The SDK suite took 53.93 seconds and independent correspondence
+99.49 seconds; generated expansions took 8.297537590 / 9.598677783 /
+8.502129562 seconds. Compiler, SDK-native and independent-native peak RSS were
+4,033,413,120 / 883,564,544 / 808,316,928 bytes. The runtime probe completed in
+956.208 seconds. The separate Rust reference test passed in 26.27 seconds with
+320,360,448 bytes peak RSS. All resource limits are unchanged.
 
-The last completed correspondence is run 50 (`fd186f4`): SDK suite 52.90 seconds,
-independent correspondence 97.46 seconds, generated expansions 8.240818731 /
-9.320599197 / 8.336925678 seconds. Its compiler, SDK-native and independent-native
-peaks were 3,421,118,464 / 880,812,032 / 883,326,976 bytes respectively. The
-executable has not changed. The separate run 51 Rust reference test passed in
-39.33 seconds with 320,217,088 bytes peak RSS. All resource limits are unchanged.
+Run 51 passed SDK integration but reached the unchanged 1,800-second author
+cap during independent correspondence. Run 50 completed both tests. A started
+phase is never treated as a completed test.
 
 Run 47 (`0ab64e1`) remains the first completed generated-tool correspondence
 milestone: SDK suite 65.51 seconds, independent correspondence 121.91 seconds,
@@ -91,11 +89,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs keep the query-bound goal abstract while transporting
-its proof, use explicit classical address cases, replace recursive rewriting
-with direct oracle-equality composition, and expose withholding-event membership.
-The previous attempt restored the concrete query predicate too early and still
-timed out. These repairs remain compiler-unchecked. No security statement,
+The latest local repairs apply the setup query-bound theorem directly to its
+goal, explicitly type the restricted address subtype, and use the checked
+`programChainOracle_eq_overlay` bridge before composing oracle equalities.
+The previous attempt still expanded the setup predicate during theorem
+application. These repairs remain compiler-unchecked. No security statement,
 sampler, executable construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no

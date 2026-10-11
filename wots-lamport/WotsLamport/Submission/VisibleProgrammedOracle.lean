@@ -22,8 +22,10 @@ theorem overlayOracle_restrict {I D R : Type} (address : I → D) (answer : I �
     exact (overlayOracle_at (fun j : {i // keep i} => address j.val)
       (fun j => answer j.val) baseline (injective.comp Subtype.val_injective) ⟨i,kept⟩).symm
   · have absent : ∀ i, address i ≠ input := by intro i hi; exact found ⟨i,hi⟩
-    rw [overlayOracle_off address answer baseline input absent,
-      overlayOracle_off _ _ baseline input (fun i => absent i.val)]
+    rw [overlayOracle_off address answer baseline input absent]
+    exact (overlayOracle_off (fun i : {i // keep i} => address i.val)
+      (fun i => answer i.val) baseline input
+      (fun i : {i // keep i} => absent i.val)).symm
 
 theorem overlayOracle_baseline_congr {I D R : Type} (address : I → D) (answer : I → R)
     (a b : D → R) (input : D) (same : a input = b input) :
@@ -100,11 +102,15 @@ theorem programmedHash_eq_visible_off_targets (m : Message) (nonce : ByteArray)
     (fun edge : ChainEdge => ByteArray.mk (tape edge.val).toArray)
     (fun edge => tape (edgeNext edge)) baseline (chain_address_injective tape distinct)
     (fun edge => ¬hiddenAfterMessage m edge) input chainMissing
+  have chainSame : programChainOracle baseline tape input =
+      visibleChainOracle m tape baseline input := by
+    rw [programChainOracle_eq_overlay]
+    exact chainEq
   exact artifactEq.trans (overlayOracle_baseline_congr
     (fun cell : {cell : ArtifactCell // visibleArtifactCell m cell} =>
       artifactCellAddress (keyCodec.encode (tapePublicKey tape)) nonce
         (sharePositionNode tape) labels cell.val)
     (fun cell => answers cell.val) (programChainOracle baseline tape)
-    (visibleChainOracle m tape baseline) input chainEq)
+    (visibleChainOracle m tape baseline) input chainSame)
 
 end WotsLamport.Submission
