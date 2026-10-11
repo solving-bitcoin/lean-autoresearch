@@ -78,7 +78,6 @@ theorem uniform_table_collision_bound {I A : Type} [Fintype I] [Fintype A] [None
     · simp [event, hd]
     · have he : event ij = {f | f ij.1 = f ij.2} := by ext f; simp [event, hd]
       rw [he, uniform_coordinate_collision ij.1 ij.2 hd]
-      exact le_rfl
   calc
     _ ≤ μ {f | ∃ ij ∈ (Finset.univ : Finset (I × I)), f ∈ event ij} := measure_mono hs
     _ ≤ ∑ ij ∈ (Finset.univ : Finset (I × I)), 1/(Fintype.card A : ENNReal) :=

@@ -7,6 +7,8 @@ open SecretRelease MeasureTheory ProbabilityTheory OracleComp
 noncomputable def coordinateFiberEquiv {I A : Type} (i : I) (a : A) :
     {f : I → A // f i = a} ≃ ({k : I // k ≠ i} → A) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq A := Classical.decEq A
   exact {
     toFun := fun f k => f.val k.val
     invFun := fun g => ⟨fun k => if hk : k = i then a else g ⟨k,hk⟩, by simp⟩
@@ -27,6 +29,8 @@ theorem uniform_coordinate_mass {I A : Type} [Fintype I] [Fintype A] [Nonempty A
     uniformOn (Set.univ : Set (I → A)) {f | f i = a} =
       1 / (Fintype.card A : ENNReal) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq A := Classical.decEq A
   have hcard : Fintype.card {f : I → A // f i = a} =
       Fintype.card A ^ (Fintype.card I-1) := by
     rw [Fintype.card_congr (coordinateFiberEquiv i a)]

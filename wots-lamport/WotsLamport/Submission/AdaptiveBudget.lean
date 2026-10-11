@@ -34,7 +34,7 @@ theorem adaptive_bound_fits_target (q₁ q₂ : Nat) :
       (NNRat.cast_mono (K := NNReal) rationalBound)
   have castBound := ENNReal.coe_le_coe.mpr realBound
   simpa only [Sampler.exceptionWeight, Sampler.sampleSize, Nat.cast_pow, Nat.cast_ofNat,
-    mul_div_assoc, mul_one, ENNReal.coe_add,
+    ← mul_div_assoc, mul_one, ENNReal.coe_add,
     ENNReal.coe_div (by positivity : (2 : NNReal)^256 ≠ 0), ENNReal.coe_pow,
     ENNReal.coe_mul, ENNReal.coe_natCast, ENNReal.coe_ofNat, ENNReal.coe_nnratCast] using castBound
 

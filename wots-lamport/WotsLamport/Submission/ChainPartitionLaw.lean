@@ -32,11 +32,14 @@ theorem chainPartition_hidden (pk : PublicKey) (hidden : HiddenChainTape) (edge 
     chainPartitionEquiv.symm (pk,hidden) edge.val = hidden edge := by
   simp [chainPartitionEquiv, edge.property]
 
-theorem uniform_product {A B : Type} [Fintype A] [Fintype B] [Nonempty A] [Nonempty B]
+theorem uniform_product {A B : Type} [Finite A] [Finite B] [Nonempty A] [Nonempty B]
     [MeasurableSpace A] [MeasurableSpace B]
     [DiscreteMeasurableSpace A] [DiscreteMeasurableSpace B] :
     uniformOn (Set.univ : Set (A × B)) =
       (uniformOn (Set.univ : Set A)).prod (uniformOn (Set.univ : Set B)) := by
+  classical
+  letI := Fintype.ofFinite A
+  letI := Fintype.ofFinite B
   apply Measure.ext_of_singleton
   rintro ⟨a,b⟩
   have hp : ((uniformOn (Set.univ : Set A)).prod (uniformOn (Set.univ : Set B))) {(a,b)} =

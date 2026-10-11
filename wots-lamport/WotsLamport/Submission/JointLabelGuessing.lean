@@ -7,6 +7,7 @@ open SecretRelease MeasureTheory ProbabilityTheory
 noncomputable def pivotTableEquiv {I A : Type} (i : I) :
     (I → A) ≃ A × ({j : I // j ≠ i} → A) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   exact {
     toFun := fun table => (table i, fun j => table j.val)
     invFun := fun sample j => if hj : j = i then sample.1 else sample.2 ⟨j,hj⟩
@@ -20,6 +21,7 @@ noncomputable def pivotTableEquiv {I A : Type} (i : I) :
 noncomputable def selectedPivotTable {I : Type} (i : I) (bits : I → Bool)
     (rest : {j : I // j ≠ i} → Pair) (value : Label) : I → Label := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   exact fun j => if hj : j = i then value else (rest ⟨j,hj⟩).get (bits j)
 
 theorem selected_pivot_table {I : Type} (i : I) (bits : I → Bool)
@@ -27,6 +29,7 @@ theorem selected_pivot_table {I : Type} (i : I) (bits : I → Bool)
     (fun j => ((pivotTableEquiv i).symm (pivot,rest) j).get (bits j)) =
       selectedPivotTable i bits rest (pivot.get (bits i)) := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   funext j
   by_cases hj : j = i <;> simp [pivotTableEquiv, selectedPivotTable, hj]
 
@@ -36,6 +39,7 @@ theorem uniform_selected_table_guess_fixed {I : Type} [Fintype I]
       {table | (guess (fun j => (table j).get (bits j))).2 = (table i).get (!(bits i))} ≤
         (2 : ENNReal)/2^256 := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   letI := Fintype.ofFinite Pair
   let e := pivotTableEquiv (A := Pair) i
   let event : Set (Pair × ({j : I // j ≠ i} → Pair)) :=
@@ -72,6 +76,7 @@ theorem uniform_selected_table_guess {I : Type} [Fintype I]
         claim.2 = (table claim.1).get (!(bits claim.1))} ≤
         (Fintype.card I : ENNReal) * (2 : ENNReal)/2^256 := by
   classical
+  letI : DecidableEq I := Classical.decEq I
   let event : I → Set (I → Pair) := fun i =>
     {table | (guess (fun j => (table j).get (bits j))).2 = (table i).get (!(bits i))}
   have subset : {table : I → Pair | let claim := guess (fun j => (table j).get (bits j))

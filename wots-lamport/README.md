@@ -243,3 +243,7 @@ time cap. Ordinary failures are rechecked per target; resource failures stop
 immediately. The selected lane implementation has a checked complete equality
 (run 42), but no completed native timing and no security certificate. See
 [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
+
+Runtime phase evidence is retained atomically across an outer timeout. It is
+diagnostic only: a started SDK or correspondence check is never reported as
+passed, and all original proof and native acceptance gates remain required.

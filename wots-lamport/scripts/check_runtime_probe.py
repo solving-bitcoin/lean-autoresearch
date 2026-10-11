@@ -12,6 +12,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import time
 from limits import ROOT, REPO, guarded
 import boundary
 
@@ -32,17 +33,30 @@ def main():
     sys.path.insert(0, str(REPO/'secret-release/scripts'))
     from bundle import package
     from test_rust import run_tests
+    progress = ROOT/'.yukon/runtime-progress.json'
+    progress.parent.mkdir(parents=True, exist_ok=True)
+    evidence = dict(diagnosticOnly=True, certificate=None, implementation=variant)
+    started = time.monotonic()
+    report = ROOT/'.yukon/runtime-probe.json'
+    report.unlink(missing_ok=True)
+
+    def record(phase, **details):
+        evidence.update(phase=phase, elapsedSeconds=time.monotonic()-started, **details)
+        temporary = progress.with_suffix('.tmp')
+        temporary.write_text(json.dumps(evidence, indent=2)+'\n')
+        temporary.replace(progress)
+
+    record('checking-equality')
     # Prove the complete correspondence before compiling its executable-only
     # module. No optimized binary is built when this proof build fails.
     proof = guarded(['lake', 'build', 'WotsLamport.Submission.'+proof_module], ROOT)
     print(proof['stdout'], end='', flush=True)
     print(proof['stderr'], end='', flush=True)
+    record('equality-checked', proofModule=proof_module)
     generated = ROOT/'.lake/generated/SRTools.lean'
     generated.parent.mkdir(parents=True, exist_ok=True)
     previous = generated.read_bytes() if generated.exists() else None
     destination = ROOT/'.yukon/runtime-probe'
-    report = ROOT/'.yukon/runtime-probe.json'
-    report.unlink(missing_ok=True)
     try:
         source = '''import SecretRelease.CLI
 import WotsLamport.Protected.Wire
@@ -62,7 +76,9 @@ def main (args : List String) : IO UInt32 :=
 '''
         generated.write_text(source.replace('PROBE_MODULE', module).replace('PROBE_CONSTRUCTION', construction))
         print(f'RUNTIME_PROBE: build {variant} executable after checking its equality proofs', flush=True)
+        record('building-executable')
         build = guarded(['lake', 'build', 'secret-release-tools'], ROOT)
+        record('executable-built', compilerPeakMemoryBytes=build['peakMemoryBytes'])
         print(build['stdout'], end='', flush=True)
         print(build['stderr'], end='', flush=True)
         metadata = package(ROOT, destination)
@@ -71,7 +87,9 @@ def main (args : List String) : IO UInt32 :=
                         entrypoint='WotsLamport.Tests.runtimeProbeEntry', implementation=variant)
         (destination/'bundle.json').write_text(json.dumps(metadata, indent=2)+'\n')
         print('RUNTIME_PROBE: run standard SDK integration', flush=True)
+        record('checking-sdk')
         measured = run_tests(ROOT, destination)
+        record('sdk-passed', native=measured)
         # The standard suite is construction-neutral. This separately invoked
         # author test compares this construction's entire 48 MB artifact with
         # the independent Rust implementation, byte for byte.
@@ -85,6 +103,7 @@ def main (args : List String) : IO UInt32 :=
                 binaries.append(item['executable'])
         assert len(set(binaries)) == 1
         print('RUNTIME_PROBE: compare complete reference artifact and later messages', flush=True)
+        record('checking-reference-correspondence')
         independent = guarded([binaries[0], '--ignored', 'generated_reference_format_correspondence',
                                '--test-threads=1', '--nocapture'], workspace, native=True)
         print(independent['stdout'], end='', flush=True)
@@ -95,6 +114,7 @@ def main (args : List String) : IO UInt32 :=
                       independentNativePeakMemoryBytes=independent['peakMemoryBytes'],
                       compilerPeakMemoryBytes=build['peakMemoryBytes'], native=measured)
         report.write_text(json.dumps(result, indent=2)+'\n')
+        record('reference-correspondence-passed', independentNativePeakMemoryBytes=independent['peakMemoryBytes'])
         print('PASS: runtime diagnostic only; no complete proof or acceptance result', flush=True)
         print(json.dumps(result), flush=True)
     finally:

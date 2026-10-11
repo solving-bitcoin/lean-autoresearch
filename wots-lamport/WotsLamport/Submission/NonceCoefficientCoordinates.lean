@@ -61,7 +61,7 @@ def nonceCoefficientEnvironmentEquiv (n : Nat) (Ω : Type) :
 
 /-- The nonce is exactly uniform and independent; only coefficient blocks
 contribute a sampling loss. The event may depend jointly on every coordinate. -/
-theorem nonceCoefficient_environment_event_bounds {Ω : Type} [Fintype Ω] [Nonempty Ω]
+theorem nonceCoefficient_environment_event_bounds {Ω : Type} [Finite Ω] [Nonempty Ω]
     [MeasurableSpace Ω] [DiscreteMeasurableSpace Ω] (n : Nat)
     (event : Set ((Bytes 32 × Ω) × (Fin n → Fin 65537))) :
     uniformOn (Set.univ : Set (Bytes ((n+1)*32) × Ω))

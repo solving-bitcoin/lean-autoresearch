@@ -49,35 +49,44 @@ complete imported submission or its security certificate passed.
 | Joint execution coupling, normalized good fibers and exact two-answer mask representation | JointOracleTrace, UniformGoodFiber, TwoHashMask | `05cd4d5` |
 | Complete protected honest correctness and actual artifact-address injection | Expansion.construction_correct, ArtifactAddresses | `f0b2e08` |
 | Common finite oracle domain, visible coefficient transport and sixteen-limb Horner projection | CommonOracleDomain, VisibleCoefficientTransport, LaneImplementation, LaneHorner | `f0b2e08` |
-
 | Complete lane construction equality and finite trace/product transport | LaneSharing.laneConstruction_eq, MultiTargetTrace, GoodKernelSubstitution, CanonicalLabels, CiphertextConditionedPrivacy, ProductEventBounds | `e8e1f95` |
+| Withholding reduction budget fits the protected numerical target | WithholdingBudget.withholding_bound_fits_target (arithmetic only) | `cd334f2` |
 
 ## Current validation attempt
 
-Run 42 (`e8e1f95`) checked **80 of 112 modules**. Four modules had direct
-errors (`ChainCollisionLaw`, `HonestQueryBudget`, `NonceCoefficientCoordinates`,
-`WithholdingBudget`); 28 dependents were blocked. The complete
-`LaneSharing.laneConstruction_eq` now passed, as did `MultiTargetTrace`,
-`GoodKernelSubstitution`, `CanonicalLabels`, `CiphertextConditionedPrivacy`
-and `ProductEventBounds`. The reference, BLAKE3 and G1 jobs passed.
+Run 43 (`cd334f2`) checked **81 of 120 modules**. Three modules had direct
+errors (`ChainCollisionLaw`, `HonestQueryBudget`, `AdaptiveBudget`); 36 dependents
+were blocked. `WithholdingBudget` now passes, but this is arithmetic, not the
+withholding-security theorem. Complete lane equality and universal honest
+correctness remain checked. The reference, BLAKE3 and G1 jobs all passed.
 
-The lane runtime diagnostic passed its proof gate, but the unchanged
-**1,800-second author cap expired during runtime preparation**. There is no
-completed lane timing or complete native artifact correspondence result.
+Successful source-build batches totaled **334.94 seconds** across 27 invocations
+(run 42's successful individual checks totaled about 889 seconds). This excludes
+failed batches and their individual retries. Nevertheless, the unchanged
+**1,800-second author cap expired during the runtime diagnostic**. Cleanup
+reported an active generated `garble` process. The retained log contains no
+completed lane timing or full native artifact correspondence result; no SDK
+success is inferred from the cleanup information.
+
 The last completed native measurement remains run 40 (`05cd4d5`): cached
 SDK `garble` timed out at **60.000052718 seconds** with zero stdout/stderr side
-output. Full artifact correspondence and later-message tests did not run.
+output. Full artifact correspondence and later-message native tests did not run.
+Run 43's independent Rust full-artifact/later-message test passed in **29.78
+seconds**, with **320,315,392 bytes** peak RSS. It does not establish Lean runtime
+performance or security.
 
-The next batch repairs explicit equality instances, query-program composition,
-nonce/table reindexing and nonnegative-rational casts. Eight new **unchecked**
-modules connect the adaptive game through conditional chain partitions,
-ciphertext-preserving field coordinates, both query phases, actual biased
-coins and the protected ROM. Their claimed total is three tape-collision
-losses, one complete coefficient-sampler loss, chosen-wire guessing and the
-two phase query bounds, all against the original target. They are proof
-attempts, not accepted security results. The selected implementation is now
-lane, following its complete checked equality; its runtime remains unmeasured.
-The certificate remains absent and the score unranked.
+The next batch removes a redundant solved-goal tactic, normalizes the sampler
+fraction and final pure binds, and explicitly unfolds the query-program wrappers.
+Uniform-product and auxiliary sampling lemmas now request finiteness without
+requiring caller-supplied enumerations. The complete withholding/adaptive
+reduction modules remain unchecked. The selected implementation stays lane;
+the certificate remains absent and the score unranked.
+
+The runtime probe now atomically retains its last completed phase and available
+build/SDK measurements. The verifier prints that evidence even after an outer
+timeout. Stale reports are cleared, incomplete phases do not count as passes,
+and failure-injection tests cover build, SDK and correspondence failures. This
+changes diagnostic retention only; the same proof gates, tests and limits apply.
 
 To avoid repeated Lake graph startup, author checks batch ready dependency
 layers within the same capped process and with one Lean thread. A successful

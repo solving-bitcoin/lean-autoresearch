@@ -61,6 +61,9 @@ def check_probe_proof_gate(variant):
     with TemporaryDirectory() as directory:
         root = Path(directory)
         calls = []
+        (root/'.yukon').mkdir()
+        report = root/'.yukon/runtime-probe.json'
+        report.write_text('STALE SUCCESS')
 
         def reject_proof(command, *_):
             calls.append(command)
@@ -80,6 +83,7 @@ def check_probe_proof_gate(variant):
         proof = {'machine': 'MachineSharing', 'lane': 'LaneSharing'}[variant]
         assert calls == [['lake', 'build', 'WotsLamport.Submission.'+proof]]
         assert not (root/'.lake/generated/SRTools.lean').exists()
+        assert not report.exists(), 'proof failure must clear an older runtime success report'
 
 
 def check_diagnostic_retention():
@@ -91,10 +95,15 @@ def check_diagnostic_retention():
         report = root/'.yukon/author-sources.json'
         report.parent.mkdir()
         report.write_text('STALE')
+        progress = root/'.yukon/runtime-progress.json'
+        progress.write_text('STALE RUNTIME')
+        old_result = root/'.yukon/runtime-probe.json'
+        old_result.write_text('STALE SUCCESS')
 
         def rejected(*_):
-            assert not report.exists()
+            assert not report.exists() and not progress.exists() and not old_result.exists()
             report.write_text('{"diagnosticOnly": true, "modules": []}')
+            progress.write_text('{"diagnosticOnly": true, "phase": "checking-sdk"}')
             raise SystemExit('unchanged timeout rejection')
 
         output = StringIO()
@@ -109,10 +118,64 @@ def check_diagnostic_retention():
             else:
                 raise AssertionError('diagnostics suppressed rejection')
         assert 'AUTHOR_SOURCE_DIAGNOSTICS' in output.getvalue()
+        assert 'RUNTIME_PROGRESS' in output.getvalue() and 'checking-sdk' in output.getvalue()
         assert 'diagnosticOnly' in output.getvalue() and 'STALE' not in output.getvalue()
 
 
+def check_runtime_progress():
+    import json
+    import check_runtime_probe as probe
+    sys.path.insert(0, str(probe.REPO/'secret-release/scripts'))
+    import bundle
+    import test_rust
+    for failure, expected in [('build', 'building-executable'), ('sdk', 'checking-sdk'),
+                              ('reference', 'checking-reference-correspondence'),
+                              (None, 'reference-correspondence-passed')]:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def run(command, *_, **options):
+                if command[:2] == ['lake', 'build'] and command[-1] == 'secret-release-tools' and failure == 'build':
+                    raise SystemExit('injected build failure')
+                if command[0] == '/fake/reference' and failure == 'reference':
+                    raise SystemExit('injected reference failure')
+                stdout = ''
+                if command[0] == 'cargo':
+                    stdout = json.dumps(dict(reason='compiler-artifact', executable='/fake/reference',
+                                             profile=dict(test=True)))+'\n'
+                return dict(stdout=stdout, stderr='', peakMemoryBytes=1)
+
+            def package(_, destination):
+                destination.mkdir(parents=True)
+                return dict(status='uncertified', certifiedBytes=None)
+
+            def sdk(*_):
+                if failure == 'sdk':
+                    raise SystemExit('injected sdk failure')
+                return dict(pipelineCases=1)
+
+            with patch.object(probe, 'ROOT', root), patch.object(probe, 'guarded', run), \
+                 patch.object(probe.boundary, 'check_protected'), patch.object(probe.boundary, 'check_source'), \
+                 patch.object(bundle, 'package', package), patch.object(test_rust, 'run_tests', sdk), \
+                 patch.object(sys, 'argv', ['check_runtime_probe.py', '--construction', 'lane']), \
+                 redirect_stdout(StringIO()):
+                try:
+                    probe.main()
+                except SystemExit as error:
+                    assert str(error) == 'injected '+failure+' failure'
+                else:
+                    assert failure is None
+            evidence = json.loads((root/'.yukon/runtime-progress.json').read_text())
+            assert evidence['diagnosticOnly'] is True and evidence['certificate'] is None
+            assert evidence['phase'] == expected
+            assert ('compilerPeakMemoryBytes' in evidence) == (failure != 'build')
+            assert ('native' in evidence) == (failure not in ('build', 'sdk'))
+            assert (root/'.yukon/runtime-probe.json').exists() == (failure is None)
+            assert not (root/'.lake/generated/SRTools.lean').exists()
+
+
 def main():
+    check_runtime_progress()
     check_diagnostic_retention()
     check_probe_proof_gate('machine')
     check_probe_proof_gate('lane')
