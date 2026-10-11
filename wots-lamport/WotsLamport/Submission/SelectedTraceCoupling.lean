@@ -85,8 +85,11 @@ theorem selected_trace_difference_bound {I J A : Type} [Fintype I] [Fintype J]
       (fun selected => traceTargets_length_le _ _ _ q (bound selected))
   have labelBound : uniformOn (Set.univ : Set ((I → Label) × (J → Pair))) labelHit ≤
       (Fintype.card J : ENNReal)*q*2/2^256 := by
-    change uniformOn (Set.univ : Set ((I → Label) × (J → Pair)))
-      (Set.univ ×ˢ {table | ∃ j, (table j).get (!(bits j)) ∈ labels (fun j => (table j).get (bits j))}) ≤ _
+    have event_eq : labelHit = (Set.univ : Set (I → Label)) ×ˢ
+        {table | ∃ j, (table j).get (!(bits j)) ∈ labels (fun j => (table j).get (bits j))} := by
+      ext sample
+      simp only [labelHit, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, true_and]
+    rw [event_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
     exact uniform_selected_table_list_hit bits labels q
       (fun selected => traceTargets_length_le _ _ _ q (bound selected))

@@ -87,13 +87,19 @@ theorem raw_tape_bad_bound (inputs : Finset OracleInput) :
     uniformOn (Set.univ : Set (RawProgrammedSample inputs))
       {sample | Function.Injective sample.2.1}ᶜ ≤ (1056 : ENNReal)^2/2^256 := by
   classical
-  change uniformOn
-      (Set.univ : Set ((Bytes randomnessBytes × (Fin 256 → Pair)) × CombinedIdeal inputs))
-      (Set.univ ×ˢ {sample | ¬Function.Injective sample.1}) ≤ _
+  have outer_eq : ({sample : RawProgrammedSample inputs | Function.Injective sample.2.1}ᶜ) =
+      (Set.univ : Set (Bytes randomnessBytes × (Fin 256 → Pair))) ×ˢ
+        {sample : CombinedIdeal inputs | ¬Function.Injective sample.1} := by
+    ext sample
+    simp only [Set.mem_compl_iff, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, true_and]
+  rw [outer_eq]
   rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
-  change uniformOn
-      (Set.univ : Set (ChainTape × ((ArtifactCell → Label) × (inputs → Label))))
-      ({tape | ¬Function.Injective tape} ×ˢ Set.univ) ≤ _
+  have inner_eq : {sample : CombinedIdeal inputs | ¬Function.Injective sample.1} =
+      {tape | ¬Function.Injective tape} ×ˢ
+        (Set.univ : Set ((ArtifactCell → Label) × (inputs → Label))) := by
+    ext sample
+    simp only [Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+  rw [inner_eq]
   rw [uniform_product, Measure.prod_prod, measure_univ, mul_one]
   exact uniform_chainTape_collision_bound
 

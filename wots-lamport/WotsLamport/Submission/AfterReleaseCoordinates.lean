@@ -156,9 +156,12 @@ theorem after_release_fiber_bound (m : Message) (nonce : ByteArray)
     · exact Or.inl (by simpa only [baselineWin, Set.mem_setOf_eq, same] using win)
     · exact Or.inr same
   have guessing : uniformOn (Set.univ : Set (AfterHiddenSetup m)) baselineWin ≤ (512 : ENNReal)/2^256 := by
-    change uniformOn (Set.univ : Set (MessageHiddenTape m × (Fin 256 → Pair)))
-      (Set.univ ×ˢ {labels | let claim := guess (fun i => (labels i).get (outputCodec.encode m)[i.val])
-        claim.2 = (labels claim.1).get (!(outputCodec.encode m)[claim.1.val])}) ≤ _
+    have event_eq : baselineWin = (Set.univ : Set (MessageHiddenTape m)) ×ˢ
+        {labels | let claim := guess (fun i => (labels i).get (outputCodec.encode m)[i.val])
+          claim.2 = (labels claim.1).get (!(outputCodec.encode m)[claim.1.val])} := by
+      ext secret
+      simp only [baselineWin, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, true_and]
+    rw [event_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
     have h := uniform_selected_table_guess (fun i : Fin 256 => (outputCodec.encode m)[i.val]) guess
     norm_num only [Fintype.card_fin, Nat.cast_ofNat] at h

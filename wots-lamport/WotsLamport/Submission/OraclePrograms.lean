@@ -139,19 +139,27 @@ theorem run_prepareProgram (h : Hash) (coins : ByteArray) (keys : Keys) (labels 
     tablesProgram, tablePairProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_listMapM,
     run_query, run_labelTableProgram, prepare, commitment_as_query]
 
+/-- Abstract two-program composition keeps query accounting from unfolding
+the concrete chain computations while comparing the composition's type. -/
+def pairProgram {A B C : Type} (first : Program A) (second : Program B)
+    (combine : A → B → C) : Program C := do
+  let a ← first
+  let b ← second
+  pure (combine a b)
+
 /-- Reification exposes the actual honest oracle calls to query accounting.
 It is an equality for every oracle, not an assumed random-oracle reduction. -/
 def wrappedPrepareProgram (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
-    Program ByteArray := do
-  let publicKeyValue ← publicKeyProgram keys
-  let body ← prepareProgram coins keys labels
-  pure (keyCodec.encode publicKeyValue ++ body)
+    Program ByteArray :=
+  pairProgram (publicKeyProgram keys) (prepareProgram coins keys labels)
+    (fun publicKeyValue body => keyCodec.encode publicKeyValue ++ body)
 
 theorem run_wrappedPrepareProgram (h : Hash) (coins : Bytes randomnessBytes)
     (keys : Keys) (labels : Fin 256 → Pair) :
     ROM.run h (wrappedPrepareProgram (ByteArray.mk coins.toArray) keys labels) =
       (wrapped construction).garbleBytes h coins () keys labels := by
-  simp only [wrappedPrepareProgram, run_bind, run_map, run_pure, run_publicKeyProgram, run_prepareProgram]
+  simp only [wrappedPrepareProgram, pairProgram, run_bind, run_map, run_pure,
+    run_publicKeyProgram, run_prepareProgram]
   rfl
 
 end WotsLamport.Submission

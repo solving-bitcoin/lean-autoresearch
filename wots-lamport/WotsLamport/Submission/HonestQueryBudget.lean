@@ -116,7 +116,7 @@ theorem bind_pure_query_bound {A B : Type} (oa : Program A) (f : A → B) (n : N
 theorem pair_query_bound {A B C : Type} (oa : Program A) (ob : Program B)
     (f : A → B → C) (n₁ n₂ : Nat)
     (ha : IsTotalQueryBound oa n₁) (hb : IsTotalQueryBound ob n₂) :
-    IsTotalQueryBound (do let a ← oa; let b ← ob; pure (f a b)) (n₁+n₂) := by
+    IsTotalQueryBound (pairProgram oa ob f) (n₁+n₂) := by
   exact isTotalQueryBound_bind ha (fun a => bind_pure_query_bound ob (f a) n₂ hb)
 
 theorem commitmentRowProgram_query_bound (pk nonce : ByteArray) (labels : Fin 256 → Pair)
@@ -168,11 +168,10 @@ theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (lab
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
   have hp := publicKeyProgram_query_bound keys
   have hb := prepareProgram_query_bound coins keys labels
-  have h := pair_query_bound (A := PublicKey) (B := ByteArray) (C := ByteArray)
+  exact pair_query_bound (A := PublicKey) (B := ByteArray) (C := ByteArray)
     (publicKeyProgram keys) (prepareProgram coins keys labels)
     (fun pk body => keyCodec.encode pk ++ body)
     (67*15) (67*15 + (256*2 + 256*(2*1984*16))) hp hb
-  simpa only [wrappedPrepareProgram, honestSetupQueries] using h
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated

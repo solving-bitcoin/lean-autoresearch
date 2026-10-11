@@ -54,38 +54,53 @@ complete imported submission or its security certificate passed.
 | Chain collision probability, ideal chain programming, and adaptive target arithmetic | ChainCollisionLaw, ChainProgrammingLaw, AdaptiveBudget | `cd24df3` |
 | Public/hidden chain partition, message-visible signature partition, exact nonce and joint coefficient-sampling law | ChainPartitionLaw, MessagePartition, NonceCoefficientCoordinates | `a03a0ac` |
 | Direct byte-fold reader, complete updated lane equality, and guessing from the full selected-label table | MachineCoinRead.directFieldLoop_eq, LaneSharing.laneConstruction_eq, JointLabelGuessing | `1e00f92` |
+| Exact oracle overlay and inverse fibers | OracleOverlay | `0ab64e1` |
 
 ## Current validation attempt
 
-Run 46 (`1e00f92`) checked **88 of 120 modules**. Three modules had direct
-errors (`HonestQueryBudget`, `OracleOverlay`, `SelectedLabelTrace`); 29 dependents
-were blocked. `MachineCoinRead` and the complete machine/cached/lane equality
-chain now pass for the direct byte-fold reader. `JointLabelGuessing` also passes.
-Universal honest correctness remains checked. These results do not establish
-the complete withholding or adaptive security reductions.
+Run 47 (`0ab64e1`) checked **89 of 120 modules**. Four modules had direct
+errors (`HonestQueryBudget`, `UniformOverlay`, `SelectedLabelTrace`,
+`FiniteChainLaw`); 27 dependents were blocked. `OracleOverlay` now passes.
+Universal honest correctness and the complete direct-reader machine/cached/lane
+equality remain checked. The complete withholding and adaptive security
+reductions remain unchecked.
 
-Successful source-build batches totaled **505.55 seconds** across 29 invocations;
-this excludes failed batches and individual retries. The unchanged **1,800-second
-author cap expired while building the diagnostic executable**. The retained
-phase is `building-executable`, entered 9.178 seconds after starting the runtime
-probe and checking full lane equality. It does not report a completed executable
-build or SDK execution. No new native timing or compiler peak is claimed.
+**The generated lane tools passed both the standard SDK integration and the
+independent complete reference-artifact/later-message correspondence check.**
+The SDK test suite took 65.51 seconds in total, with its existing 60-second
+per-tool limit enforced. It observed the exact **48,752,768-byte artifact** and
+8,192 released bytes. The independent correspondence test took 121.91 seconds;
+three generated expansions took 10.014, 11.430 and 10.188 seconds. These are
+completed runtime diagnostics, not a security certificate or accepted submission.
 
-The last native SDK result is run 44 (`cd24df3`), before the direct reader: its
-lane executable built successfully (6,193 jobs, compiler peak RSS
-4,356,411,392 bytes), and `garble` timed out at **60.003264428 seconds** with zero
-stdout/stderr side output. The optimized reader has not yet been timed. No SDK
-pass, full generated artifact correspondence, or later-message generated-tool
-result is claimed. Run 46's unchanged Rust full-artifact/later-message test
-passed in **23.58 seconds**; this does not benchmark the Lean reader.
+The executable build completed 6,193 jobs with compiler peak RSS
+**3,421,212,672 bytes**. SDK native peak RSS was **833,302,528 bytes**;
+independent correspondence peak RSS was **789,868,544 bytes**. The runtime
+probe finished at 1,224.798 seconds. Successful source batches totaled
+399.27 seconds across 27 invocations, excluding failed batches and retries.
+All checks stayed within the unchanged memory, tool and author limits.
+The separate Rust reference full-artifact/later-message test passed in
+24.74 seconds with 320,360,448 bytes peak RSS.
 
-The follow-up explicitly reduces the overlay inverse's lambda/subtype expression,
-uses the pinned list-indexing API and ENNReal division lemma, and applies the
-wrapper query-bound composition to already obtained proof terms without the
-previous dependent generalizations. Elaboration diagnostics are enabled for that
-one wrapper theorem; no heartbeat limit is raised. The fixes remain unchecked.
-No statement, sampler, serialization, backend, resource cap, or acceptance gate
-was changed. The certificate remains absent and the score unranked.
+The follow-up names the indexed lists explicitly, proves the product-event
+set equalities, annotates the noncomputable oracle-derived tape, and avoids a
+dependent subtype rewrite. The query-budget wrapper now uses the same abstract
+two-program combinator as its bound theorem: diagnostics showed the previous
+proof unfolded chain recursion over 271,000 times. This reification refactor
+preserves the executable construction and oracle calls. These fixes still need
+the pinned compiler. No statement, sampler, serialization, backend, resource
+cap, or acceptance gate was changed. The certificate remains absent and the
+score unranked.
+
+An additional local source review found nine analogous product-event rewrites
+in seven downstream modules. They now use explicit extensional set equalities
+instead of treating conjunction with `True` as definitional equality. This
+review checked the reduction's joint sampler loss, full oracle/ciphertext
+coordinates, message/state coupling before message-specific partitioning,
+and three separately accounted collision losses. No additional mathematical
+gap was identified by that review; the bridge proofs and these local repairs
+remain compiler-unchecked. Publication is paused pending approval, so this is
+not evidence of a newer hosted pass.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer

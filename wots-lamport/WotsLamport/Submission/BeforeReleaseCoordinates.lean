@@ -83,9 +83,11 @@ theorem before_release_fiber_bound (inputs : Finset OracleInput)
       simpa only [← same] using win
     · exact Or.inr same
   have guessing : uniformOn (Set.univ : Set HiddenSetup) baselineWin ≤ (4 : ENNReal)/2^256 := by
-    change uniformOn (Set.univ : Set (HiddenChainTape × (Fin 256 → Pair)))
-      (Set.univ ×ˢ {labels | guess.2 = (labels guess.1).get false ∨
-        guess.2 = (labels guess.1).get true}) ≤ _
+    have event_eq : baselineWin = (Set.univ : Set HiddenChainTape) ×ˢ
+        {labels | guess.2 = (labels guess.1).get false ∨ guess.2 = (labels guess.1).get true} := by
+      ext secret
+      simp only [baselineWin, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, true_and]
+    rw [event_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
     exact uniform_no_label_guess guess
   have querying : uniformOn (Set.univ : Set HiddenSetup) changed ≤ (3002 : ENNReal)*q/2^256 :=

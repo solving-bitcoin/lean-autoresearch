@@ -66,15 +66,22 @@ theorem uniform_setup_target_mass (index : SetupTarget) (label : Label) :
   letI := Fintype.ofFinite Pair
   cases index with
   | inl edge =>
-    change uniformOn (Set.univ : Set (HiddenChainTape × (Fin 256 → Pair)))
-      ({hidden | hidden edge = label} ×ˢ Set.univ) ≤ _
+    have event_eq : {sample : HiddenSetup | setupTarget (Sum.inl edge) sample = label} =
+        {hidden : HiddenChainTape | hidden edge = label} ×ˢ (Set.univ : Set (Fin 256 → Pair)) := by
+      ext sample
+      simp only [setupTarget, Sum.elim_inl, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+    rw [event_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, mul_one,
       uniform_coordinate_mass]
     rw [bytes_card]
     norm_num
   | inr cell =>
-    change uniformOn (Set.univ : Set (HiddenChainTape × (Fin 256 → Pair)))
-      (Set.univ ×ˢ {labels | (labels cell.1).get cell.2 = label}) ≤ _
+    have event_eq : {sample : HiddenSetup | setupTarget (Sum.inr cell) sample = label} =
+        (Set.univ : Set HiddenChainTape) ×ˢ
+          {labels : Fin 256 → Pair | (labels cell.1).get cell.2 = label} := by
+      ext sample
+      simp only [setupTarget, Sum.elim_inr, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, true_and]
+    rw [event_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, one_mul]
     have h := uniform_selected_table_guess_fixed (fun _ : Fin 256 => !cell.2)
       (fun _ => (cell.1,label)) cell.1

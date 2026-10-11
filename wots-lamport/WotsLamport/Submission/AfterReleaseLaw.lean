@@ -60,8 +60,12 @@ theorem afterInner_bad_law (m : Message) (pk : PublicKey) :
     {sample | ¬Function.Injective (afterTape m (pk,(afterInnerCoordinates m sample).1)
       (afterInnerCoordinates m sample).2)} = _
   simp only [afterInnerCoordinates_tape]
-  change uniformOn (Set.univ : Set (HiddenChainTape × ((Fin 256 → Pair) × AllocatedCoefficients)))
-      (conditionalTapeBad pk ×ˢ Set.univ) = _
+  have event_eq : {sample : AfterInnerSample |
+      ¬Function.Injective (chainPartitionEquiv.symm (pk,sample.1))} =
+      conditionalTapeBad pk ×ˢ (Set.univ : Set ((Fin 256 → Pair) × AllocatedCoefficients)) := by
+    ext sample
+    simp only [conditionalTapeBad, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+  rw [event_eq]
   rw [uniform_product, Measure.prod_prod, measure_univ, mul_one]
 
 /-- Conditional public-endpoint bound for the complete finishing phase. The

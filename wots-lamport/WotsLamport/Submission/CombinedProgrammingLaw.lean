@@ -61,9 +61,12 @@ theorem combinedProgram_event_bounds (event : Set (FiniteChainReal inputs)) :
   letI := Fintype.ofFinite Label
   have bad : uniformOn (Set.univ : Set (CombinedIdeal inputs))
       {sample | Function.Injective sample.1}ᶜ ≤ (1056 : ENNReal)^2 / 2^256 := by
-    change uniformOn
-      (Set.univ : Set (ChainTape × ((ArtifactCell → Label) × (inputs → Label))))
-      ({tape | ¬Function.Injective tape} ×ˢ Set.univ) ≤ _
+    have bad_eq : ({sample : CombinedIdeal inputs | Function.Injective sample.1}ᶜ) =
+        {tape | ¬Function.Injective tape} ×ˢ
+          (Set.univ : Set ((ArtifactCell → Label) × (inputs → Label))) := by
+      ext sample
+      simp only [Set.mem_compl_iff, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+    rw [bad_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, mul_one]
     exact uniform_chainTape_collision_bound
   have bounds := good_law_event_bounds

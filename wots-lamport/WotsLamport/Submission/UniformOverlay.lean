@@ -40,9 +40,13 @@ theorem uniform_overlay_joint_event {I D R : Type} [Fintype I] [Fintype D] [Fint
     change _ ↔ (overlayOracle address sample.1 sample.2 ∘ address,
       overlayOracle address sample.1 sample.2) ∈ event
     rw [readback]
+    rfl
   rw [he, Shamir.uniform_event_equiv e]
-  change uniformOn (Set.univ : Set ((D → R) × (I → R)))
-    ({oracle | (oracle ∘ address, oracle) ∈ event} ×ˢ Set.univ) = _
+  have target_eq : target =
+      {oracle | (oracle ∘ address, oracle) ∈ event} ×ˢ (Set.univ : Set (I → R)) := by
+    ext sample
+    simp only [target, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+  rw [target_eq]
   rw [uniform_product, Measure.prod_prod, measure_univ, mul_one]
 
 theorem overlayOracle_commute {I J D R : Type} (a : I → D) (b : J → D)

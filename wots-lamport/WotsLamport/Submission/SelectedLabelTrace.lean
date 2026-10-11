@@ -24,7 +24,8 @@ theorem uniform_selected_table_list_hit {I : Type} [Fintype I]
     obtain ⟨n,hn,he⟩ := List.mem_iff_getElem.mp member
     refine ⟨(i,⟨n,lt_of_lt_of_le hn (bound _)⟩),Finset.mem_univ _,?_⟩
     change (_[n]?).getD fallback = _
-    rw [getElem?_pos _ _ hn, Option.getD_some, he]
+    rw [getElem?_pos (values (fun j => (table j).get (bits j))) n hn,
+      Option.getD_some, he]
   have mass (index : I × Fin q) :
       uniformOn (Set.univ : Set (I → Pair)) (event index) ≤ (2 : ENNReal)/2^256 :=
     uniform_selected_table_guess_fixed bits

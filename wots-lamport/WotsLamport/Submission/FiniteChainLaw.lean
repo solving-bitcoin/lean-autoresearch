@@ -40,7 +40,7 @@ abbrev FiniteChainReal := Keys × (inputs → Label)
 noncomputable def finiteChainProgram (sample : FiniteChainIdeal inputs) : FiniteChainReal inputs :=
   (tapeKeys sample.1, programFiniteChain inputs contains sample.1 sample.2)
 
-def finiteChainRealTape (sample : FiniteChainReal inputs) : ChainTape :=
+noncomputable def finiteChainRealTape (sample : FiniteChainReal inputs) : ChainTape :=
   actualChainTape (ROM.hash (extendOracleTable inputs sample.2)) sample.1
 
 theorem finiteChainProgram_tape (sample : FiniteChainIdeal inputs)
@@ -56,8 +56,8 @@ abbrev FiniteChainFiber (target : FiniteChainReal inputs) :=
 theorem finiteChainFiber_tape (target : FiniteChainReal inputs)
     (sample : FiniteChainFiber inputs contains target) :
     sample.val.1 = finiteChainRealTape inputs target := by
-  rw [← sample.property.2]
-  exact (finiteChainProgram_tape inputs contains sample.val sample.property.1).symm
+  exact (finiteChainProgram_tape inputs contains sample.val sample.property.1).symm.trans
+    (congrArg (finiteChainRealTape inputs) sample.property.2)
 
 noncomputable def finiteChainFiberEquiv (target : FiniteChainReal inputs)
     (distinct : Function.Injective (finiteChainRealTape inputs target)) :
@@ -141,8 +141,11 @@ theorem finiteChainProgram_event_bounds (event : Set (FiniteChainReal inputs)) :
   letI := Fintype.ofFinite Label
   have bad : uniformOn (Set.univ : Set (FiniteChainIdeal inputs))
       {sample | Function.Injective sample.1}ᶜ ≤ (1056 : ENNReal)^2 / 2^256 := by
-    change uniformOn (Set.univ : Set (ChainTape × (inputs → Label)))
-      ({tape | ¬Function.Injective tape} ×ˢ Set.univ) ≤ _
+    have bad_eq : ({sample : FiniteChainIdeal inputs | Function.Injective sample.1}ᶜ) =
+        {tape | ¬Function.Injective tape} ×ˢ (Set.univ : Set (inputs → Label)) := by
+      ext sample
+      simp only [Set.mem_compl_iff, Set.mem_setOf_eq, Set.mem_prod, Set.mem_univ, and_true]
+    rw [bad_eq]
     rw [uniform_product, Measure.prod_prod, measure_univ, mul_one]
     exact uniform_chainTape_collision_bound
   have bounds := good_law_event_bounds

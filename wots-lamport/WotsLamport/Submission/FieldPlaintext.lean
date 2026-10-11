@@ -56,7 +56,7 @@ theorem sharePosition_visible_coordinate (m : Message) (position : SharePosition
     have hb : position.val.2.2.val < (slots position.val.1 position.val.2.1).length := by
       rw [slots_length]
       exact position.property
-    rw [getElem?_pos _ _ hb]
+    rw [getElem?_pos (slots position.val.1 position.val.2.1) position.val.2.2.val hb]
     rfl
   have member : (sharePositionEntry position,position.val.2.2.val) ∈
       visibleSlots m position.val.1 position.val.2.1 := by
