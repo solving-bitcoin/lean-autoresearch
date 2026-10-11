@@ -43,7 +43,8 @@ theorem directFieldLoop_eq (bytes : ByteArray) (start length : Nat) (initial : U
 theorem readDirectField_eq_machine (bytes : ByteArray) (start length : Nat) :
     readDirectField bytes start length = readMachineField bytes start length := by
   unfold readDirectField readMachineField evaluateMachinePolynomial
-  rw [directFieldLoop_eq]
+  have base : (256 : UInt32) = UInt32.ofNat 256 := by decide +kernel
+  rw [directFieldLoop_eq, base]
 
 theorem readDirectField_eq (bytes : ByteArray) (start length : Nat) :
     readDirectField bytes start length = readLE bytes start length % prime := by

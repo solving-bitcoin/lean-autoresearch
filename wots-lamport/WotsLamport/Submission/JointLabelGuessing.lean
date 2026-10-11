@@ -62,6 +62,7 @@ theorem uniform_selected_table_guess_fixed {I : Type} [Fintype I]
         ext pivot
         simp only [Set.mem_setOf_eq, event, e, selected_pivot_table]
         simp [pivotTableEquiv]
+      change uniformOn (Set.univ : Set Pair) {pivot | (pivot,rest) ∈ event} ≤ (2 : ENNReal)/2^256
       rw [he]
       exact uniform_labelGuess_bound (bits i)
         (fun value => (guess (selectedPivotTable i bits rest value)).2)

@@ -52,13 +52,13 @@ theorem overlayOracle_commute {I J D R : Type} (a : I → D) (b : J → D)
       overlayOracle b bv (overlayOracle a av base) := by
   classical
   funext input
-  by_cases foundA : ∃ i, a i = input
+  rcases Classical.em (∃ i, a i = input) with foundA | foundA
   · obtain ⟨i,rfl⟩ := foundA
     have offB : ∀ j, b j ≠ a i := fun j => (disjoint i j).symm
     rw [overlayOracle_at a av _ ha i, overlayOracle_off b bv _ _ offB,
       overlayOracle_at a av base ha i]
   · have offA : ∀ i, a i ≠ input := by intro i hi; exact foundA ⟨i,hi⟩
-    by_cases foundB : ∃ j, b j = input
+    rcases Classical.em (∃ j, b j = input) with foundB | foundB
     · obtain ⟨j,rfl⟩ := foundB
       rw [overlayOracle_off a av _ _ offA, overlayOracle_at b bv base hb j,
         overlayOracle_at b bv _ hb j]

@@ -8,6 +8,7 @@ baseline answer. This is a mathematical table operation, not native code. -/
 noncomputable def overlayOracle {I D R : Type} (address : I → D) (answer : I → R)
     (baseline : D → R) (input : D) : R := by
   classical
+  letI : Decidable (∃ i, address i = input) := Classical.propDecidable _
   exact if found : ∃ i, address i = input then answer (Classical.choose found)
     else baseline input
 
@@ -15,6 +16,7 @@ theorem overlayOracle_at {I D R : Type} (address : I → D) (answer : I → R)
     (baseline : D → R) (injective : Function.Injective address) (i : I) :
     overlayOracle address answer baseline (address i) = answer i := by
   classical
+  letI : Decidable (∃ j, address j = address i) := Classical.propDecidable _
   have found : ∃ j, address j = address i := ⟨i,rfl⟩
   rw [overlayOracle, dif_pos found]
   exact congrArg answer (injective (Classical.choose_spec found))
@@ -22,6 +24,7 @@ theorem overlayOracle_at {I D R : Type} (address : I → D) (answer : I → R)
 theorem overlayOracle_off {I D R : Type} (address : I → D) (answer : I → R)
     (baseline : D → R) (input : D) (missing : ∀ i, address i ≠ input) :
     overlayOracle address answer baseline input = baseline input := by
+  letI : Decidable (∃ i, address i = input) := Classical.propDecidable _
   have hn : ¬∃ i, address i = input := by rintro ⟨i,hi⟩; exact missing i hi
   simp only [overlayOracle, dif_neg hn]
 
@@ -30,7 +33,7 @@ theorem overlayOracle_restore {I D R : Type} (address : I → D)
     overlayOracle address (fixed ∘ address) (overlayOracle address fill fixed) = fixed := by
   classical
   funext input
-  by_cases found : ∃ i, address i = input
+  rcases Classical.em (∃ i, address i = input) with found | found
   · obtain ⟨i,rfl⟩ := found
     exact overlayOracle_at address _ _ injective i
   · have missing : ∀ i, address i ≠ input := by intro i hi; exact found ⟨i,hi⟩
@@ -52,7 +55,7 @@ noncomputable def overlayFiberEquiv {I D R : Type} (address : I → D)
     left_inv baseline := by
       apply Subtype.ext
       funext input
-      by_cases found : ∃ i, address i = input
+      rcases Classical.em (∃ i, address i = input) with found | found
       · obtain ⟨i,rfl⟩ := found
         exact overlayOracle_at address _ fixed injective i
       · have missing : ∀ i, address i ≠ input := by intro i hi; exact found ⟨i,hi⟩
@@ -69,13 +72,20 @@ theorem overlay_fiber_card {I D R : Type} [Fintype I] [Fintype R]
     Nat.card {baseline : D → R // overlayOracle address (fixed ∘ address) baseline = fixed} =
       Fintype.card R ^ Fintype.card I := by
   classical
+  letI : DecidableEq I := Classical.decEq I
+  letI : DecidableEq R := Classical.decEq R
   rw [Nat.card_congr (overlayFiberEquiv address injective fixed),
     Nat.card_eq_fintype_card, Fintype.card_fun]
 
 theorem programChainOracle_eq_overlay (baseline : Hash) (tape : ChainTape) :
     programChainOracle baseline tape =
       overlayOracle (fun edge : ChainEdge => ByteArray.mk (tape edge.val).toArray)
-        (fun edge => tape (edgeNext edge)) baseline := rfl
+        (fun edge => tape (edgeNext edge)) baseline := by
+  funext input
+  rcases Classical.em (∃ edge : ChainEdge,
+    ByteArray.mk (tape edge.val).toArray = input) with found | missing
+  · simp only [programChainOracle, overlayOracle, dif_pos found]
+  · simp only [programChainOracle, overlayOracle, dif_neg missing]
 
 theorem chain_address_injective (tape : ChainTape) (distinct : Function.Injective tape) :
     Function.Injective (fun edge : ChainEdge => ByteArray.mk (tape edge.val).toArray) := by

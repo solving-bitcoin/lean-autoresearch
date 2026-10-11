@@ -22,7 +22,7 @@ theorem finite_overlay_hash {I : Type} (inputs : Finset OracleInput)
   funext input
   change extendOracleTable inputs (overlayOracle finiteAddress answers baseline)
       (oracleInput input) = _
-  by_cases found : ∃ i, address i = input
+  rcases Classical.em (∃ i, address i = input) with found | found
   · obtain ⟨i,rfl⟩ := found
     rw [overlayOracle_at address answers _ injective i]
     rw [extendOracleTable, dif_pos (contains i)]

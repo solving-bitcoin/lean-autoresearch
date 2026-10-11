@@ -52,40 +52,43 @@ complete imported submission or its security certificate passed.
 | Complete lane construction equality and finite trace/product transport | LaneSharing.laneConstruction_eq, MultiTargetTrace, GoodKernelSubstitution, CanonicalLabels, CiphertextConditionedPrivacy, ProductEventBounds | `e8e1f95` |
 | Withholding reduction budget fits the protected numerical target | WithholdingBudget.withholding_bound_fits_target (arithmetic only) | `cd334f2` |
 | Chain collision probability, ideal chain programming, and adaptive target arithmetic | ChainCollisionLaw, ChainProgrammingLaw, AdaptiveBudget | `cd24df3` |
+| Public/hidden chain partition, message-visible signature partition, exact nonce and joint coefficient-sampling law | ChainPartitionLaw, MessagePartition, NonceCoefficientCoordinates | `a03a0ac` |
 
 ## Current validation attempt
 
-Run 44 (`cd24df3`) checked **84 of 120 modules**. Two modules had direct
-errors (`ChainPartitionLaw`, `HonestQueryBudget`); 34 dependents were blocked.
-`ChainCollisionLaw`, `ChainProgrammingLaw` and `AdaptiveBudget` now pass. The
-last result is numerical target arithmetic, not adaptive security. Complete
-lane equality and universal honest correctness passed for that revision.
-Successful source-build batches totaled **328.89 seconds** across 25 invocations;
-this excludes failed batches and individual retries.
+Run 45 (`a03a0ac`) checked **83 of 120 modules**. Four modules had direct
+errors (`MachineCoinRead`, `HonestQueryBudget`, `OracleOverlay`,
+`JointLabelGuessing`); 33 dependents were blocked. `ChainPartitionLaw`,
+`MessagePartition` and `NonceCoefficientCoordinates` now pass. These establish
+intermediate partition and sampling laws, not the complete security reductions.
+The modified reader's module failed on an explicit UInt32 numeral conversion,
+so the runtime gate correctly **skipped** the modified lane executable. Its
+complete equality and performance remain unverified. Universal honest
+correctness of the mathematical construction remains checked.
 
-The lane executable built successfully (6,193 build jobs), with compiler peak
-RSS **4,356,411,392 bytes**, within the unchanged hosted 8 GiB build cap. Its
-SDK `garble` then timed out at **60.003264428 seconds**, with zero stdout/stderr
-side output. The retained progress phase is `checking-sdk`; it records
-998.896 seconds elapsed before SDK execution. No SDK pass, full generated
-artifact correspondence, or later-message generated-tool result is claimed.
-This was a concrete per-tool timeout, not the outer author time cap.
+Successful source-build batches totaled **458.82 seconds** across 30 invocations;
+this excludes failed batches and individual retries. Run 45 produced no native
+lane timing. The last native result is run 44 (`cd24df3`): its lane executable
+built successfully (6,193 jobs, compiler peak RSS **4,356,411,392 bytes**) and
+SDK `garble` timed out at **60.003264428 seconds**, with zero stdout/stderr side
+output. No SDK pass, full generated artifact correspondence, or later-message
+generated-tool result is claimed.
 
-Run 44's independent Rust full-artifact/later-message test passed in **39.32
-seconds**, with **320,233,472 bytes** peak RSS. Prepare took 30.912 seconds and
-three later-message expansions each took about 2.0–2.1 seconds. These are Rust
-reference measurements, not Lean runtime or security evidence.
+Run 45's independent Rust full-artifact/later-message test passed in **25.42
+seconds**, with **320,352,256 bytes** peak RSS. Prepare took 19.177 seconds and
+three later-message expansions each took about 1.5–1.6 seconds. The Rust code
+was unchanged; these measurements do not validate or benchmark the new Lean
+reader.
 
-The follow-up makes the endpoint arithmetic coercion explicit and constructs
-query-bound terms before matching concrete program wrappers, avoiding expensive
-unfolding during elaboration. It also replaces the lane coefficient reader's
-per-block temporary lists with a direct recursive byte fold. A new proof relates
-that fold to the original machine Horner reader for every byte array, offset,
-length and initial accumulator; complete lane equality must compile again
-before this modified executable can run. This optimization and its proof are
-**not yet compiler-checked or benchmarked**. The sampler, serialization, native
-backend and resource limits are unchanged. The certificate remains absent and
-the score unranked.
+The follow-up explicitly proves the UInt32 base conversion, supplies classical
+decisions without expensive instance searches, and normalizes an event preimage
+before rewriting it. Query-bound application abstracts the concrete computations after obtaining
+their bounds, avoiding expansion of the oracle program during elaboration. The statements and
+heartbeat limits are unchanged. These fixes still require compiler checking.
+The lane coefficient reader remains a direct recursive byte fold whose complete
+equality must compile before execution. No sampler, serialization, native
+backend, resource cap, or acceptance gate was changed. The certificate remains
+absent and the score unranked.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer

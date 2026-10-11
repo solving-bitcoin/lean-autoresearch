@@ -153,23 +153,25 @@ theorem afterPublicProgram_query_bound (coins pk : ByteArray) (keys : Keys)
 theorem prepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (prepareProgram coins keys labels)
       (67*15 + (256*2 + 256*(2*1984*16))) := by
-  have h := isTotalQueryBound_bind (oa := publicKeyProgram keys)
-    (ob := fun pk => afterPublicProgram coins (keyCodec.encode pk) keys labels)
-    (n₁ := 67*15) (n₂ := 256*2 + 256*(2*1984*16))
-    (publicKeyProgram_query_bound keys)
-    (fun pk => afterPublicProgram_query_bound coins (keyCodec.encode pk) keys labels)
-  simpa only [prepareProgram] using h
+  have hp := publicKeyProgram_query_bound keys
+  have ha := fun pk : PublicKey =>
+    afterPublicProgram_query_bound coins (keyCodec.encode pk) keys labels
+  unfold prepareProgram
+  generalize programEq : publicKeyProgram keys = publicProgram at *
+  exact isTotalQueryBound_bind hp ha
 
 def honestSetupQueries : Nat := 67*15 + (67*15 + (256*2 + 256*(2*1984*16)))
 def honestReleaseQueries : Nat := honestSetupQueries + 67*15
 
 theorem wrappedPrepareProgram_query_bound (coins : ByteArray) (keys : Keys) (labels : Fin 256 → Pair) :
     IsTotalQueryBound (wrappedPrepareProgram coins keys labels) honestSetupQueries := by
-  have h := pair_query_bound (publicKeyProgram keys) (prepareProgram coins keys labels)
-    (fun pk body => keyCodec.encode pk ++ body)
-    (67*15) (67*15 + (256*2 + 256*(2*1984*16)))
-    (publicKeyProgram_query_bound keys) (prepareProgram_query_bound coins keys labels)
-  simpa only [wrappedPrepareProgram, honestSetupQueries] using h
+  have hp := publicKeyProgram_query_bound keys
+  have hb := prepareProgram_query_bound coins keys labels
+  unfold wrappedPrepareProgram honestSetupQueries
+  generalize publicEq : publicKeyProgram keys = publicProgram at *
+  generalize bodyEq : prepareProgram coins keys labels = bodyProgram at *
+  exact pair_query_bound publicProgram bodyProgram (fun pk body => keyCodec.encode pk ++ body)
+    (67*15) (67*15 + (256*2 + 256*(2*1984*16))) hp hb
 
 /-- This counts the reified executable's chain, mask and commitment queries,
 including both public-key computations and one signature disclosure. Repeated
