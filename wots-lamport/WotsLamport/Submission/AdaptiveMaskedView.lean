@@ -10,13 +10,9 @@ def ciphertextCoordinateEquiv {C I : Type} {n : Nat} (plain : C → I → Bytes 
   toFun sample := (ciphertextTable plain sample, sample.1)
   invFun sample := (sample.2, fun i => xorVector (sample.1 i) (plain sample.2 i))
   left_inv sample := by
-    apply Prod.ext rfl
-    funext i
-    exact xorVector_cancel _ _
+    exact Prod.ext rfl (by funext i; exact xorVector_cancel _ _)
   right_inv sample := by
-    apply Prod.ext _ rfl
-    funext i
-    exact xorVector_cancel _ _
+    exact Prod.ext (by funext i; exact xorVector_cancel _ _) rfl
 
 /-- The coefficient bijection may depend on the complete ciphertext table.
 Using ciphertext coordinates makes this dependence triangular and invertible. -/
@@ -59,8 +55,7 @@ theorem adaptiveSharingPadEquiv_view {C I K : Type} {n : Nat}
       adaptiveMaskedView visible a obsA sample := by
   simp only [adaptiveMaskedView, adaptiveSharingPadEquiv_ciphertext,
     adaptiveSharingPadEquiv_coefficient]
-  apply Prod.ext rfl
-  apply Prod.ext (observed _ _)
+  refine Prod.ext rfl (Prod.ext (observed _ _) ?_)
   funext i
   by_cases hv : visible (ciphertextTable a sample) i = true
   · simp only [if_pos hv]

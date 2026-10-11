@@ -9,6 +9,7 @@ this outer-measure inequality. -/
 theorem event_transfer_of_coupling {Ω A : Type} [MeasurableSpace Ω]
     (μ : Measure Ω) (real ideal : Ω → A) (event : Set A) :
     μ (real ⁻¹' event) ≤ μ (ideal ⁻¹' event) + μ {ω | real ω ≠ ideal ω} := by
+  classical
   have hs : real ⁻¹' event ⊆ (ideal ⁻¹' event) ∪ {ω | real ω ≠ ideal ω} := by
     intro ω hω
     by_cases he : real ω = ideal ω

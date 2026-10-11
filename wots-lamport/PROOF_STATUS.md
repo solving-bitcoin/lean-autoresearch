@@ -40,17 +40,21 @@ complete imported submission or its security certificate passed.
 
 ## Current validation attempt
 
-Run 36 (`d0bd1ac`) returned complete source diagnostics within the existing
-cap: **47 compiled modules, eight direct failures and 20 blocked modules**.
-It directly confirmed the machine-definition refactor and its full equality
-proofs, coin-block independence, coefficient indexing, visible-coefficient
-privacy, domain separation/injectivity and the finite-oracle bridge. No native
-WOTS test ran because sources failed. The next batch repairs the reported
-cardinality simplification, measure instances/order proof, vector sizes,
-monadic maps, fresh-cell API name, redundant tactic, cached indexing and
-`Expand` option simplification/scoped-option syntax. These repairs are not yet
-compiler checked. Cached executable definitions are also isolated from the
-already checked machine definitions. No statement or resource limit changes.
+Run 37 (`fba813c`) returned complete source diagnostics within the existing
+cap: **57 compiled modules, eight direct failures and 11 blocked modules**.
+Newly checked modules include CoefficientTableLaw, JointSampler, FieldTableLaw,
+MaskLaw, MaskedViewLaw, OraclePrograms, OracleTrace, QueryTargets and
+FreshOracleProgramming. This checks the joint coefficient bias bound and
+actual program reification, but not the full joint security reduction.
+CachedImplementation definitions also compiled; CachedSharing equality did not.
+No native WOTS test ran because sources failed.
+
+The next batch repairs explicit tuple projections, finite cardinalities,
+classical event equality, pointwise measure order, finite-index normalization,
+cached vector lookup, query-accounting monadic maps and byte-array equality.
+The wrapper correctness proof now simplifies named projections before its
+concrete goal. These repairs are not yet compiler checked. No theorem statement
+or resource limit is weakened; the original candidate remains selected.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all

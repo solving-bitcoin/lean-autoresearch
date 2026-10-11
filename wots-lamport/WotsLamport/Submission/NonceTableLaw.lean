@@ -44,6 +44,8 @@ theorem nonceFieldLaw_lower {n : Nat} (index : Fin (n+1)) :
     have lower : Sampler.ordinaryWeight • uniformOn (Set.univ : Set (Fin 65537)) ≤
         Sampler.fieldLaw := by
       rw [Sampler.fieldLaw, Sampler.reduced_integer_mixture]
+      intro event
+      rw [Measure.add_apply]
       exact le_add_right le_rfl
     simp only [idealNonceFieldLaw, hi, ↓reduceIte, nonceFieldLaw, he]
     rw [← Measure.map_map Measurable.of_discrete Measurable.of_discrete, fieldBlock_law]
@@ -63,7 +65,9 @@ theorem nonceFieldTable_nonce (n : Nat) (coins : Bytes ((n+1)*32)) :
 
 theorem nonceFieldTable_coefficient (coins : Bytes randomnessBytes) (j : Fin coefficientCount) :
     nonceFieldTable coefficientCount coins j.succ = Sum.inr (fieldBlock (coefficientBlock coins j)) := by
-  simp [nonceFieldTable, nonceFieldBlock, coefficientBlock, coefficientBlocks]
+  simp only [nonceFieldTable, nonceFieldBlock, Fin.val_succ, Nat.add_eq_zero_iff,
+    Nat.one_ne_zero, and_false, ite_false, coefficientBlock, coefficientBlocks]
+  rfl
 
 theorem nonceFieldTable_law (n : Nat) :
     (uniformOn (Set.univ : Set (Bytes ((n+1)*32)))).map (nonceFieldTable n) =

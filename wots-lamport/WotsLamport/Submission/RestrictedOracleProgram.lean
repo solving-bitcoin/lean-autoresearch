@@ -84,5 +84,6 @@ theorem protected_oracle_eq_finite_lazy (p : Program Bool) (event : Set Bool) :
   ext answers
   change (ROM.run (ROM.hash (extendOracleTable inputs answers)) p ∈ event) ↔ _
   rw [run_restrictedOracleProgram]
+  rfl
 
 end WotsLamport.Submission

@@ -4,6 +4,10 @@ import WotsLamport.Submission.LabelBridge
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected
 
+theorem byteArray_bne_self (bytes : ByteArray) : (bytes != bytes) = false := by
+  change (!(bytes.data == bytes.data)) = false
+  simp
+
 /-- Every selected label is recovered from the same prepared artifact,
 for every message, oracle, key, label table and sufficiently long coin string. -/
 theorem expandLabel_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
@@ -35,7 +39,7 @@ theorem expandLabel_prepared (h : Hash) (coins : ByteArray) (keys : Keys)
   dsimp only [label] at hlength hrec hbytes
   simp only [hlength, hrec, hvalid, hbytes, byteVector_decode_raw, Option.bind_eq_bind, Option.bind_some, Option.map_eq_map, Option.map_some, Option.pure_def,
     bne_self_eq_false, Bool.false_eq_true, ite_false,
-    prepare_commitment_slice h coins keys labels hcoins i value] <;> rfl
+    prepare_commitment_slice h coins keys labels hcoins i value, byteArray_bne_self]
 
 theorem concatenate_label_fold (labels : List Label) (initial : ByteArray) :
     (labels.map fun label => ByteArray.mk label.toArray).foldl
@@ -91,6 +95,9 @@ theorem construction_correct : Correct (wrapped construction) := by
     exact ByteArray.extract_append_eq_right hp.symm ByteArray.size_append
   have hcsize : (ByteArray.mk coins.toArray).size = randomnessBytes := coins.size_toArray
   have hc : 32 ≤ (ByteArray.mk coins.toArray).size := by rw [hcsize]; decide
+  simp only [Scheme.evaluateBytes, Scheme.garbleBytes, wrapped, construction,
+    challenge, wotsDisclosure, signatureBytes, Lamport, id_eq,
+    Option.bind_eq_bind, Option.bind_some]
   change (do
     let pk ← keyCodec.decode ((pkbytes ++ body).extract 0 2144)
     let sig ← keyCodec.decode (keyCodec.encode (sign h keys m))

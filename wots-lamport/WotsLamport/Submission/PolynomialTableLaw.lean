@@ -18,16 +18,14 @@ theorem polynomialAddress_injective : Function.Injective polynomialAddress := by
     labelIndex_injective (congrArg Prod.fst hs)
   have hlimb := congrArg (fun s : CoefficientSlot => s.2.1) hs
   have hdegree := congrArg (fun s : CoefficientSlot => s.2.2) hs
-  apply Prod.ext
-  · apply Prod.ext
-    · exact congrArg Prod.fst hl
-    · exact Prod.ext (congrArg Prod.snd hl) hlimb
-  · exact hdegree
+  exact Prod.ext
+    (Prod.ext (congrArg (fun pair : Fin 256 × Bool => pair.1) hl)
+      (Prod.ext (congrArg (fun pair : Fin 256 × Bool => pair.2) hl) hlimb)) hdegree
 
 noncomputable def polynomialAddressEquiv : (PolynomialSlot × Fin 1023) ≃ Fin coefficientCount :=
   Equiv.ofBijective polynomialAddress
     ((Fintype.bijective_iff_injective_and_card _).mpr
-      ⟨polynomialAddress_injective, by simp [PolynomialSlot, coefficientCount]⟩)
+      ⟨polynomialAddress_injective, by simp only [PolynomialSlot, Fintype.card_prod, Fintype.card_fin, Fintype.card_bool]; rfl⟩)
 
 noncomputable def polynomialTableEquiv :
     (Fin coefficientCount → ZMod 65537) ≃ (PolynomialSlot → Fin 1023 → ZMod 65537) where
