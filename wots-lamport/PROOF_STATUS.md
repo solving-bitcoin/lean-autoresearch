@@ -64,20 +64,25 @@ complete imported submission or its security certificate passed.
 
 | Restricted programmed oracle agrees away from hidden targets | VisibleProgrammedOracle | `642de89` |
 
+| Complete honest query budget, transported field artifact coordinates and visible tape congruence | HonestQueryBudget, FieldArtifactCoordinates, VisibleTapeOracle | `71c3c5f` |
+
 ## Current validation attempt
 
-Run 53 (`642de89`) checked **104 of 120 modules**. Three modules had direct
-errors (`HonestQueryBudget`, `FieldArtifactCoordinates`, `VisibleTapeOracle`);
-13 dependents were blocked. `VisibleProgrammedOracle` is newly checked.
-Universal correctness, the artifact bound and optimized implementation equality
-remain checked. Complete withholding/adaptive security reductions remain unchecked.
+Run 54 (`71c3c5f`) checked **107 of 120 modules**. Two modules had direct
+errors (`GamePrograms`, `CanonicalVisibleOracle`); 11 dependents were blocked.
+`HonestQueryBudget`, `FieldArtifactCoordinates` and `VisibleTapeOracle` are newly
+checked. Universal correctness, the artifact bound and optimized implementation
+equality remain checked. Complete withholding/adaptive security reductions
+remain unchecked.
 
 The unchanged 1,800-second author cap expired during executable building in
-run 53. Its retained runtime phase is `building-executable`, entered 8.889 seconds
+run 54. Its retained runtime phase is `building-executable`, entered 9.032 seconds
 after starting the runtime probe; this is not the build duration. There is no
-completed SDK or correspondence result for run 53. The separate Rust reference
-test passed in 38.15 seconds with 320,262,144 bytes peak RSS. Successful source
-batches took 598.487 seconds across 34 batches, excluding failed batches/retries.
+completed SDK or correspondence result for run 54. The separate Rust reference
+test passed in 29.92 seconds with 320,360,448 bytes peak RSS. Successful source
+batches took 668.503 seconds across 33 batches, excluding failed batches/retries.
+Both G1 and BLAKE3 previews passed run 54. Run 53 likewise reached the author cap
+during executable building, without a completed runtime test.
 
 **Run 52 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -98,11 +103,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs restrict elaborator unfolding during the final setup
-query-bound theorem application, use the explicit commitment-coordinate theorem,
-and expose the endpoint `Fin` equality as a natural-number equality. These
-repairs remain compiler-unchecked. No security statement, sampler, executable
-construction, resource cap or acceptance gate was weakened.
+The latest local repairs keep setup/signing programs abstract during execution
+correspondence proofs, compose query budgets with restricted elaborator unfolding
+and pure-map bounds, and use named canonical labels plus direct oracle-equality
+composition. These repairs remain compiler-unchecked. No security statement,
+sampler, executable construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

@@ -44,11 +44,16 @@ theorem visibleOracle_canonical_form (m : Message) (nonce : ByteArray) (tape : C
     visibleProgrammedHash m nonce tape labels (fieldArtifactAnswers labels c coordinates) baseline =
       canonicalVisibleOracle m nonce (tapePublicKey tape) (messageChainPartition m tape).2.2
         selected (visibleCoefficientEquiv m labels canonical same c) coordinates baseline := by
-  dsimp only
-  rw [← visibleProgrammedHash_field_transport m nonce tape labels
-    (canonicalLabelTable (fun i => (outputCodec.encode m)[i.val])
-      (fun i => (labels i).get (outputCodec.encode m)[i.val]))
-    (fun i => (canonicalLabelTable_selected _ labels i).symm) c coordinates baseline]
+  let bits : Fin 256 → Bool := fun i => (outputCodec.encode m)[i.val]
+  let selected : Fin 256 → Label := fun i => (labels i).get (bits i)
+  let canonical := canonicalLabelTable bits selected
+  have same : ∀ i, (labels i).get (bits i) = (canonical i).get (bits i) :=
+    fun i => (canonicalLabelTable_selected bits labels i).symm
+  change visibleProgrammedHash m nonce tape labels (fieldArtifactAnswers labels c coordinates) baseline =
+    canonicalVisibleOracle m nonce (tapePublicKey tape) (messageChainPartition m tape).2.2
+      selected (visibleCoefficientEquiv m labels canonical same c) coordinates baseline
+  have transport := visibleProgrammedHash_field_transport m nonce tape labels canonical same c coordinates baseline
+  apply transport.symm.trans
   unfold canonicalVisibleOracle
   apply visibleProgrammedHash_tape_congr
   · exact (visibleTapeRepresentative_publicKey m _ _).symm
