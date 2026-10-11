@@ -1,7 +1,8 @@
 """Measure the current executable before the complete proof graph is ready.
 
-This authoring-only probe imports a selected implementation together with its
-proofs, uses the protected wrapper and CLI, and retains certificate=None. The
+This authoring-only probe first builds the full equality module, then imports
+its executable definitions, uses the protected wrapper and CLI, and retains
+certificate=None. The
 author source checker selects an optimization only after its full equality
 module compiled successfully. It never writes an acceptance
 report or an exported tool archive. The isolated full verifier still rebuilds
@@ -20,16 +21,21 @@ def main():
     parser.add_argument('--construction', choices=('original', 'machine', 'cached'), default='original')
     variant = parser.parse_args().construction
     implementation = {
-        'original': ('Sharing', 'construction'),
-        'machine': ('MachineSharing', 'machineConstruction'),
-        'cached': ('CachedSharing', 'cachedConstruction'),
+        'original': ('Sharing', 'construction', 'Sharing'),
+        'machine': ('MachineImplementation', 'machineConstruction', 'MachineSharing'),
+        'cached': ('MachineImplementation', 'cachedConstruction', 'CachedSharing'),
     }
-    module, construction = implementation[variant]
+    module, construction, proof_module = implementation[variant]
     boundary.check_protected()
     boundary.check_source(ROOT/'WotsLamport/Submission')
     sys.path.insert(0, str(REPO/'secret-release/scripts'))
     from bundle import package
     from test_rust import run_tests
+    # Prove the complete correspondence before compiling its executable-only
+    # module. No optimized binary is built when this proof build fails.
+    proof = guarded(['lake', 'build', 'WotsLamport.Submission.'+proof_module], ROOT)
+    print(proof['stdout'], end='', flush=True)
+    print(proof['stderr'], end='', flush=True)
     generated = ROOT/'.lake/generated/SRTools.lean'
     generated.parent.mkdir(parents=True, exist_ok=True)
     previous = generated.read_bytes() if generated.exists() else None
@@ -54,7 +60,7 @@ def main (args : List String) : IO UInt32 :=
   SecretRelease.CLI.main WotsLamport.Protected.wire WotsLamport.Tests.runtimeProbeEntry args
 '''
         generated.write_text(source.replace('PROBE_MODULE', module).replace('PROBE_CONSTRUCTION', construction))
-        print(f'RUNTIME_PROBE: build {variant} executable with its equality proofs', flush=True)
+        print(f'RUNTIME_PROBE: build {variant} executable after checking its equality proofs', flush=True)
         build = guarded(['lake', 'build', 'secret-release-tools'], ROOT)
         print(build['stdout'], end='', flush=True)
         print(build['stderr'], end='', flush=True)

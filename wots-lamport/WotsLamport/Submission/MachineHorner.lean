@@ -4,10 +4,6 @@ namespace WotsLamport.Submission
 
 /-- A proposed executable optimization. This module is not yet wired into the
 candidate. The coordinate bound ensures that UInt32 arithmetic cannot wrap. -/
-def machineHorner : List UInt32 → UInt32 → UInt32 → UInt32
-  | [], _, initial => initial
-  | a :: rest, x, initial => machineHorner rest x (reduceMachineField (a + x * initial))
-
 theorem machineHorner_step (a x acc : UInt32)
     (ha : a.toNat < prime) (hx : x.toNat ≤ 1984) (hs : acc.toNat < prime) :
     ((a + x * acc) % 65537).toNat = (a.toNat + x.toNat * acc.toNat) % prime := by
@@ -50,12 +46,6 @@ theorem reversedHorner_eq (coefficients : List Nat) (x : Nat) :
     coefficients.reverse.foldl (fun acc a => (a+x*acc)%prime) 0 =
       evaluatePolynomial coefficients x := by
   simp only [List.foldl_reverse, fusedHorner_step, evaluatePolynomial]
-
-def machineCoefficients (coefficients : List Nat) : List UInt32 :=
-  coefficients.reverse.map fun a => UInt32.ofNat (a % prime)
-
-def evaluateMachinePolynomial (coefficients : List UInt32) (x : Nat) : Nat :=
-  (machineHorner coefficients (UInt32.ofNat x) 0).toNat
 
 theorem machineCoefficient_toNat (a : Nat) :
     (UInt32.ofNat (a % prime)).toNat = a % prime := by

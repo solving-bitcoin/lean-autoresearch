@@ -1,14 +1,9 @@
-import WotsLamport.Submission.Sharing
+import WotsLamport.Submission.MachineImplementation
 
 namespace WotsLamport.Submission
 
 /-- Fermat-prime reduction using two power-of-two operations and subtraction.
 It is proposed separately from the current executable pending kernel checking. -/
-def reduceMachineField (x : UInt32) : UInt32 :=
-  let low := x % 65536
-  let high := x / 65536
-  if low < high then low + 65537 - high else low - high
-
 theorem fermat_reduction_nat (n : Nat) (bound : n < 4294967296) :
     (if n % 65536 < n / 65536 then n % 65536 + 65537 - n / 65536
       else n % 65536 - n / 65536) = n % 65537 := by

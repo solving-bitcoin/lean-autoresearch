@@ -205,7 +205,8 @@ The full generated pipeline additionally retains the SDK's 60-second per-tool
 limit. Performance under that limit has not been established for Lean.
 Authoring previews never emit ranked scores. Trusted acceptance uses the
 immutable base, so this new protected track must be reviewed and merged before
-any submission could be accepted. Nothing has been published or submitted.
+any submission could be accepted. The work is published for review in draft
+PR #6; no ranked submission or merge has been performed.
 
 ## CI cache and draft review
 
@@ -232,5 +233,6 @@ exact length before selecting it. WOTS's wrapper uses this path to avoid the
 require on a 64-bit host. Existing schemes default to the original path.
 This changes representation only: no entropy expansion, smaller random seed,
 new oracle assumption, relaxed certificate or larger resource limit is used.
-The correspondence theorem and large-buffer native regression still require
-hosted validation before this optimization can be claimed checked.
+The shared `garblePacked_eq` correspondence theorem and large-buffer native
+regression passed hosted validation at `50e6007`. This representation result
+does not establish the WOTS executable's performance or security.

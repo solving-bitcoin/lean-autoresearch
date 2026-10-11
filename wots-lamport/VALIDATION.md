@@ -187,3 +187,30 @@ native guard at 20,258,816-byte peak RSS; they do not establish a Lean pass.
 The independent Rust reference job passed: Prepare 18.07 seconds, full
 fixed-artifact three-message test 23.83 seconds, peak RSS 320,389,120 bytes.
 Both the BLAKE3 and G1 previews passed. The next batch changes WOTS-only files.
+
+
+## Run 35: checked machine equivalence, build timeout
+
+Run 35 (`38097429288`, commit `d1648af`) selected the machine diagnostic after
+source compilation. The tested gate only selects it after `MachineSharing`
+compiles, so its UInt32 Horner, residue-only decoder and whole-construction
+correspondence proofs passed. `LabelGuessing` and `OracleMeasureBridge` also
+appear explicitly as compiled in the retained log. The latter includes the
+finite-oracle law. Cached-chain equality did not pass.
+
+The author process hit the unchanged 1,800-second limit while its diagnostic
+native build was active. No machine performance or full-artifact comparison
+result was produced. The 8 KB timeout tail omitted earlier direct errors;
+blocked-module names alone are not sufficient to diagnose those proofs.
+BLAKE3, G1 and the independent reference job passed. Rust Prepare took 30.94
+seconds; the full three-message reference test took 39.32 seconds, with
+320,262,144-byte peak RSS. These are not Lean measurements.
+
+The next preview saves bounded per-module diagnostics incrementally and emits
+them even after timeout. Local injected failures verify fatal rejection,
+stale-log removal, continued independent checks and proof-gated optimization
+selection (peak RSS 21,213,184 bytes). By default it returns source failures
+without the optional runtime probe; successful sources still require the full
+isolated verifier and native suite. The optional probe now explicitly checks
+the equality module before building executable-only imports. This refactor,
+plus the new fresh-cell and programming-fiber proof drafts, awaits Lean.

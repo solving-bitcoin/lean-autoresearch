@@ -15,6 +15,8 @@ import WotsLamport.Submission.MachineSharing
 import WotsLamport.Submission.MultiTargetTrace
 import WotsLamport.Submission.QueryTargets
 import WotsLamport.Submission.RestrictedOracleProgram
+import WotsLamport.Submission.FreshOracleProgramming
+import WotsLamport.Submission.OracleOverlay
 import WotsLamport.Submission.Sharing
 import WotsLamport.Submission.Shamir
 import WotsLamport.Submission.Layout

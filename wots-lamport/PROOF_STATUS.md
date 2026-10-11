@@ -32,74 +32,51 @@ complete imported submission or its security certificate passed.
 | Executable weighted-sharing construction after expansion refactor | Sharing | `6531e8e` |
 | Finite query support and measurable oracle-program families | OracleSupport | `baf5657` |
 | Exact UInt32 Fermat-prime reduction | MachineFieldReduction.reduceMachineField_toNat | `baf5657` |
+| UInt32 Horner, residue-only coefficient reading and complete machine artifact/construction equality | MachineHorner, MachineCoinRead, MachineSharing (required by the selected diagnostic gate) | `d1648af` |
+| Finite oracle law and VCV eager/lazy semantics bridge | FiniteOracleLaw, OracleMeasureBridge | `d1648af` |
+| Distinct-label-pair marginal and guessing bounds | LabelGuessing | `d1648af` |
 
 ## Current validation attempt
 
-Hosted run 34 at `baf5657` returned complete source and runtime diagnostics
-within the unchanged author-check cap. It checked `OracleSupport` and
-`MachineFieldReduction`, including the exact UInt32 reduction theorem.
-The tactic-import reduction exposed a missing `Field (ZMod 65537)` instance
-in `FieldBridge`; this blocked its dependents, including `MachineHorner`.
-`FiniteOracleLaw` also failed on an unqualified measurability lemma name.
-The follow-up imports `Mathlib.Algebra.Field.ZMod`, qualifies
-`Finset.measurable_restrict`, and explicitly imports `IntervalCases` where used.
-Earlier repairs in blocked modules still await checking.
+Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
+whose selection requires successful compilation of `MachineSharing` and all
+its dependencies. Thus the UInt32 Horner evaluator, residue-only coin decoder
+and full machine construction equality were checked. The retained log also
+explicitly records successful `LabelGuessing` and `OracleMeasureBridge` builds
+(the latter includes `FiniteOracleLaw`). The cached-chain equality did not
+pass. This is proof evidence, not a native performance measurement.
 
-The runtime diagnostic built and packaged the original SRTools executable.
-The supplied-bundle test then failed specifically in `garble`: 60.005 seconds,
-`timeout=true`, `excessive_side_output=false`, and zero stdout/stderr bytes.
-The independent artifact correspondence test was not reached. No generated
-Lean pipeline or performance success is claimed.
+The combined author check exceeded its unchanged 1,800-second cap while
+building the diagnostic executable. Its bounded timeout output retained only
+the last 8 KB, losing the earlier direct source diagnostics. The run provides
+no machine runtime or artifact-correspondence result. Run 34 had built the
+original executable and established a `garble` timeout at 60.005 seconds,
+with no side-output overflow. The original candidate remains selected.
 
-The next author check compiles all independent source modules first. Only an
-optimization whose complete equality module compiled successfully can be
-selected for the runtime diagnostic; otherwise it uses the original. The
-probe itself imports those proofs before building its executable. This does
-not change `Solution.entry`, suppress source failures, issue a certificate,
-or bypass the isolated verifier. All resource caps remain unchanged.
+The follow-up persists each source result and prints that diagnostic record
+even after an outer timeout. Failure-injection tests verify that diagnostics
+cannot suppress rejection and that stale records are removed. When sources
+fail, the default author preview now returns their errors without the optional
+runtime probe. The probe remains available via `check_lean.py --runtime-probe`;
+a complete source build still proceeds to the mandatory isolated verifier and
+native tests. No acceptance or resource limit is relaxed.
 
-Additional source work connects finite oracle restrictions to VCV's lazy
-random-oracle semantics, preserves query budgets, counts guesses against the
-actual distinct-label-pair space, and proves deterministic chain-table and
-mask-domain properties. Generic coupling lemmas retain their explicit
-premises. These are proof attempts, not assumptions admitted into a candidate
-certificate; none substitutes for the actual joint reduction.
+Executable machine definitions have been moved unchanged to
+`MachineImplementation`, separate from proof-only imports. Before building an
+optimized executable, `check_runtime_probe.py` explicitly compiles its complete
+equality module. This import refactor awaits rechecking. It does not replace
+Lean code with a native implementation, alter the selected candidate or imply
+a timing improvement.
 
-`MachineHorner` is a further unchecked optimization proof attempt. It defines
-a tail-recursive UInt32 evaluator, proves the intended no-overflow step and
-states exact correspondence for arbitrary coefficients at coordinates at most
-1984. It is imported for audit but is not used by the current executable.
-No performance improvement is claimed before compilation and measurement.
-`MachineSharing` extends the attempted correspondence to every prepared byte
-and the whole construction. `MultiTargetTrace` removes mutual independence
-from the targets' union bound, while retaining independence of their baseline
-view. `MaskedViewLaw` attempts the joint coefficient/pad bijection preserving
-ciphertexts and visible pads. These modules are unchecked, and the executable
-still uses the original construction.
-`ChainCollisionLaw` attempts an explicit uniform-table fiber count and the
-1,056-position ideal-tape collision bound. It does not supply the missing
-real-chain coupling. Broad tactic imports are being replaced by the specific
-tactics in use; this also awaits Lean validation under the same build cap.
-`MachineFieldReduction.reduceMachineField_toNat` is checked. The proposed
-Horner evaluator now uses that reduction, with a new equality-to-modulo lemma
-and the complete evaluator correspondence still awaiting compilation. It no
-longer imports the unrelated polynomial/interpolation field bridge.
-`MachineCoinRead` additionally attempts exact residue-only coefficient
-decoding, avoiding intermediate 256-bit naturals while preserving every
-coefficient. It is part of the proposed machine preparation, still unchecked.
-The local follow-up also adds `QueryTargets` and `ChainProgrammingLaw`:
-complete parsers for the actual chain/mask/commitment query bytes and a
-uniform ideal-tape programming bound with an independent baseline/program.
-`ChainPartitionLaw` additionally separates the 67 public endpoints from the
-989 hidden ideal nodes, with an exact product-law attempt and a conditional
-programming bound after the public key is fixed. These do not establish the
-missing real-chain distribution coupling.
-`CachedSharing` proposes materializing the short chain prefixes once per
-setup and proving full artifact equality. `AdaptiveMaskedView` attempts a
-coefficient/pad bijection chosen from the unchanged complete ciphertext table,
-allowing artifact-dependent visibility without a union over messages.
-All five modules are unchecked;
-the executable still uses `construction` from `Sharing`.
+The remaining security modules are proof attempts with explicit premises,
+not assumptions admitted into a candidate certificate. They cover coefficient
+sampling, actual oracle programs, query traces, domain separation, ideal chain
+collisions/partitions/programming, and ciphertext-preserving adaptive views.
+The actual joint real/ideal reduction remains open. `FreshOracleProgramming`
+attempts a fresh-cell joint law retaining the whole oracle and fixed cache;
+`OracleOverlay` attempts joint key/oracle programming fiber counts. Both local
+drafts are unchecked, and fiber counts alone are not normalized probability
+laws. Source declarations in blocked modules do not count as checked results.
 
 ## Obligations still open
 
@@ -169,8 +146,8 @@ The supervised suite passes; no repository guard was weakened to hide this.
 Hosted BLAKE3 and G1 previews at `50e6007` passed, including packed-runtime
 regressions. BLAKE3 also passed run 32 at `3d1bcb3`. These are shared-framework
 results, not a complete WOTS pass. Both BLAKE3 and G1 passed run 33 at
-`e959f9e`, including the SDK limit-diagnostic change. The new bounded timeout
-diagnostics require another shared regression run.
+`e959f9e`, including the SDK limit-diagnostic change. BLAKE3 and G1 also passed runs 34 and 35, including the bounded timeout
+diagnostics. These passes do not certify WOTS.
 
 Publication to the existing draft PR branch and hosted CI are authorized.
 Merging, deployment and an external ranked submission are not authorized.

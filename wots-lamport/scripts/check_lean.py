@@ -5,6 +5,8 @@ prerequisites block their dependents; every such block remains fatal. This is
 never a substitute for the fresh protected-tree build and audits in verify.py.
 """
 from limits import guarded, ROOT
+import argparse
+import json
 import sys
 import time
 from boundary import check_protected, check_source, common
@@ -37,7 +39,21 @@ def module_graph(root):
     return ordered, dependencies
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--runtime-probe', action='store_true',
+                        help='also diagnose a compiled executable after source failures')
+    args = parser.parse_args(argv)
+    report = ROOT/'.yukon/author-sources.json'
+    report.parent.mkdir(parents=True, exist_ok=True)
+    records = []
+
+    def record(name, status, **details):
+        records.append(dict(module=name, status=status, **details))
+        temporary = report.with_suffix('.tmp')
+        temporary.write_text(json.dumps(dict(diagnosticOnly=True, modules=records), indent=2)+'\n')
+        temporary.replace(report)
+
     check_protected()
     check_source(ROOT/'WotsLamport/Submission')
     modules, dependencies = module_graph(ROOT)
@@ -49,14 +65,17 @@ def main():
             print(f"BLOCKED: {name}: failed prerequisites {', '.join(blockers)}", flush=True)
             rejected.add(name)
             failed.append(name)
+            record(name, 'blocked', prerequisites=blockers)
             continue
         try:
             started = time.monotonic()
             print(f'CHECK: {name}', flush=True)
+            record(name, 'checking')
             result = guarded(['lake', 'build', name])
         except SystemExit as error:
             # Resource failures stop immediately; ordinary failures allow
             # independent source modules to be checked in this same run.
+            record(name, 'failed', diagnostic=str(error)[-8192:])
             if 'exceeded' in str(error) or 'timed out' in str(error):
                 raise
             print(str(error), flush=True)
@@ -67,10 +86,11 @@ def main():
         print(result['stderr'], end='', flush=True)
         print(f'COMPILED: {name}; {time.monotonic()-started:.2f}s', flush=True)
         compiled.add(name)
+        record(name, 'compiled', seconds=time.monotonic()-started)
         peak = max(peak, result['peakMemoryBytes'])
     # Diagnostic execution cannot suppress a source failure or create acceptance.
     # A complete source build proceeds directly to the normal isolated verifier.
-    if failed:
+    if failed and args.runtime_probe:
         try:
             command = [sys.executable, ROOT/'scripts/check_runtime_probe.py']
             variant = 'original'
@@ -90,6 +110,8 @@ def main():
                 raise
             failed.append('runtime diagnostic')
     if failed:
+        if not args.runtime_probe:
+            print('SKIPPED: optional runtime diagnostic; source failures must be repaired first', flush=True)
         raise SystemExit('AUTHOR_PROOFS_REJECTED: ' + ', '.join(failed))
     print(f"PASS: sequential author source build; peak {peak} bytes")
 
