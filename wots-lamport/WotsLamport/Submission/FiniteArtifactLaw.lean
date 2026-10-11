@@ -15,6 +15,8 @@ variable (inputs : Finset OracleInput) (contains : wotsProgrammingInputs ⊆ inp
   (pk nonce : ByteArray) (pkSize : pk.size = 2144) (nonceSize : nonce.size = 32)
   (nodes : SharePosition → Label) (labels : Fin 256 → Pair)
 
+include contains pkSize nonceSize
+
 theorem artifactCellAddress_mem (cell : ArtifactCell) :
     oracleInput (artifactCellAddress pk nonce nodes labels cell) ∈ inputs := by
   apply contains

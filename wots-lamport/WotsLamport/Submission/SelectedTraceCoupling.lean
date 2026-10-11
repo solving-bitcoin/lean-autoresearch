@@ -33,13 +33,13 @@ theorem uniform_hidden_selected_list_hit {I J : Type} [Fintype I] [Fintype J]
         have length : (guesses.length : ENNReal) ≤ q := by exact_mod_cast bound _
         calc
           _ ≤ (guesses.length : ENNReal)*((1 : ENNReal)/2^256) := h
-          _ ≤ (q : ENNReal)*((1 : ENNReal)/2^256) := mul_le_mul_right' length _
-          _ = _ := by rw [mul_div_assoc, mul_one]
+          _ ≤ (q : ENNReal)*((1 : ENNReal)/2^256) := by gcongr
+          _ = _ := by rw [← mul_div_assoc, mul_one]
       have h := measure_exists_finset_le (uniformOn (Set.univ : Set (I → Label)))
         (fun i => {table | table i ∈ guesses}) (fun _ => (q : ENNReal)/2^256)
         Finset.univ (fun i _ => mass i)
-      simpa only [Finset.mem_univ, true_and, Finset.sum_const, Finset.card_univ,
-        nsmul_eq_mul, mul_div_assoc] using h
+      simpa only [Set.mem_preimage, Set.mem_setOf_eq, guesses, Finset.mem_univ, true_and,
+        Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_div_assoc] using h
     _ = _ := by simp
 
 /-- Query traces may depend on every selected label. This bound never

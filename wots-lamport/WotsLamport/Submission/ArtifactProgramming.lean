@@ -61,13 +61,13 @@ theorem programArtifactOracle_mask (pk nonce : ByteArray)
     (Sum.inl (position,false))
   have right := programArtifactOracle_read pk nonce nodes labels answers baseline
     (Sum.inl (position,true))
-  change _ (maskQuery pk nonce position.val.1.val position.val.2.1
+  change programArtifactOracle pk nonce nodes labels answers baseline (maskQuery pk nonce position.val.1.val position.val.2.1
     (position.val.2.2.val+1) (nodes position) 0) = _ at left
-  change _ (maskQuery pk nonce position.val.1.val position.val.2.1
+  change programArtifactOracle pk nonce nodes labels answers baseline (maskQuery pk nonce position.val.1.val position.val.2.1
     (position.val.2.2.val+1) (nodes position) 1) = _ at right
-  change ByteArray.mk (_ (maskQuery pk nonce position.val.1.val position.val.2.1
+  change ByteArray.mk (programArtifactOracle pk nonce nodes labels answers baseline (maskQuery pk nonce position.val.1.val position.val.2.1
     (position.val.2.2.val+1) (nodes position) 0)).toArray ++
-    (ByteArray.mk (_ (maskQuery pk nonce position.val.1.val position.val.2.1
+    (ByteArray.mk (programArtifactOracle pk nonce nodes labels answers baseline (maskQuery pk nonce position.val.1.val position.val.2.1
       (position.val.2.2.val+1) (nodes position) 1)).toArray).extract 0 16 = _
   rw [left,right]
   rfl
