@@ -70,34 +70,32 @@ complete imported submission or its security certificate passed.
 
 | Reified game execution/query bounds and conditional post-release trace/guessing bound | GamePrograms, AfterReleaseCoordinates | `1b590f8` |
 
+| Fixed-message and withholding game reductions | GameReductions | `620a1a4` |
+
 ## Current validation attempt
 
-Run 56 (`1b590f8`) checked **110 of 120 modules**. Three modules had direct
-errors (`GameReductions`, `GroupedOracleLaw`, `AfterReleaseLaw`); seven dependents
-were blocked. `GamePrograms` and `AfterReleaseCoordinates` are newly checked.
-Universal correctness, the artifact bound, honest query budget and optimized
-implementation equality remain checked. Complete withholding/adaptive security
-reductions remain unchecked.
+Run 57 (`620a1a4`) checked **111 of 120 modules**. Two modules had direct
+errors (`GroupedOracleLaw`, `AfterReleaseLaw`); seven dependents were blocked.
+`GameReductions` is newly checked. Universal correctness, the artifact bound,
+honest query budget and optimized implementation equality remain checked.
+Complete withholding/adaptive security reductions remain unchecked.
 
-The unchanged 1,800-second author cap expired during executable building in
-run 56. Its retained runtime phase is `building-executable`, entered 9.154
-seconds after starting the runtime probe; this is not a build duration. There
-is no completed SDK or correspondence result for run 56. The separate Rust
-reference test passed in 29.79 seconds with 320,409,600 bytes peak RSS.
-Successful source batches took 678.824 seconds across 36 batches, excluding
-failed batches/retries. BLAKE3 passed run 56; both shared previews passed run 54.
-Run 55 completed executable compilation (3,421,167,616 bytes peak RSS) but reached
-the author cap during SDK checking. Full validation has not passed within the
-unchanged limits.
-
-**Run 52 passed generated SDK integration and full independent reference
+**Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
-released bytes. The SDK suite took 53.93 seconds and independent correspondence
-99.49 seconds; generated expansions took 8.297537590 / 9.598677783 /
-8.502129562 seconds. Compiler, SDK-native and independent-native peak RSS were
-4,033,413,120 / 883,564,544 / 808,316,928 bytes. The runtime probe completed in
-956.208 seconds. The separate Rust reference test passed in 26.27 seconds with
-320,360,448 bytes peak RSS. All resource limits are unchanged.
+released bytes. The SDK suite took 72.81 seconds and independent correspondence
+121.51 seconds; generated expansions took 11.040978266 / 11.203482180 /
+10.603007572 seconds. Compiler, SDK-native and independent-native peak RSS were
+3,420,999,680 / 804,012,032 / 883,318,784 bytes. The runtime probe completed in
+1,185.446 seconds inside the unchanged 1,800-second author cap. Successful
+source batches took 440.381 seconds across 34 batches, excluding failed
+batches/retries. Source errors remain fatal; full validation has not passed.
+The separate Rust reference test passed in 29.88 seconds with 320,405,504 bytes
+peak RSS. Both shared G1 and BLAKE3 previews passed run 57.
+
+Run 56 reached the author cap during executable building; run 55 completed
+compilation but reached the cap during SDK checking. Run 52 completed SDK and
+independent correspondence in 53.93 and 99.49 seconds. All limits are unchanged;
+a completed runtime diagnostic does not certify the security proofs.
 
 Run 51 passed SDK integration but reached the unchanged 1,800-second author
 cap during independent correspondence. Run 50 completed both tests. A started
@@ -109,12 +107,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs explicitly instantiate the fixed-message event equality,
-correct measure-map composition order, derive the oracle probability instance,
-target the intended finite product measure, and expose set membership plus the
-finite-field measurable space. These repairs remain compiler-unchecked. No
-security statement, sampler, executable construction, resource cap or acceptance
-gate was weakened.
+The latest local repairs reassociate product measures through an explicit generic
+lemma before specializing scheme types, expose the complete preimage events,
+and assign a discrete measurable structure to an auxiliary finite sample factor.
+These repairs remain compiler-unchecked. No security statement, sampler,
+executable construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

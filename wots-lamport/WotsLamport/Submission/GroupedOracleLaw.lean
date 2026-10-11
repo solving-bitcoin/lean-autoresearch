@@ -18,29 +18,37 @@ theorem flattenInitialSample_measurable : Measurable flattenInitialSample :=
   (measurable_fst.fst).prodMk ((measurable_fst.snd.fst).prodMk
     ((measurable_fst.snd.snd).prodMk measurable_snd))
 
+/-- Reassociate four independent measures before specializing opaque scheme types. -/
+theorem four_product_assoc {A B C D : Type}
+    [MeasurableSpace A] [MeasurableSpace B] [MeasurableSpace C] [MeasurableSpace D]
+    (μ : Measure A) (ν : Measure B) (ρ : Measure C) (σ : Measure D)
+    [SFinite μ] [SFinite ν] [SFinite ρ] [SFinite σ] :
+    ((μ.prod (ν.prod ρ)).prod σ).map
+      (fun sample => (sample.1.1,sample.1.2.1,sample.1.2.2,sample.2)) =
+      μ.prod (ν.prod (ρ.prod σ)) := by
+  have regroup : (fun sample : (A × B × C) × D =>
+      (sample.1.1,sample.1.2.1,sample.1.2.2,sample.2)) =
+      (Prod.map id (MeasurableEquiv.prodAssoc : (B × C) × D ≃ᵐ B × C × D)) ∘
+      (MeasurableEquiv.prodAssoc : (A × B × C) × D ≃ᵐ A × (B × C) × D) := rfl
+  rw [regroup, ← Measure.map_map
+    (measurable_id.prodMap MeasurableEquiv.prodAssoc.measurable)
+    MeasurableEquiv.prodAssoc.measurable, Measure.prodAssoc_prod,
+    ← Measure.map_prod_map _ _ measurable_id MeasurableEquiv.prodAssoc.measurable,
+    Measure.map_id, Measure.prodAssoc_prod]
+
 /-- This is precisely the protected key/label/coin/oracle product law,
 regrouped as finite initial data and its independent infinite oracle. -/
 theorem grouped_sample_law :
     ((uniformOn (Set.univ : Set InitialData)).prod oracleLaw).map flattenInitialSample =
       ROM.law (wrapped construction) := by
   classical
-  letI := Fintype.ofFinite Keys
-  letI := Fintype.ofFinite (Fin 256 → Pair)
-  letI := Fintype.ofFinite (Bytes randomnessBytes)
-  have regroup : flattenInitialSample =
-      (Prod.map id (MeasurableEquiv.prodAssoc :
-        ((Fin 256 → Pair) × Bytes randomnessBytes) × ROM.Oracle ≃ᵐ
-          (Fin 256 → Pair) × Bytes randomnessBytes × ROM.Oracle)) ∘
-      (MeasurableEquiv.prodAssoc :
-        (Keys × ((Fin 256 → Pair) × Bytes randomnessBytes)) × ROM.Oracle ≃ᵐ
-          Keys × ((Fin 256 → Pair) × Bytes randomnessBytes) × ROM.Oracle) := rfl
-  rw [regroup, ← Measure.map_map
-    (measurable_id.prodMap MeasurableEquiv.prodAssoc.measurable)
-    MeasurableEquiv.prodAssoc.measurable]
-  rw [uniform_product, uniform_product, Measure.prodAssoc_prod,
-    ← Measure.map_prod_map _ _ measurable_id MeasurableEquiv.prodAssoc.measurable,
-    Measure.map_id, Measure.prodAssoc_prod]
-  rfl
+  have h := four_product_assoc
+    (uniformOn (Set.univ : Set Keys))
+    (uniformOn (Set.univ : Set (Fin 256 → Pair)))
+    (uniformOn (Set.univ : Set (Bytes randomnessBytes))) oracleLaw
+  rw [← uniform_product (A := Fin 256 → Pair) (B := Bytes randomnessBytes),
+    ← uniform_product (A := Keys) (B := (Fin 256 → Pair) × Bytes randomnessBytes)] at h
+  exact h
 
 /-- One finite oracle domain represents the complete setup-dependent game,
 not merely a fixed program after secrets have already been sampled. -/
@@ -75,6 +83,9 @@ theorem protected_game_finite_joint_law (game : InitialData → Program Bool)
     Measure.prod_apply MeasurableSet.of_discrete]
   apply lintegral_congr
   intro initial
-  simpa only [Set.mem_singleton_iff, Set.mem_preimage, Set.mem_setOf_eq] using agrees initial
+  change oracleLaw {oracle : ROM.Oracle | ROM.run (ROM.hash oracle) (game initial) = true} =
+    uniformOn (Set.univ : Set (inputs → Label))
+      {answers | ROM.run (ROM.hash (extendOracleTable inputs answers)) (game initial) = true}
+  simpa only [Set.mem_singleton_iff] using agrees initial
 
 end WotsLamport.Submission

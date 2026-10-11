@@ -57,6 +57,8 @@ theorem afterInner_bad_law (m : Message) (pk : PublicKey) :
       {sample | ¬Function.Injective (afterTape m (pk,sample.1) sample.2)} =
       uniformOn (Set.univ : Set HiddenChainTape) (conditionalTapeBad pk) := by
   classical
+  -- This auxiliary finite factor carries all subsets as measurable events.
+  letI : MeasurableSpace ((Fin 256 → Pair) × AllocatedCoefficients) := ⊤
   rw [← Shamir.uniform_event_equiv (afterInnerCoordinates m)]
   change uniformOn (Set.univ : Set AfterInnerSample)
     {sample | ¬Function.Injective (afterTape m (pk,(afterInnerCoordinates m sample).1)
