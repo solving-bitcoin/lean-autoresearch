@@ -4,7 +4,7 @@ import WotsLamport.Submission.GoodKernelSubstitution
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance : MeasurableSpace Keys := ⊤
+local instance CombinedProgrammingLaw.keysMeasurable : MeasurableSpace Keys := ⊤
 
 variable (inputs : Finset OracleInput) (contains : wotsProgrammingInputs ⊆ inputs)
     (nonce : ByteArray) (nonceSize : nonce.size = 32) (labels : Fin 256 → Pair)

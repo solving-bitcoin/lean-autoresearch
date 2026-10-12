@@ -3,7 +3,7 @@ import WotsLamport.Submission.JointSampler
 namespace WotsLamport.Submission
 open SecretRelease MeasureTheory ProbabilityTheory
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance FieldTableLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 def fieldBlock (bytes : Bytes 32) : Fin 65537 :=
   ⟨readLE (ByteArray.mk bytes.toArray) 0 32 % 65537, Nat.mod_lt _ (by decide)⟩

@@ -5,9 +5,9 @@ import WotsLamport.Submission.ChainPartitionLaw
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance : MeasurableSpace Keys := ⊤
-local instance : MeasurableSpace (Fin 256 → Pair) := ⊤
-local instance : IsProbabilityMeasure oracleLaw := by
+local instance GroupedOracleLaw.keysMeasurable : MeasurableSpace Keys := ⊤
+local instance GroupedOracleLaw.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance GroupedOracleLaw.oracleProbability : IsProbabilityMeasure oracleLaw := by
   unfold oracleLaw
   infer_instance
 

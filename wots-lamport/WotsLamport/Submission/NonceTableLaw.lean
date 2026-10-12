@@ -3,8 +3,8 @@ import WotsLamport.Submission.FieldTableLaw
 namespace WotsLamport.Submission
 open SecretRelease MeasureTheory ProbabilityTheory
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
-local instance : MeasurableSpace (Bytes 32 ⊕ Fin 65537) := ⊤
+local instance NonceTableLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance NonceTableLaw.nonceBlockMeasurable : MeasurableSpace (Bytes 32 ⊕ Fin 65537) := ⊤
 
 /-- The first block stays byte-for-byte public. Only coefficient blocks are
 reduced modulo the field size. Tags keep these two representations distinct. -/

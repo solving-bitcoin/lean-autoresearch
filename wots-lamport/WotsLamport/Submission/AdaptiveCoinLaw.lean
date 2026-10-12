@@ -4,7 +4,7 @@ import WotsLamport.Submission.NonceCoefficientCoordinates
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance AdaptiveCoinLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 /-- `ZMod 65537` is the same finite carrier; this reindexing uses its values,
 not another reduction or an independent coefficient sampling assumption. -/

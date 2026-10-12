@@ -3,7 +3,7 @@ import WotsLamport.Submission.AfterReleaseCoordinates
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleComp
 
-local instance : MeasurableSpace (ZMod 65537) := ⊤
+local instance AfterReleaseLaw.fieldMeasurable : MeasurableSpace (ZMod 65537) := ⊤
 
 abbrev AfterInnerSample := HiddenChainTape × (Fin 256 → Pair) × AllocatedCoefficients
 abbrev AfterInnerEnvironment (m : Message) := MessageVisibleTape m × AllocatedCoefficients
@@ -57,8 +57,12 @@ theorem afterInner_bad_law (m : Message) (pk : PublicKey) :
       {sample | ¬Function.Injective (afterTape m (pk,sample.1) sample.2)} =
       uniformOn (Set.univ : Set HiddenChainTape) (conditionalTapeBad pk) := by
   classical
-  -- This auxiliary finite factor carries all subsets as measurable events.
-  letI : MeasurableSpace ((Fin 256 → Pair) × AllocatedCoefficients) := ⊤
+  -- Give finite function spaces explicit finite enumerations for the
+  -- countable/discrete measurable-space instances used by measure transport.
+  letI := Fintype.ofFinite Label
+  letI := Fintype.ofFinite Pair
+  letI := Fintype.ofFinite AfterInnerSample
+  haveI : DiscreteMeasurableSpace AfterInnerSample := inferInstance
   rw [← Shamir.uniform_event_equiv (afterInnerCoordinates m)]
   change uniformOn (Set.univ : Set AfterInnerSample)
     {sample | ¬Function.Injective (afterTape m (pk,(afterInnerCoordinates m sample).1)

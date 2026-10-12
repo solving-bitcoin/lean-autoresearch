@@ -6,7 +6,7 @@ import WotsLamport.Submission.ActualPolynomialTable
 namespace WotsLamport.Submission
 open SecretRelease MeasureTheory ProbabilityTheory
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance NonceCoefficientCoordinates.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 def headTailTableEquiv (n : Nat) (A : Type) : (Fin (n+1) → A) ≃ A × (Fin n → A) where
   toFun table := (table 0, fun i => table i.succ)

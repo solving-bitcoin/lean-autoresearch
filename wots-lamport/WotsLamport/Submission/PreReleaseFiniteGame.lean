@@ -6,8 +6,8 @@ import WotsLamport.Submission.WithholdingBudget
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleComp
 
-local instance : MeasurableSpace Keys := ⊤
-local instance : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance PreReleaseFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
+local instance PreReleaseFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
 
 theorem coin_bytes_long (coins : Bytes randomnessBytes) :
     32 ≤ (ByteArray.mk coins.toArray).size := by

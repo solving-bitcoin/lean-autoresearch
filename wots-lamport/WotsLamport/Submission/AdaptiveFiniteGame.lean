@@ -5,8 +5,8 @@ import WotsLamport.Submission.GameReductions
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance : MeasurableSpace Keys := ⊤
-local instance : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance AdaptiveFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
+local instance AdaptiveFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
 
 theorem raw_programmed_adaptive_bound (inputs : Finset OracleInput)
     (contains : wotsProgrammingInputs ⊆ inputs) (a : AdaptiveAdversary) (q₁ q₂ : Nat)

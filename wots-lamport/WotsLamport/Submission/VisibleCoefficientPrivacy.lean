@@ -4,7 +4,7 @@ import WotsLamport.Submission.PaddedPolynomialLaw
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance : MeasurableSpace (ZMod 65537) := ⊤
+local instance VisibleCoefficientPrivacy.fieldMeasurable : MeasurableSpace (ZMod 65537) := ⊤
 
 abbrev PolynomialSlot := Fin 256 × Bool × Fin 16
 

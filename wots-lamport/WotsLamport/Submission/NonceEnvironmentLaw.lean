@@ -23,8 +23,8 @@ theorem product_probability_event_bounds {A B : Type}
   probability_event_bounds (μ.prod ρ) (ν.prod ρ) weight loss
     (product_lower_domination μ ν ρ weight lower) cover event measurable
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
-local instance : MeasurableSpace (Bytes 32 ⊕ Fin 65537) := ⊤
+local instance NonceEnvironmentLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance NonceEnvironmentLaw.nonceBlockMeasurable : MeasurableSpace (Bytes 32 ⊕ Fin 65537) := ⊤
 
 /-- The complete nonce/coefficient sampling error applies to joint events
 with all independently sampled keys, labels and oracle randomness. There is

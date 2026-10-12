@@ -4,7 +4,7 @@ import WotsLamport.Submission.VisibleCoefficientPrivacy
 namespace WotsLamport.Submission
 open MeasureTheory ProbabilityTheory
 
-local instance : MeasurableSpace (ZMod 65537) := ⊤
+local instance PolynomialTableLaw.fieldMeasurable : MeasurableSpace (ZMod 65537) := ⊤
 
 /-- A polynomial family slot and a degree determine their actual byte-block
 address. Every allocated address appears exactly once. -/

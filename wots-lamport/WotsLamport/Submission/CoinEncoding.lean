@@ -85,7 +85,7 @@ theorem coinBlockEquiv_value (bytes : Bytes 32) :
   change Nat.ofDigits 256 (byteDigits bytes) = _
   exact (readLE_ofDigits bytes).symm
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance CoinEncoding.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 /-- Exact law of the implementation's 32-byte modular coefficient decoder
 on one uniformly sampled byte block. Independence of all selected blocks and

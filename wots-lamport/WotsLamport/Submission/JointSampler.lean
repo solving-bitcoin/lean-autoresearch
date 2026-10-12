@@ -96,7 +96,7 @@ theorem probability_event_bounds {A : Type} [MeasurableSpace A]
         ((Sampler.mul_left_mono (hunit event) loss).trans_eq (mul_one _))
 
 namespace Sampler
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance JointSampler.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 noncomputable def fieldLaw : Measure (Fin 65537) :=
   (uniformOn (Set.univ : Set (Fin sampleSize))).map reduceInteger

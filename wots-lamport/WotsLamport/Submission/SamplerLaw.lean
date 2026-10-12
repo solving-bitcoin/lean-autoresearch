@@ -49,7 +49,7 @@ theorem residueFiber_card (r : Fin 65537) :
     Fintype.card {n : Fin sampleSize // n.val % 65537 = r.val} = residueCount r := by
   simpa only [Fintype.card_fin] using Fintype.card_congr (residueFiberEquiv r)
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance SamplerLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 /-- Exact marginal law for reduction of a uniform 256-bit integer. A separate
 byte-codec/bijection argument must connect the implementation's coin blocks

@@ -98,7 +98,7 @@ theorem finiteChainProgram_fiber_card (target : FiniteChainReal inputs)
     (finiteChainAddress_injective inputs contains tape distinct) target.2
   simpa only [answers, programFiniteChain, address, tape, chainEdge_card, labelCard] using hc
 
-local instance : MeasurableSpace Keys := ⊤
+local instance FiniteChainLaw.keysMeasurable : MeasurableSpace Keys := ⊤
 
 /-- The collision-free ideal tape and programmed oracle have precisely the
 real joint key/oracle law restricted to collision-free actual chains. This

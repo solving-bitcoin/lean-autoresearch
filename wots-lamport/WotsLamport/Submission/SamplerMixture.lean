@@ -4,7 +4,7 @@ import Mathlib.Tactic.Finiteness
 namespace WotsLamport.Submission.Sampler
 open MeasureTheory ProbabilityTheory
 
-local instance (n : Nat) : MeasurableSpace (Fin n) := ⊤
+local instance SamplerMixture.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
 theorem mul_right_mono {a b : ENNReal} (h : a ≤ b) (c : ENNReal) : a*c ≤ b*c := by gcongr
 theorem mul_left_mono {a b : ENNReal} (h : a ≤ b) (c : ENNReal) : c*a ≤ c*b := by gcongr

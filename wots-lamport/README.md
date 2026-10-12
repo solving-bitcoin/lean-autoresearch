@@ -240,10 +240,11 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. Run 57 checked 111 of 120 modules and passed generated lane SDK
-integration plus full independent reference-artifact/later-message correspondence
-within the unchanged author cap. Two source failures block seven dependent
-modules and the complete security proofs. There is no security certificate.
+immediately. Run 58 checked 112 of 120 modules; its author cap expired during
+executable building. Run 57 passed generated lane SDK integration and full
+independent reference-artifact/later-message correspondence within the same cap.
+Two source failures block six dependent modules and the complete security proofs.
+There is no security certificate.
 See [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
 
 Runtime phase evidence is retained atomically across an outer timeout. It is

@@ -5,8 +5,8 @@ namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected OracleSpec OracleComp MeasureTheory
 
 abbrev InitialData := Keys × (Fin 256 → Pair) × Bytes randomnessBytes
-local instance : MeasurableSpace Keys := ⊤
-local instance : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance GamePrograms.keysMeasurable : MeasurableSpace Keys := ⊤
+local instance GamePrograms.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
 
 def selectedOutputBytes (labels : Fin 256 → Pair) (m : Message) : ByteArray :=
   pack ((List.finRange 256).map fun i => (labels i).get (outputCodec.encode m)[i.val])
