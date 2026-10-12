@@ -42,6 +42,7 @@ theorem rawCoinCoordinates_hash (inputs : Finset OracleInput) (sample : RawProgr
       (fieldArtifactAnswers sample.1.2 (polynomialTableEquiv (actualFieldTable sample.1.1))
         (artifactCiphertextCoordinates (ByteArray.mk sample.1.1.toArray) sample.1.2 sample.2.2.1)) _ = _
   rw [actual_field_answers_ciphertext]
+  rfl
 
 /-- The protected claim predicate, with the already-created artifact explicit. -/
 def adaptiveSuccess (h : Hash) (keys : Keys) (labels : Fin 256 → Pair) (artifact : ByteArray)

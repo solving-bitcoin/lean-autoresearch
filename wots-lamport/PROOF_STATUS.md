@@ -73,22 +73,22 @@ complete imported submission or its security certificate passed.
 
 ## Current validation attempt
 
-Run 64 (`b7acbfa`) checked **117 of 120 modules**. One module had a direct
-error (`AdaptiveProgrammingBridge`); two dependents were blocked. The remaining
-error is a rewrite after unfolding protected claim projections. `AdaptiveCoinLaw`
-is newly checked, including the actual packed-coin adaptive probability bound
-with the single joint sampler loss. Complete protected withholding security,
-universal correctness, the artifact bound, honest query budget, grouped finite
-oracle law and optimized implementation equality remain checked. The complete
-adaptive and static post-release ROM security reductions remain unchecked.
+Run 65 (`571f01c`) checked **117 of 120 modules**. One module had a direct
+error (`AdaptiveProgrammingBridge`); two dependents were blocked. The repaired
+event rewrite now elaborates. The remaining error is the final definitional
+equality in the hash-coordinate lemma after rewriting artifact answers.
+The actual packed-coin adaptive bound was checked in run 64. Complete protected
+withholding security, universal correctness, the artifact bound, honest query
+budget, grouped finite oracle law and optimized implementation equality remain
+checked. Complete adaptive and static post-release ROM security remain unchecked.
 
-Run 64 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 9.334 seconds into the
+Run 65 reached the unchanged 1,800-second author cap during executable building.
+Its retained phase is `building-executable`, entered 8.437 seconds into the
 runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 64. Successful source batches took 736.985 seconds
+result is available for run 65. Successful source batches took 681.610 seconds
 across 35 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 25.45 seconds with 320,454,656 bytes peak RSS. Both
-shared G1 and BLAKE3 previews passed run 64. Full validation has not passed.
+reference test passed in 39.31 seconds with 320,180,224 bytes peak RSS. Both
+shared G1 and BLAKE3 previews passed run 65. Full validation has not passed.
 
 **Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -117,12 +117,10 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repair keeps the tape-success predicate intact before
-rewriting hash and tape coordinates, avoiding exposed protected claim projections.
-The temporary diagnostics option was removed from the now-checked sampler proof.
-The bridge repair and final adaptive module remain compiler-unchecked. No
-security statement, sampler, executable construction, resource cap or acceptance
-gate was weakened.
+The latest local repair closes the hash-coordinate lemma with reflexivity after
+its artifact-answer rewrite. The complete bridge and final adaptive module remain
+compiler-unchecked. No security statement, sampler, executable construction,
+resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext
