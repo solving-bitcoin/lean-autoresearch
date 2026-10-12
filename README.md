@@ -81,12 +81,13 @@ immutable base revision.
 
 The [WOTS-to-Lamport track](wots-lamport/README.md) adds direct-base-16 signing
 of all 32-byte messages, a correlated 67-chain input disclosure and an unranked
-weighted-Shamir translation candidate. Its fixed public-data claim is
-48,752,768 bytes. The [proof status](wots-lamport/PROOF_STATUS.md) distinguishes
-executable reference checks from the still-unchecked Lean sources and missing
-ROM certificates. This experimental track has no accepted score.
+weighted-Shamir translation candidate. Its certified public-data bound is
+48,752,768 bytes. All 120 Lean modules, the ROM certificate, separate adaptive
+theorem, isolated audits and generated-tool tests passed run 70. The
+[proof status](wots-lamport/PROOF_STATUS.md) links the checked commit and bundle.
+This experimental authoring track has no externally ranked score.
 
-Both challenges use a ClassicalBoundedQueryROM proof profile on Lean 4.33.1.
+These challenges use a ClassicalBoundedQueryROM proof profile on Lean 4.33.1.
 The concrete SHA-256 instantiation remains heuristic. See the
 [shared architecture](secret-release/ARCHITECTURE.md) for the generated tools,
 security model, and verification process.

@@ -1,19 +1,21 @@
 # Proof and validation status
 
-**All 120 source modules and the certificate assembly compiled in run 69;
-final isolated acceptance is pending.** The pinned compiler is Lean 4.33.1.
-The complete correctness, withholding, static post-release and artifact-first
-adaptive security proofs apply to the protected ROM model. The candidate has
-a proof-bearing certificate and `score.txt = 48752768`. Its isolated namespace
-audit rejected a lazily generated shared byte-codec equation; the current repair
-is not yet checked. No accepted or externally ranked submission is claimed.
-Rust/Python tests are independent validation, not Lean proofs.
+**Full isolated authoring validation passed in run 70 (`9cea4ab`).**
+All 120 source modules and the certificate assembly compiled with Lean 4.33.1.
+The candidate namespace/axiom audit, binary/kernel/score consistency, generated
+native/SDK tests and tool-bundle export all passed. The certificate proves
+correctness, withholding, static post-release security and the universal
+48,752,768-byte artifact bound; `lane_adaptiveSecure` separately proves
+artifact-first adaptive security in the protected ROM model. Only `propext`,
+`Classical.choice` and `Quot.sound` occur in the audited axiom closure.
+The track remains an externally unranked authoring preview. Rust/Python tests
+provide independent validation, not Lean proofs.
 
 ## Compiler-checked results
 
 The following modules passed hosted Lean elaboration. All imported submission
-sources and certificate assembly passed run 69. Final isolated acceptance remains
-a separate check.
+sources and certificate assembly passed run 70, together with the final
+isolated candidate audit and native checks.
 
 | Result | Checked modules | Evidence commit |
 | --- | --- | --- |
@@ -79,26 +81,42 @@ a separate check.
 | Complete protected adaptive and static post-release ROM security, all imported source modules | AdaptiveFiniteGame.construction_adaptiveSecure, construction_releaseSecure, Solution | `f8597c9` |
 | Exact lane certificate assembly and separate adaptive theorem | Solution.constructionCertificate, laneCertificate, lane_adaptiveSecure | `6bd0042` |
 
-## Current validation attempt
+## Completed validation
 
-Run 69 (`7d33a2c`) checked **120 of 120 modules**, including certificate
-assembly and the separate `lane_adaptiveSecure` theorem. There were no failed
-or blocked source modules. Source batches took 727.903 seconds across 38
-batches with 4,367,511,552 bytes peak RSS.
+[Run 70](https://github.com/solving-bitcoin/lean-autoresearch/actions/runs/38222245023)
+at `9cea4ab46174481eb9e9fdaebc0929dee9e69635` checked **120 of 120 modules**,
+including certificate assembly and the separate `lane_adaptiveSecure` theorem.
+There were no failed or blocked source modules. Source batches took 603.908
+seconds across 38 batches with 4,367,056,896 bytes peak RSS.
 
-The isolated verifier built protected imports/shared checks, passed protected
-boundary/axiom audits, negative certificate/packed-proof checks and fixture
-native/SDK tests. It built the candidate, then rejected the namespace audit:
-`submission declares outside its namespace: SecretRelease.Codec.byteVector.eq_1`.
-The prior protected output-codec/bit/weight unfolding repairs compiled. The
-current repair replaces the remaining shared byte-codec unfold in
-`LabelBridge.byteVector_encode_raw` with its explicit bit-vector expression.
-Protected definitions and audit checks remain unchanged. Final candidate native
-tests and bundle acceptance did not run; no run-69 correspondence pass is claimed.
+The isolated verifier passed protected imports/shared checks, protected
+boundary/axiom audits, negative certificate/packed-proof checks, fixture
+native/SDK tests, the complete candidate namespace/axiom audit,
+binary/kernel/score consistency and candidate native/SDK tests. The candidate
+SDK suite passed 7 tests in 73.11 seconds; 5 regression tests and the wire
+bit-order test also passed. The two optional full-reference tests remain
+explicitly separate from this acceptance suite. The verifier emitted
+`AUTHORING-PREVIEW` and exported its report and four-tool bundle.
 
-The separate run-69 Rust reference test passed in 38.12 seconds with
-320,237,568 bytes peak RSS. BLAKE3 passed run 69; the unchanged G1 repeat was
-still active at publication and may be superseded. Both passed run 65.
+[Download the run-70 report and tool bundle](https://github.com/solving-bitcoin/lean-autoresearch/actions/runs/38222245023/artifacts/11736712738).
+The uploaded ZIP has size 38,934,509 bytes and SHA-256
+`8fc055cd30e710aea25f2d96e8ad0d2b7b01e62ce863cb6dae0d4b5d0a800cdb`
+(as recorded by the upload job). This archive size is not the artifact score.
+The bundle contains a certified candidate with a 48,752,768-byte bound;
+authoring mode deliberately reports no externally ranked score.
+
+The separate run-70 Rust reference test passed in 29.83 seconds with
+320,307,200 bytes peak RSS, observing the exact 48,752,768-byte artifact.
+Preparation took 22.619780641 seconds; the three expansions took
+1.836507423 / 1.811191424 / 1.779162105 seconds. BLAKE3 passed run 70;
+the unchanged G1 repeat was still active when these results were recorded.
+Both shared previews passed run 65.
+
+Earlier runs 67–69 compiled the security proofs and certificate but failed
+strict namespace auditing on lazily generated protected/shared equations.
+Submission-owned equalities and explicit definitional expressions repaired
+those proof unfolds. No audit exception, security statement, executable
+construction or resource cap was changed.
 
 **Run 66 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -133,8 +151,8 @@ SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 The current candidate assembles the checked correctness, codec, size and
 security theorems, transfers them through `laneConstruction_eq`, and exposes
 `lane_adaptiveSecure`. The private-leakage field is vacuous for this Unit/none
-profile; it is not a GC simulation claim. Certificate assembly compiled in run 69; the remaining shared byte-codec
-unfolding repair requires a new compiler/audit run. No security statement,
+profile; it is not a GC simulation claim. Certificate assembly and all unfolding
+repairs passed the complete run-70 compiler/audit pipeline. No security statement,
 sampler, executable construction, resource cap or acceptance gate was weakened.
 
 The runtime probe now atomically retains its last completed phase and available
@@ -189,18 +207,18 @@ a timing improvement.
 The joint coefficient/nonce law, full oracle/ciphertext coordinates,
 message/state coupling before message-specific partitioning, three collision
 losses, withholding and complete adaptive/static ROM reductions all passed
-source compilation. Their axioms must still pass the final candidate audit.
+source compilation and the complete candidate axiom audit in run 70.
 
-## Obligations still open
+## Scope and remaining external steps
 
-| Obligation | Remaining work |
-| --- | --- |
-| Namespace and axiom closure | Validate the remaining shared byte-codec unfolding repair with the unchanged isolated candidate audit |
-| Final certified bundle | Run candidate native/SDK tests and binary/kernel/score consistency checks |
+All mathematical ROM obligations and local authoring acceptance checks passed.
+The challenge and reference submission remain in draft PR #6; no merge,
+deployment or ranked external submission has been performed. Ranked admission
+requires the repository's separate immutable-base process.
 
-The mathematical ROM obligations are checked. Concrete SHA-256 security,
-upstream master-seed equivalence, arbitrary raw Script witnesses, malicious
-setup and GC simulation remain separate unclaimed results.
+Concrete SHA-256 security, upstream master-seed equivalence, arbitrary raw
+Script witnesses, malicious setup and GC simulation remain separate unclaimed
+results, rather than gaps concealed in the proved ROM statements.
 
 ## Fixed numerical target
 

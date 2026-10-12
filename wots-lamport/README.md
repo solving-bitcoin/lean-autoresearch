@@ -1,10 +1,12 @@
 # Direct-base-16 WOTS to fixed Lamport labels
 
-**All source proofs and certificate assembly compile; final isolated acceptance is pending.**
-The current candidate assembles the checked theorems into a certificate with
-`score.txt = 48752768`. The isolated namespace/axiom audit and final bundle tests
-still require validation. The authoring track remains unranked externally.
-See [PROOF_STATUS.md](PROOF_STATUS.md).
+**Full isolated authoring validation passed in run 70 (`9cea4ab`).**
+All 120 Lean modules, the exact certificate, namespace/axiom audits,
+binary/kernel/score consistency and generated-tool tests passed. The certified
+artifact bound is **48,752,768 bytes**. The authoring track remains unranked
+externally. See [PROOF_STATUS.md](PROOF_STATUS.md) for the checked commit,
+[CI evidence](https://github.com/solving-bitcoin/lean-autoresearch/actions/runs/38222245023)
+and exported report/tool bundle.
 
 The reference is identity on **all 32-byte messages**. Before seeing a message,
 `Prepare(keys, fixed_labels, coins)` builds one artifact. Later, a canonical
@@ -153,8 +155,8 @@ The author-owned numerical target is
 budget and `2^20` multi-target allowance are deliberately explicit. This is a
 nontrivial acceptance target. The checked joint reductions meet it while
 accounting for all 67 chains, seeds, endpoints, masks, label commitments, setup
-queries, collision events and coefficient bias. Certificate assembly compiles; final
-isolated acceptance remains pending.
+queries, collision events and coefficient bias. Certificate assembly and final
+isolated authoring validation passed run 70.
 
 `Protected/Adaptive.lean` separately models artifact-first adaptive message
 selection followed by exactly one release and a second adversary stage. The
@@ -242,13 +244,12 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. Run 69 checked all 120 source modules, including the exact lane
+immediately. Run 70 checked all 120 source modules, including the exact lane
 certificate and complete adaptive/static post-release ROM security. The isolated
-candidate audit then rejected a lazily generated shared byte-codec equation; the
-current repair keeps these unfolding equalities inside the submission namespace.
-The unchanged final audit/native gates remain pending. Run 66 passed generated
+candidate namespace/axiom audit, binary/kernel/score consistency, candidate
+native/SDK tests and bundle export all passed. Run 66 separately passed generated
 lane SDK tests and full independent reference-artifact/later-message correspondence.
-See [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
+See [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and scope.
 
 Runtime phase evidence is retained atomically across an outer timeout. It is
 diagnostic only: a started SDK or correspondence check is never reported as
