@@ -68,25 +68,27 @@ complete imported submission or its security certificate passed.
 | Protected infinite-oracle game equals one joint finite-table law | GroupedOracleLaw | `d94b293` |
 | Conditional post-release joint trace and guessing law | AfterReleaseLaw | `3fe2c26` |
 | Complete protected withholding security and raw post-release joint bound | PreReleaseFiniteGame.construction_withholdingSecure, RawAfterReleaseLaw | `4577cd3` |
+| Adaptive uniform-field probability bound with whole message/state coupling | AdaptiveFieldGame | `a2dd73f` |
 
 ## Current validation attempt
 
-Run 61 (`4577cd3`) checked **115 of 120 modules**. One module had a direct
-error (`AdaptiveFieldGame`); four dependents were blocked. The remaining direct
-error is discrete-measurable-space instance synthesis for allocated coefficients
-paired with the hidden setup. `PreReleaseFiniteGame` and `RawAfterReleaseLaw`
-are newly checked, including **complete protected withholding security**.
-Universal correctness, the artifact bound, honest query budget, grouped finite
-oracle law and optimized implementation equality remain checked. The complete
-adaptive and static post-release security reductions remain unchecked.
+Run 62 (`a2dd73f`) checked **116 of 120 modules**. One module had direct
+errors (`AdaptiveCoinLaw`); three dependents were blocked. The direct errors
+are a field-cast elaboration timeout and discrete-measurable-space instance
+synthesis for nested adaptive sample products. `AdaptiveFieldGame` is newly
+checked, including the adaptive uniform-field probability bound. Complete
+protected withholding security, universal correctness, the artifact bound,
+honest query budget, grouped finite oracle law and optimized implementation
+equality remain checked. The complete adaptive and static post-release security
+reductions remain unchecked.
 
-Run 61 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 7.916 seconds into the
+Run 62 reached the unchanged 1,800-second author cap during executable building.
+Its retained phase is `building-executable`, entered 9.153 seconds into the
 runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 61. Successful source batches took 736.193 seconds
-across 33 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 39.25 seconds with 320,126,976 bytes peak RSS. BLAKE3
-passed run 61; both shared previews passed run 60. Full validation has not passed.
+result is available for run 62. Successful source batches took 758.685 seconds
+across 34 batches, excluding failed batches/retries. The separate full Rust
+reference test passed in 30.19 seconds with 320,442,368 bytes peak RSS. Both
+shared G1 and BLAKE3 previews passed run 62. Full validation has not passed.
 
 **Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -115,9 +117,9 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs supply the remaining coefficient/hidden-setup discrete
-instance using checked singleton instances and apply the checked label-table
-measure-space equality in the final adaptive bridge. These repairs remain
+The latest local repairs abstract the decoded field value before proving its
+cast identity and materialize discrete instances for adaptive sample products.
+These repairs and the final adaptive label-table measure-space transport remain
 compiler-unchecked. No security statement, sampler, executable construction,
 resource cap or acceptance gate was weakened.
 

@@ -6,6 +6,19 @@ open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
 local instance AdaptiveCoinLaw.finMeasurable (n : Nat) : MeasurableSpace (Fin n) := ⊤
 
+local instance AdaptiveCoinLaw.labelSingleton : MeasurableSingletonClass Label :=
+  AfterReleaseLaw.labelSingleton
+local instance AdaptiveCoinLaw.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
+  AfterReleaseLaw.labelsSingleton
+local instance AdaptiveCoinLaw.publicKeySingleton : MeasurableSingletonClass PublicKey :=
+  inferInstance
+local instance AdaptiveCoinLaw.hiddenTapeSingleton : MeasurableSingletonClass HiddenChainTape :=
+  inferInstance
+local instance AdaptiveCoinLaw.shareCoordinatesSingleton :
+    MeasurableSingletonClass (SharePosition → Bytes 64) := inferInstance
+local instance AdaptiveCoinLaw.commitmentCoordinatesSingleton :
+    MeasurableSingletonClass (CommitmentCell → Label) := inferInstance
+
 /-- `ZMod 65537` is the same finite carrier; this reindexing uses its values,
 not another reduction or an independent coefficient sampling assumption. -/
 noncomputable def allocatedFinEquiv : (Fin coefficientCount → Fin 65537) ≃ AllocatedCoefficients :=
@@ -16,10 +29,11 @@ theorem actual_allocated_from_blocks (coins : Bytes randomnessBytes) :
       polynomialTableEquiv (actualFieldTable coins) := by
   apply congrArg polynomialTableEquiv
   funext index
+  simp only [blockFields, nonceCoefficientEquiv_coefficient, actualFieldTable]
+  generalize fieldBlock (coefficientBlock coins index) = value
   apply Fin.ext
-  change (fieldBlock (coefficientBlock coins index)).val =
-    (fieldBlock (coefficientBlock coins index)).val % 65537
-  exact (Nat.mod_eq_of_lt (fieldBlock (coefficientBlock coins index)).isLt).symm
+  change value.val = value.val % 65537
+  exact (Nat.mod_eq_of_lt value.isLt).symm
 
 abbrev AdaptiveAux (inputs : Finset OracleInput) :=
   PublicKey × HiddenChainTape × (Fin 256 → Pair) ×
@@ -28,6 +42,33 @@ abbrev AdaptiveOuter (inputs : Finset OracleInput) :=
   Bytes 32 × ((SharePosition → Bytes 64) × (CommitmentCell → Label)) × (inputs → Label)
 abbrev FlatAdaptiveSample (inputs : Finset OracleInput) :=
   (Bytes 32 × AdaptiveAux inputs) × (Fin coefficientCount → Fin 65537)
+
+local instance AdaptiveCoinLaw.auxDiscrete (inputs : Finset OracleInput) :
+    DiscreteMeasurableSpace (AdaptiveAux inputs) := by
+  classical
+  haveI : MeasurableSingletonClass (AdaptiveAux inputs) := inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
+
+local instance AdaptiveCoinLaw.flatDiscrete (inputs : Finset OracleInput) :
+    DiscreteMeasurableSpace (FlatAdaptiveSample inputs) := by
+  classical
+  haveI : MeasurableSingletonClass (Fin coefficientCount → Fin 65537) := inferInstance
+  haveI : MeasurableSingletonClass (FlatAdaptiveSample inputs) := inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
+
+local instance AdaptiveCoinLaw.publicInnerDiscrete :
+    DiscreteMeasurableSpace (PublicKey × AfterInnerSample) := by
+  classical
+  haveI : MeasurableSingletonClass (PublicKey × AfterInnerSample) := inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
+
+local instance AdaptiveCoinLaw.outerInnerDiscrete (inputs : Finset OracleInput) :
+    DiscreteMeasurableSpace (AdaptiveOuter inputs × (PublicKey × AfterInnerSample)) := by
+  classical
+  haveI : MeasurableSingletonClass (AdaptiveOuter inputs) := inferInstance
+  haveI : MeasurableSingletonClass (AdaptiveOuter inputs × (PublicKey × AfterInnerSample)) :=
+    inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
 
 noncomputable def uniformFieldCoordinates (inputs : Finset OracleInput) :
     FlatAdaptiveSample inputs ≃ AdaptiveOuter inputs × (PublicKey × AfterInnerSample) where
