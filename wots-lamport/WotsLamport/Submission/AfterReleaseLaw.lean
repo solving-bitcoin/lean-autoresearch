@@ -21,6 +21,25 @@ local instance AfterReleaseLaw.coefficientsSingleton :
 abbrev AfterInnerSample := HiddenChainTape × (Fin 256 → Pair) × AllocatedCoefficients
 abbrev AfterInnerEnvironment (m : Message) := MessageVisibleTape m × AllocatedCoefficients
 
+/-- Explicit instances keep typeclass search shallow for nested finite samples. -/
+instance afterInnerSampleDiscrete : DiscreteMeasurableSpace AfterInnerSample := by
+  classical
+  letI := Fintype.ofFinite Label
+  letI := Fintype.ofFinite Pair
+  letI := Fintype.ofFinite AfterInnerSample
+  haveI : MeasurableSingletonClass HiddenChainTape := inferInstance
+  haveI : MeasurableSingletonClass AfterInnerSample := inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
+
+instance afterInnerPartitionDiscrete (m : Message) :
+    DiscreteMeasurableSpace (AfterInnerEnvironment m × AfterHiddenSetup m) := by
+  classical
+  letI := Fintype.ofFinite Label
+  letI := Fintype.ofFinite Pair
+  letI := Fintype.ofFinite AfterInnerSample
+  haveI : MeasurableSingletonClass (AfterInnerEnvironment m × AfterHiddenSetup m) := inferInstance
+  exact ⟨fun s => (Set.toFinite s).measurableSet⟩
+
 /-- Fixing public endpoints fixes the chosen message before this bijection is
 applied. Thus its message-dependent hidden/visible dimensions cause no union
 bound over messages and no change to the outer public-key law. -/
@@ -70,18 +89,6 @@ theorem afterInner_bad_law (m : Message) (pk : PublicKey) :
       {sample | ¬Function.Injective (afterTape m (pk,sample.1) sample.2)} =
       uniformOn (Set.univ : Set HiddenChainTape) (conditionalTapeBad pk) := by
   classical
-  -- Give finite function spaces explicit finite enumerations for the
-  -- countable/discrete measurable-space instances used by measure transport.
-  letI := Fintype.ofFinite Label
-  letI := Fintype.ofFinite Pair
-  letI := Fintype.ofFinite AfterInnerSample
-  haveI : MeasurableSingletonClass HiddenChainTape := inferInstance
-  haveI : MeasurableSingletonClass AfterInnerSample := inferInstance
-  haveI : DiscreteMeasurableSpace AfterInnerSample :=
-    ⟨fun s => (Set.toFinite s).measurableSet⟩
-  haveI : MeasurableSingletonClass (AfterInnerEnvironment m × AfterHiddenSetup m) := inferInstance
-  haveI : DiscreteMeasurableSpace (AfterInnerEnvironment m × AfterHiddenSetup m) :=
-    ⟨fun s => (Set.toFinite s).measurableSet⟩
   rw [← Shamir.uniform_event_equiv (afterInnerCoordinates m)]
   change uniformOn (Set.univ : Set AfterInnerSample)
     {sample | ¬Function.Injective (afterTape m (pk,(afterInnerCoordinates m sample).1)

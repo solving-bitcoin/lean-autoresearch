@@ -12,7 +12,7 @@ local instance PreReleaseFiniteGame.pairSingleton : MeasurableSingletonClass Pai
 
 /-- The finite label table's product sigma algebra contains every set. -/
 theorem labelTable_pi_measurable_eq_top :
-    (inferInstance : MeasurableSpace (Fin 256 → Pair)) = ⊤ := by
+    (MeasurableSpace.pi : MeasurableSpace (Fin 256 → Pair)) = ⊤ := by
   apply top_unique
   intro s _
   exact MeasurableSet.of_discrete
@@ -93,8 +93,7 @@ theorem programmed_pre_event_good (inputs : Finset OracleInput)
   rw [combinedProgram_hash inputs contains _ _ sample.1.2 sample.2 distinct]
   rw [publicKey_tape h sample.2.1 consistent,
     prepare_programmedHash_ciphertext _ _ _ _ _ distinct]
-  unfold beforeWinEvent
-  rw [beforeHash_coordinates, beforeArtifact_coordinates]
+  simp only [beforeWinEvent, Set.mem_setOf_eq, beforeHash_coordinates, beforeArtifact_coordinates]
   rfl
 
 theorem raw_tape_bad_bound (inputs : Finset OracleInput) :
@@ -141,6 +140,11 @@ theorem raw_programmed_pre_bound (inputs : Finset OracleInput)
   haveI : MeasurableSingletonClass (CombinedIdeal inputs) := inferInstance
   haveI : MeasurableSingletonClass (RawProgrammedSample inputs) := inferInstance
   haveI : DiscreteMeasurableSpace (RawProgrammedSample inputs) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
+  haveI : MeasurableSingletonClass (BeforeEnvironment inputs) := inferInstance
+  haveI : MeasurableSingletonClass HiddenSetup := inferInstance
+  haveI : MeasurableSingletonClass (BeforeEnvironment inputs × HiddenSetup) := inferInstance
+  haveI : DiscreteMeasurableSpace (BeforeEnvironment inputs × HiddenSetup) :=
     ⟨fun s => (Set.toFinite s).measurableSet⟩
   have comparison := event_bound_of_agree_on_good
     (uniformOn (Set.univ : Set (RawProgrammedSample inputs)))

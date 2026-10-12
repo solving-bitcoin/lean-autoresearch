@@ -66,25 +66,25 @@ complete imported submission or its security certificate passed.
 | Reified game execution/query bounds and conditional post-release trace/guessing bound | GamePrograms, AfterReleaseCoordinates | `1b590f8` |
 | Fixed-message and withholding game reductions | GameReductions | `620a1a4` |
 | Protected infinite-oracle game equals one joint finite-table law | GroupedOracleLaw | `d94b293` |
+| Conditional post-release joint trace and guessing law | AfterReleaseLaw | `3fe2c26` |
 
 ## Current validation attempt
 
-Run 59 (`fbde32d`) checked **112 of 120 modules**. Two modules had direct
-errors (`PreReleaseFiniteGame`, `AfterReleaseLaw`); six dependents were blocked.
-The local-instance import collision is fixed. The remaining errors concern a
-multiline `let` expression, product-versus-discrete measurable-space alignment,
-and singleton/discrete instance synthesis for nested finite sample spaces.
-Universal correctness, the artifact bound, honest query budget, grouped finite
-oracle law and optimized implementation equality remain checked. Complete
-withholding/adaptive security reductions remain unchecked.
+Run 60 (`3fe2c26`) checked **113 of 120 modules**. Two modules had direct
+errors (`PreReleaseFiniteGame`, `RawAfterReleaseLaw`); five dependents were blocked.
+`AfterReleaseLaw` is newly checked. The remaining errors concern event unfolding,
+explicit product-space rewriting, multiline `let` layout, and discrete-instance
+availability in the downstream module. Universal correctness, the artifact bound,
+honest query budget, grouped finite oracle law and optimized implementation equality
+remain checked. Complete withholding/adaptive security reductions remain unchecked.
 
-Run 59 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 7.891 seconds into the
+Run 60 reached the unchanged 1,800-second author cap during executable building.
+Its retained phase is `building-executable`, entered 8.161 seconds into the
 runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 59. Successful source batches took 688.789 seconds
-across 31 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 25.07 seconds with 320,393,216 bytes peak RSS. Both
-shared G1 and BLAKE3 previews passed run 59. Full validation has not passed.
+result is available for run 60. Successful source batches took 647.078 seconds
+across 32 batches, excluding failed batches/retries. The separate full Rust
+reference test passed in 23.05 seconds with 320,438,272 bytes peak RSS. Both
+shared G1 and BLAKE3 previews passed run 60. Full validation has not passed.
 
 **Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -113,11 +113,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs fix the multiline `let` layout, prove that the finite
-label-table product sigma algebra equals the discrete one, and supply explicit
-singleton/discrete instances for the nested finite sample spaces. These repairs
-remain compiler-unchecked. No security statement, sampler, executable
-construction, resource cap or acceptance gate was weakened.
+The latest local repairs reuse the checked finite discreteness proofs as named
+instances, make the product-space equality explicit, expose event membership,
+and normalize downstream multiline `let` expressions. These repairs remain
+compiler-unchecked. No security statement, sampler, executable construction,
+resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

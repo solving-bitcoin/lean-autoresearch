@@ -67,10 +67,11 @@ theorem field_choose_event_comparison (nonce : ByteArray)
     good (by
       intro sample same
       change ROM.run baseline program = ROM.run (rawAfterHash nonce pk sample coordinates baseline) program at same
-      change (let chosen := ROM.run (rawAfterHash nonce pk sample coordinates baseline) program
-        let claim := ROM.run (rawAfterHash nonce pk sample coordinates baseline)
-          (a.finish chosen.2 (rawAfterView chosen.1 nonce pk sample coordinates))
-        claim.2 = (sample.2.1 claim.1).get (!(outputCodec.encode chosen.1)[claim.1.val])) ↔ _
+      change
+        (let chosen := ROM.run (rawAfterHash nonce pk sample coordinates baseline) program
+         let claim := ROM.run (rawAfterHash nonce pk sample coordinates baseline)
+           (a.finish chosen.2 (rawAfterView chosen.1 nonce pk sample coordinates))
+         claim.2 = (sample.2.1 claim.1).get (!(outputCodec.encode chosen.1)[claim.1.val])) ↔ _
       rw [← same]
       rfl)
   exact comparison.trans (add_le_add le_rfl

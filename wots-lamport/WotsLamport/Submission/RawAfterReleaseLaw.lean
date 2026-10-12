@@ -32,7 +32,8 @@ def rawAfterView (m : Message) (nonce : ByteArray) (pk : PublicKey) (sample : Af
 def rawAfterEvent (m : Message) (nonce : ByteArray) (pk : PublicKey)
     (coordinates : (SharePosition → Bytes 64) × (CommitmentCell → Label)) (baseline : Hash)
     (finish : View challenge → Program challenge.Claim) : Set AfterInnerSample :=
-  {sample | let claim := ROM.run (rawAfterHash nonce pk sample coordinates baseline)
+  {sample |
+    let claim := ROM.run (rawAfterHash nonce pk sample coordinates baseline)
       (finish (rawAfterView m nonce pk sample coordinates))
     claim.2 = (sample.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val])}
 
@@ -68,12 +69,13 @@ theorem rawAfterEvent_bound (m : Message) (nonce : ByteArray) (pk : PublicKey)
   have reindex : rawAfterEvent m nonce pk coordinates baseline finish =
       (afterInnerCoordinates m) ⁻¹' event := by
     ext sample
-    change _ ↔ (let claim := ROM.run
-        (afterHash m nonce (pk,(afterInnerCoordinates m sample).1) (afterInnerCoordinates m sample).2
-          coordinates baseline)
-        (finish (afterReleaseView m nonce (pk,(afterInnerCoordinates m sample).1) coordinates
-          (fun i => (sample.2.1 i).get (outputCodec.encode m)[i.val])))
-      claim.2 = (sample.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val]))
+    change _ ↔
+      (let claim := ROM.run
+          (afterHash m nonce (pk,(afterInnerCoordinates m sample).1) (afterInnerCoordinates m sample).2
+            coordinates baseline)
+          (finish (afterReleaseView m nonce (pk,(afterInnerCoordinates m sample).1) coordinates
+            (fun i => (sample.2.1 i).get (outputCodec.encode m)[i.val])))
+       claim.2 = (sample.2.1 claim.1).get (!(outputCodec.encode m)[claim.1.val]))
     rw [afterInnerCoordinates_hash, afterInnerCoordinates_view]
     rfl
   rw [reindex, Shamir.uniform_event_equiv]
@@ -94,6 +96,7 @@ theorem conditionalTapeBad_average :
     ext tape
     change ¬Function.Injective (chainPartitionEquiv.symm (chainPartitionEquiv tape)) ↔ _
     rw [Equiv.symm_apply_apply]
+    rfl
   rw [event] at h
   rw [← h]
   exact uniform_chainTape_collision_bound
