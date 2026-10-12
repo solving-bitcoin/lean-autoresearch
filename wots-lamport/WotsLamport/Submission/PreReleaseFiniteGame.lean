@@ -6,8 +6,21 @@ import WotsLamport.Submission.WithholdingBudget
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleComp
 
+local instance PreReleaseFiniteGame.labelSingleton : MeasurableSingletonClass Label :=
+  ⟨fun _ => MeasurableSpace.measurableSet_top⟩
+local instance PreReleaseFiniteGame.pairSingleton : MeasurableSingletonClass Pair := inferInstance
+
+/-- The finite label table's product sigma algebra contains every set. -/
+theorem labelTable_pi_measurable_eq_top :
+    (inferInstance : MeasurableSpace (Fin 256 → Pair)) = ⊤ := by
+  apply top_unique
+  intro s _
+  exact MeasurableSet.of_discrete
+
 local instance PreReleaseFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
 local instance PreReleaseFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance PreReleaseFiniteGame.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
+  ⟨fun _ => MeasurableSpace.measurableSet_top⟩
 
 theorem coin_bytes_long (coins : Bytes randomnessBytes) :
     32 ≤ (ByteArray.mk coins.toArray).size := by
@@ -65,17 +78,18 @@ theorem programmed_pre_event_good (inputs : Finset OracleInput)
   let h := programmedHash ((ByteArray.mk sample.1.1.toArray).extract 0 32)
     sample.2.1 sample.1.2 sample.2.2.1 (ROM.hash (extendOracleTable inputs sample.2.2.2))
   have consistent : TapeConsistent h sample.2.1 := programmedHash_consistent _ _ _ _ _ distinct
-  change (let claim := ROM.run
-      (ROM.hash (extendOracleTable inputs (combinedProgram inputs contains
-        ((ByteArray.mk sample.1.1.toArray).extract 0 32) (coin_nonce_size sample.1.1) sample.1.2 sample.2).2))
-      (a ⟨m, keyCodec.encode (publicKey
+  change
+    (let claim := ROM.run
         (ROM.hash (extendOracleTable inputs (combinedProgram inputs contains
           ((ByteArray.mk sample.1.1.toArray).extract 0 32) (coin_nonce_size sample.1.1) sample.1.2 sample.2).2))
-        (tapeKeys sample.2.1)) ++ prepare
-        (ROM.hash (extendOracleTable inputs (combinedProgram inputs contains
-          ((ByteArray.mk sample.1.1.toArray).extract 0 32) (coin_nonce_size sample.1.1) sample.1.2 sample.2).2))
-        (ByteArray.mk sample.1.1.toArray) (tapeKeys sample.2.1) sample.1.2⟩)
-    claim.2 = (sample.1.2 claim.1).get false ∨ claim.2 = (sample.1.2 claim.1).get true) ↔ _
+        (a ⟨m, keyCodec.encode (publicKey
+          (ROM.hash (extendOracleTable inputs (combinedProgram inputs contains
+            ((ByteArray.mk sample.1.1.toArray).extract 0 32) (coin_nonce_size sample.1.1) sample.1.2 sample.2).2))
+          (tapeKeys sample.2.1)) ++ prepare
+          (ROM.hash (extendOracleTable inputs (combinedProgram inputs contains
+            ((ByteArray.mk sample.1.1.toArray).extract 0 32) (coin_nonce_size sample.1.1) sample.1.2 sample.2).2))
+          (ByteArray.mk sample.1.1.toArray) (tapeKeys sample.2.1) sample.1.2⟩)
+     claim.2 = (sample.1.2 claim.1).get false ∨ claim.2 = (sample.1.2 claim.1).get true) ↔ _
   rw [combinedProgram_hash inputs contains _ _ sample.1.2 sample.2 distinct]
   rw [publicKey_tape h sample.2.1 consistent,
     prepare_programmedHash_ciphertext _ _ _ _ _ distinct]
@@ -113,7 +127,9 @@ theorem before_release_product_bound (inputs : Finset OracleInput) (m : Message)
   rw [uniform_product]
   apply product_event_constant_bound
   intro environment
-  exact before_release_fiber_bound inputs environment m a q bound
+  have h := before_release_fiber_bound inputs environment m a q bound
+  rw [labelTable_pi_measurable_eq_top] at h
+  simpa only [beforeWinEvent, Set.mem_setOf_eq] using h
 
 theorem raw_programmed_pre_bound (inputs : Finset OracleInput)
     (contains : wotsProgrammingInputs ⊆ inputs) (m : Message)
@@ -122,6 +138,10 @@ theorem raw_programmed_pre_bound (inputs : Finset OracleInput)
       (rawProgrammedPreEvent inputs contains m a) ≤
         ((4 : ENNReal)/2^256 + (3002 : ENNReal)*q/2^256) + (1056 : ENNReal)^2/2^256 := by
   classical
+  haveI : MeasurableSingletonClass (CombinedIdeal inputs) := inferInstance
+  haveI : MeasurableSingletonClass (RawProgrammedSample inputs) := inferInstance
+  haveI : DiscreteMeasurableSpace (RawProgrammedSample inputs) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
   have comparison := event_bound_of_agree_on_good
     (uniformOn (Set.univ : Set (RawProgrammedSample inputs)))
     (rawProgrammedPreEvent inputs contains m a)

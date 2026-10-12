@@ -5,6 +5,19 @@ open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleC
 
 local instance AfterReleaseLaw.fieldMeasurable : MeasurableSpace (ZMod 65537) := ⊤
 
+-- Materialize scalar and table singleton instances before nested products.
+local instance AfterReleaseLaw.labelSingleton : MeasurableSingletonClass Label :=
+  ⟨fun _ => MeasurableSpace.measurableSet_top⟩
+local instance AfterReleaseLaw.pairSingleton : MeasurableSingletonClass Pair := inferInstance
+local instance AfterReleaseLaw.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
+  inferInstance
+local instance AfterReleaseLaw.fieldSingleton : MeasurableSingletonClass (ZMod 65537) :=
+  ⟨fun _ => MeasurableSpace.measurableSet_top⟩
+local instance AfterReleaseLaw.coefficientRowSingleton :
+    MeasurableSingletonClass (Fin 1023 → ZMod 65537) := inferInstance
+local instance AfterReleaseLaw.coefficientsSingleton :
+    MeasurableSingletonClass AllocatedCoefficients := inferInstance
+
 abbrev AfterInnerSample := HiddenChainTape × (Fin 256 → Pair) × AllocatedCoefficients
 abbrev AfterInnerEnvironment (m : Message) := MessageVisibleTape m × AllocatedCoefficients
 
@@ -62,7 +75,13 @@ theorem afterInner_bad_law (m : Message) (pk : PublicKey) :
   letI := Fintype.ofFinite Label
   letI := Fintype.ofFinite Pair
   letI := Fintype.ofFinite AfterInnerSample
-  haveI : DiscreteMeasurableSpace AfterInnerSample := inferInstance
+  haveI : MeasurableSingletonClass HiddenChainTape := inferInstance
+  haveI : MeasurableSingletonClass AfterInnerSample := inferInstance
+  haveI : DiscreteMeasurableSpace AfterInnerSample :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
+  haveI : MeasurableSingletonClass (AfterInnerEnvironment m × AfterHiddenSetup m) := inferInstance
+  haveI : DiscreteMeasurableSpace (AfterInnerEnvironment m × AfterHiddenSetup m) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
   rw [← Shamir.uniform_event_equiv (afterInnerCoordinates m)]
   change uniformOn (Set.univ : Set AfterInnerSample)
     {sample | ¬Function.Injective (afterTape m (pk,(afterInnerCoordinates m sample).1)
