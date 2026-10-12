@@ -69,26 +69,26 @@ complete imported submission or its security certificate passed.
 | Conditional post-release joint trace and guessing law | AfterReleaseLaw | `3fe2c26` |
 | Complete protected withholding security and raw post-release joint bound | PreReleaseFiniteGame.construction_withholdingSecure, RawAfterReleaseLaw | `4577cd3` |
 | Adaptive uniform-field probability bound with whole message/state coupling | AdaptiveFieldGame | `a2dd73f` |
+| Actual packed-coin adaptive bound with one joint sampler loss | AdaptiveCoinLaw | `b7acbfa` |
 
 ## Current validation attempt
 
-Run 63 (`c21186a`) checked **116 of 120 modules**. One module had direct
-errors (`AdaptiveCoinLaw`); three dependents were blocked. The finite sample
-instances elaborate, but the module still has redundant tactics after a solved
-cast identity, a uniform-event elaboration timeout, and rewrites across two
-definitionally equal coin-size expressions. The adaptive uniform-field bound
-was checked in run 62. Complete protected withholding security, universal
-correctness, the artifact bound, honest query budget, grouped finite oracle law
-and optimized implementation equality remain checked. The complete adaptive
-and static post-release security reductions remain unchecked.
+Run 64 (`b7acbfa`) checked **117 of 120 modules**. One module had a direct
+error (`AdaptiveProgrammingBridge`); two dependents were blocked. The remaining
+error is a rewrite after unfolding protected claim projections. `AdaptiveCoinLaw`
+is newly checked, including the actual packed-coin adaptive probability bound
+with the single joint sampler loss. Complete protected withholding security,
+universal correctness, the artifact bound, honest query budget, grouped finite
+oracle law and optimized implementation equality remain checked. The complete
+adaptive and static post-release ROM security reductions remain unchecked.
 
-Run 63 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 8.701 seconds into the
+Run 64 reached the unchanged 1,800-second author cap during executable building.
+Its retained phase is `building-executable`, entered 9.334 seconds into the
 runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 63. Successful source batches took 687.475 seconds
-across 34 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 38.25 seconds with 320,311,296 bytes peak RSS. BLAKE3
-passed run 63; both shared previews passed run 62. Full validation has not passed.
+result is available for run 64. Successful source batches took 736.985 seconds
+across 35 batches, excluding failed batches/retries. The separate full Rust
+reference test passed in 25.45 seconds with 320,454,656 bytes peak RSS. Both
+shared G1 and BLAKE3 previews passed run 64. Full validation has not passed.
 
 **Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -117,12 +117,12 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs remove tactics after the solved cast identity, name
-the reindexed event, and normalize the coin-size representation before rewriting.
-The final adaptive bridge now supplies explicit finite-measure instances and
-reuses the checked game-execution theorem. These repairs and the final label-table
-measure-space transport remain compiler-unchecked. No security statement,
-sampler, executable construction, resource cap or acceptance gate was weakened.
+The latest local repair keeps the tape-success predicate intact before
+rewriting hash and tape coordinates, avoiding exposed protected claim projections.
+The temporary diagnostics option was removed from the now-checked sampler proof.
+The bridge repair and final adaptive module remain compiler-unchecked. No
+security statement, sampler, executable construction, resource cap or acceptance
+gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

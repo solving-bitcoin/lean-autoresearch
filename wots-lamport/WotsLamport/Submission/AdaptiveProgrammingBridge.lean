@@ -84,11 +84,19 @@ theorem rawCoinCoordinates_event (inputs : Finset OracleInput) (sample : RawProg
           ciphertextBody ((ByteArray.mk sample.1.1.toArray).extract 0 32)
             (artifactCiphertextCoordinates (ByteArray.mk sample.1.1.toArray) sample.1.2 sample.2.2.1).2
             (artifactCiphertextCoordinates (ByteArray.mk sample.1.1.toArray) sample.1.2 sample.2.2.1).1) a := by
-  unfold coinAdaptiveEvent fieldAdaptiveEvent
-  simp only [Set.mem_setOf_eq]
-  rw [rawCoinCoordinates_hash]
-  unfold rawAfterView
-  rw [rawCoinCoordinates_tape]
+  change tapeAdaptiveSuccess
+    (rawAfterHash ((ByteArray.mk (rawCoinCoordinates inputs sample).1.toArray).extract 0 32)
+      (rawCoinCoordinates inputs sample).2.1
+      ((rawCoinCoordinates inputs sample).2.2.1,(rawCoinCoordinates inputs sample).2.2.2.1,
+        polynomialTableEquiv (actualFieldTable (rawCoinCoordinates inputs sample).1))
+      (rawCoinCoordinates inputs sample).2.2.2.2.1
+      (ROM.hash (extendOracleTable inputs (rawCoinCoordinates inputs sample).2.2.2.2.2)))
+    (chainPartitionEquiv.symm ((rawCoinCoordinates inputs sample).2.1,
+      (rawCoinCoordinates inputs sample).2.2.1))
+    (rawCoinCoordinates inputs sample).2.2.2.1
+    (ciphertextArtifact ((ByteArray.mk (rawCoinCoordinates inputs sample).1.toArray).extract 0 32)
+      (rawCoinCoordinates inputs sample).2.1 (rawCoinCoordinates inputs sample).2.2.2.2.1) a ↔ _
+  rw [rawCoinCoordinates_hash inputs sample, rawCoinCoordinates_tape inputs sample]
   rfl
 
 theorem programmed_adaptive_event_good (inputs : Finset OracleInput)

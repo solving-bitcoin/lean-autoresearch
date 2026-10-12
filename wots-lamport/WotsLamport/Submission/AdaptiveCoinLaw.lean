@@ -97,7 +97,6 @@ theorem flatAdaptiveEvent_coordinates (inputs : Finset OracleInput) (a : Adaptiv
     flatAdaptiveEvent inputs a =
       (uniformFieldCoordinates inputs) ⁻¹' outerFieldAdaptiveEvent inputs a := rfl
 
-set_option diagnostics true in
 theorem uniform_flat_adaptive_bound (inputs : Finset OracleInput) (a : AdaptiveAdversary)
     (q₁ q₂ : Nat) (chooseBound : ROM.Bounded a.choose q₁)
     (finishBound : ∀ state, ROM.Bounded (a.finish state) q₂) :
