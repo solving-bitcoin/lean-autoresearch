@@ -4,6 +4,13 @@ import WotsLamport.Protected.Adaptive
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory OracleComp
 
+local instance AdaptiveFieldGame.labelSingleton : MeasurableSingletonClass Label :=
+  AfterReleaseLaw.labelSingleton
+local instance AdaptiveFieldGame.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
+  AfterReleaseLaw.labelsSingleton
+local instance AdaptiveFieldGame.coefficientsSingleton : MeasurableSingletonClass AllocatedCoefficients :=
+  AfterReleaseLaw.coefficientsSingleton
+
 def ciphertextArtifact (nonce : ByteArray) (pk : PublicKey)
     (coordinates : (SharePosition → Bytes 64) × (CommitmentCell → Label)) : ByteArray :=
   keyCodec.encode pk ++ ciphertextBody nonce coordinates.2 coordinates.1
@@ -21,6 +28,10 @@ theorem field_choose_difference_bound {A : Type} (nonce : ByteArray) (pk : Publi
       {sample | ROM.run baseline program ≠ ROM.run (rawAfterHash nonce pk sample coordinates baseline) program} ≤
         (3002 : ENNReal)*q/2^256 := by
   classical
+  haveI : MeasurableSingletonClass HiddenSetup := inferInstance
+  haveI : MeasurableSingletonClass (AllocatedCoefficients × HiddenSetup) := inferInstance
+  haveI : DiscreteMeasurableSpace (AllocatedCoefficients × HiddenSetup) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
   let event : Set (AllocatedCoefficients × HiddenSetup) :=
     {sample | ROM.run baseline program ≠ ROM.run
       (programmedHash nonce (chainPartitionEquiv.symm (pk,sample.2.1)) sample.2.2

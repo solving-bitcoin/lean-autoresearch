@@ -23,8 +23,9 @@ theorem raw_programmed_adaptive_bound (inputs : Finset OracleInput)
     {sample | Function.Injective sample.2.1}
     (fun sample distinct => programmed_adaptive_event_good inputs contains a sample distinct)
   rw [Shamir.uniform_event_equiv] at comparison
-  exact comparison.trans (add_le_add
-    (coin_adaptive_probability_bound inputs a q₁ q₂ chooseBound finishBound) (raw_tape_bad_bound inputs))
+  have coinBound := coin_adaptive_probability_bound inputs a q₁ q₂ chooseBound finishBound
+  rw [labelTable_pi_measurable_eq_top] at coinBound
+  exact comparison.trans (add_le_add coinBound (raw_tape_bad_bound inputs))
 
 theorem finite_adaptive_outer_bound (inputs : Finset OracleInput)
     (contains : wotsProgrammingInputs ⊆ inputs) (a : AdaptiveAdversary) (q₁ q₂ : Nat)
