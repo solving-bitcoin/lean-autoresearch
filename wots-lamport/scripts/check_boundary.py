@@ -92,6 +92,8 @@ def main():
             assert boundary.digest() == original
             source.write_text('-- changed protected fixture\n')
             assert boundary.digest() != original
+    from check_correspondence_guard import main as check_correspondence_guard
+    check_correspondence_guard()
     print('PASS: immutable rules, source/namespace/import restrictions, and canonical scores')
 
 if __name__ == '__main__': main()

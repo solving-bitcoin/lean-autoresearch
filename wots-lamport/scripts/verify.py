@@ -1,5 +1,6 @@
 """WOTS supplies protected configuration to the shared verifier."""
 import importlib.util
+import json
 from pathlib import Path
 import sys
 import boundary
@@ -14,10 +15,21 @@ def main():
     reports = [('AUTHOR_SOURCE_DIAGNOSTICS', boundary.ROOT/'.yukon/author-sources.json'),
                ('RUNTIME_PROGRESS', boundary.ROOT/'.yukon/runtime-progress.json')]
     (boundary.ROOT/'.yukon/runtime-probe.json').unlink(missing_ok=True)
+    correspondence = boundary.ROOT/'.yukon/wots-lamport-correspondence-score.json'
+    correspondence.unlink(missing_ok=True)
     for _, report in reports:
         report.unlink(missing_ok=True)
     try:
         module.verify(boundary,guarded)
+        # The default author preview is this repository's reference entry.
+        # Keep all shared admission checks and their order unchanged. Only
+        # after they pass, compare the exact exported certified executable;
+        # never impose this format-specific test on --submission candidates.
+        if sys.argv[1:] == ['--authoring-preview']:
+            from check_bundle_correspondence import check
+            print('FINAL_CERTIFIED_REPORT:', flush=True)
+            print(json.dumps(json.loads((boundary.ROOT/'.yukon/wots-lamport-score.json').read_text()), indent=2), flush=True)
+            check(boundary.ROOT/'.yukon/bundle', correspondence)
     finally:
         if '--authoring-preview' in sys.argv:
             for title, report in reports:

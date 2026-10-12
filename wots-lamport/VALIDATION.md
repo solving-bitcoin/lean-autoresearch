@@ -1,5 +1,8 @@
 # Local validation — 2026-10-10
 
+This file records historical milestones. Current certified ROM claims and CI
+evidence are maintained in [PROOF_STATUS.md](PROOF_STATUS.md).
+
 Base checkout: `solving-bitcoin/lean-autoresearch`, branch `work`, commit
 `b344b78a80eac105161a75e3a02f0b0b18a8b47b`. This is the baseline for the feature branch and draft PR.
 Rust toolchain: `rustc 1.97.1 (8bab26f4f 2026-07-14)`.

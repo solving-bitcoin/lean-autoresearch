@@ -112,6 +112,20 @@ Preparation took 22.619780641 seconds; the three expansions took
 the unchanged G1 repeat was still active when these results were recorded.
 Both shared previews passed run 65.
 
+The run-70 **WOTS job** passed; the overall workflow was later cancelled when
+its unrelated G1 repeat was superseded. This is not an all-workflow success
+claim. Run 66's diagnostic used an uncertified entry, so byte identity with
+the final certified executable has not been established. The default authoring
+preview now runs the existing full-artifact/later-message correspondence test
+against the exact exported certified bundle **after** the unchanged shared
+verifier succeeds. This post-verification author check does not rebuild Lean,
+alter the certificate, or impose a reference format on competitor submissions.
+It retains tool hashes and measurements in a separate correspondence report,
+uses the original build/native limits in the same CI job, and reports success
+only after that check completes. Run 70 did not include this additional check. The separate full Rust reference test already runs
+explicitly in the reference job; neither ignored test is silently counted as
+part of the standard acceptance suite.
+
 Earlier runs 67–69 compiled the security proofs and certificate but failed
 strict namespace auditing on lazily generated protected/shared equations.
 Submission-owned equalities and explicit definitional expressions repaired

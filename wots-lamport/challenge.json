@@ -61,12 +61,12 @@
     "verifier": "FastWinternitz<32,Sha256,FullWidth>::checksig_verify",
     "witness": "to_witness: [digit,node] x 67; canonical ScriptNum selectors",
     "rawWitnessCorrespondence": "unproved",
-    "inputSelection": "static; adaptive goal defined separately",
-    "implementationBridge": "heuristic / unproved",
+    "inputSelection": "static certificate; artifact-first adaptive theorem proved separately",
+    "implementationBridge": "Lean packed/lane execution proved; concrete SHA-256 and Rust/Script equivalence unproved",
     "maxAdversaryQueries": 281474976710656,
     "honestQueryBudget": 4294967296,
     "errorTarget": "2^20 * (q + 2^32 + 1)^2 / 2^256",
-    "reductionStatus": "open"
+    "reductionStatus": "proved in protected ROM model; audited authoring certificate"
   },
   "upstream": {
     "repository": "https://github.com/solving-bitcoin/bitcoin-scripts",
@@ -75,11 +75,11 @@
   "scoring": {
     "publicKeyIncluded": true,
     "claimBytes": 48752768,
-    "certificate": false,
+    "certificate": true,
     "score": null,
     "randomnessBytes": 268173344
   },
-  "currentSubmissionStatus": "unranked-unchecked",
+  "currentSubmissionStatus": "certified-authoring-preview",
   "localCompilerMemoryLimitBytes": 4294967296,
   "compilerMemoryLimitBytes": 8589934592,
   "nativeMemoryLimitBytes": 1073741824,
@@ -92,10 +92,12 @@
     "mandatory public-key prefix"
   ],
   "separateUnprovedGoals": [
-    "adaptive message selection",
     "simulation/GC composition",
     "malicious setup",
     "all raw Script-accepted witnesses",
     "concrete-hash and upstream seed-law correspondence"
+  ],
+  "separateProvedGoals": [
+    "artifact-first adaptive message selection: WotsLamport.Submission.lane_adaptiveSecure"
   ]
 }

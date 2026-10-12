@@ -11,9 +11,30 @@ preimages and commitments. WOTS uses the exact
 by 64 drops and a terminal true. Lamport uses 256 independent two-way pairs,
 checks each preimage's width and SHA-256 commitment, and consumes its bit.
 Both complete leaves finish with one true item. No HASH160 or shortened
-preimages are used. The intended security target is the same challenge ROM
-target, which has not yet been proved; “256-bit” describes the message and
-hash/preimage widths, not a claim of 256-bit end-to-end security.
+preimages are used. The translation meets the challenge ROM target through
+the checked withholding, static-release and separate adaptive-release theorems
+and certificate (see [PROOF_STATUS.md](PROOF_STATUS.md)). This does not prove
+equivalence with actual Script execution or concrete SHA-256 security.
+“256-bit” describes message and hash/preimage widths, not a claim of 256-bit
+end-to-end security.
+
+The delivered `Expand` takes the 32-byte message separately and exactly 2,144
+signature bytes: 67 full 32-byte chain nodes in chain-index order. The protected
+wrapper checks each node against the artifact's public-key endpoints using the
+message's 64 high/low nibbles and checksum digits (radices 8,8,16). Canonical
+signatures are proved correct for every message. The pinned Bitcoin fixtures
+use the same chain nodes and digit convention, transported as 134 stack items
+`[minimal ScriptNum digit, 32-byte node]` for chains 0 through 66. The Rust
+canonical adapter recovers the typed message/digits and nodes from that form;
+`Expand` itself does not parse a Bitcoin witness stack or transaction.
+
+This is tested canonical-profile interoperability, not a theorem covering
+all Script-accepted encodings. `Protected/ScriptRelation.lean` keeps actual
+Rust/Script equivalence explicitly open. Bridging arbitrary accepted witnesses
+requires a proved parser/normalizer and equivalence with the exact interpreter,
+flags, ScriptNum semantics and public-key representation. The ROM setup uses
+67 independent seeds; no upstream master-seed distribution equivalence is
+claimed. None of these boundaries is discharged by the ROM certificate.
 
 | Measured component | WOTS | Lamport |
 | --- | ---: | ---: |
