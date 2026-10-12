@@ -70,37 +70,35 @@ complete imported submission or its security certificate passed.
 | Complete protected withholding security and raw post-release joint bound | PreReleaseFiniteGame.construction_withholdingSecure, RawAfterReleaseLaw | `4577cd3` |
 | Adaptive uniform-field probability bound with whole message/state coupling | AdaptiveFieldGame | `a2dd73f` |
 | Actual packed-coin adaptive bound with one joint sampler loss | AdaptiveCoinLaw | `b7acbfa` |
+| Exact adaptive programmed-game, ciphertext and actual-coin event correspondence | AdaptiveProgrammingBridge | `b03588e` |
 
 ## Current validation attempt
 
-Run 65 (`571f01c`) checked **117 of 120 modules**. One module had a direct
-error (`AdaptiveProgrammingBridge`); two dependents were blocked. The repaired
-event rewrite now elaborates. The remaining error is the final definitional
-equality in the hash-coordinate lemma after rewriting artifact answers.
-The actual packed-coin adaptive bound was checked in run 64. Complete protected
-withholding security, universal correctness, the artifact bound, honest query
-budget, grouped finite oracle law and optimized implementation equality remain
-checked. Complete adaptive and static post-release ROM security remain unchecked.
+Run 66 (`b03588e`) checked **118 of 120 modules**. One module had a direct
+error (`AdaptiveFiniteGame`); `Solution` was blocked. `AdaptiveProgrammingBridge`
+is newly checked. The remaining error is a mismatch between the equal product
+and discrete measurable-space representations of the public-key table in the
+final probability transport. The actual packed-coin adaptive bound, complete
+protected withholding security, universal correctness, artifact bound, honest
+query budget, grouped finite oracle law and optimized implementation equality
+remain checked. Complete adaptive and static post-release ROM security remain
+unchecked. Successful source batches took 487.206 seconds across 36 batches,
+excluding failed batches/retries. Source errors remain fatal.
 
-Run 65 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 8.437 seconds into the
-runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 65. Successful source batches took 681.610 seconds
-across 35 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 39.31 seconds with 320,180,224 bytes peak RSS. Both
-shared G1 and BLAKE3 previews passed run 65. Full validation has not passed.
-
-**Run 57 passed generated SDK integration and full independent reference
+**Run 66 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
-released bytes. The SDK suite took 72.81 seconds and independent correspondence
-121.51 seconds; generated expansions took 11.040978266 / 11.203482180 /
-10.603007572 seconds. Compiler, SDK-native and independent-native peak RSS were
-3,420,999,680 / 804,012,032 / 883,318,784 bytes. The runtime probe completed in
-1,185.446 seconds inside the unchanged 1,800-second author cap. Successful
-source batches took 440.381 seconds across 34 batches, excluding failed
-batches/retries. Source errors remain fatal; full validation has not passed.
-The separate Rust reference test passed in 29.88 seconds with 320,405,504 bytes
-peak RSS. Both shared G1 and BLAKE3 previews passed run 57.
+released bytes. The SDK suite took 53.05 seconds and independent correspondence
+97.04 seconds; generated expansions took 8.074305455 / 9.384781171 /
+9.078928507 seconds. Compiler, SDK-native and independent-native peak RSS were
+3,421,310,976 / 883,707,904 / 854,679,552 bytes. The runtime probe completed in
+920.097 seconds inside the unchanged 1,800-second author cap. Full validation
+has not passed because of the source error. The separate Rust reference test
+passed in 23.36 seconds with 320,413,696 bytes peak RSS. Both shared previews
+passed run 65; their unchanged run-66 repeats were still active at publication.
+
+Run 57 also passed generated SDK integration and independent correspondence.
+Runs 58 through 65 reached the unchanged author cap during executable building.
+A completed runtime diagnostic does not certify the security proofs.
 
 Run 56 reached the author cap during executable building; run 55 completed
 compilation but reached the cap during SDK checking. Run 52 completed SDK and
@@ -117,10 +115,11 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repair closes the hash-coordinate lemma with reflexivity after
-its artifact-answer rewrite. The complete bridge and final adaptive module remain
-compiler-unchecked. No security statement, sampler, executable construction,
-resource cap or acceptance gate was weakened.
+The latest local repair proves that the finite public-key product sigma algebra
+is discrete and uses that equality in the final probability transport. This
+repair and the final adaptive module remain compiler-unchecked. No security
+statement, sampler, executable construction, resource cap or acceptance gate
+was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext

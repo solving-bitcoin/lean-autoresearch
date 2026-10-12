@@ -5,10 +5,18 @@ import WotsLamport.Submission.GameReductions
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
-local instance AdaptiveFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
-local instance AdaptiveFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
 local instance AdaptiveFiniteGame.labelSingleton : MeasurableSingletonClass Label :=
   AfterReleaseLaw.labelSingleton
+
+/-- The finite public-key table's product sigma algebra contains every set. -/
+theorem publicKey_pi_measurable_eq_top :
+    (MeasurableSpace.pi : MeasurableSpace PublicKey) = ⊤ := by
+  apply top_unique
+  intro s _
+  exact MeasurableSet.of_discrete
+
+local instance AdaptiveFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
+local instance AdaptiveFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
 local instance AdaptiveFiniteGame.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
   ⟨fun _ => MeasurableSpace.measurableSet_top⟩
 
@@ -40,7 +48,7 @@ theorem raw_programmed_adaptive_bound (inputs : Finset OracleInput)
     (fun sample distinct => programmed_adaptive_event_good inputs contains a sample distinct)
   rw [Shamir.uniform_event_equiv] at comparison
   have coinBound := coin_adaptive_probability_bound inputs a q₁ q₂ chooseBound finishBound
-  rw [labelTable_pi_measurable_eq_top] at coinBound
+  rw [labelTable_pi_measurable_eq_top, publicKey_pi_measurable_eq_top] at coinBound
   exact comparison.trans (add_le_add coinBound (raw_tape_bad_bound inputs))
 
 theorem finite_adaptive_outer_bound (inputs : Finset OracleInput)
