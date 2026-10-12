@@ -56,14 +56,18 @@ impl Bundle {
         let start = Instant::now();
         let status = loop {
             if let Some(status) = child.try_wait()? { break status; }
-            if start.elapsed() > Duration::from_secs(60) ||
-                [&stdout, &stderr].iter().any(|p| fs::metadata(p).map(|m| m.len() > 16*1024*1024).unwrap_or(false)) {
-                child.kill()?; child.wait()?; return Err("tool timeout or excessive side output".into());
+            let elapsed = start.elapsed();
+            let side_bytes = [&stdout, &stderr].map(|p| fs::metadata(p).ok().map(|m| m.len()));
+            let excessive_output = side_bytes.iter().any(|n| n.map(|n| n > 16*1024*1024).unwrap_or(false));
+            if elapsed > Duration::from_secs(60) || excessive_output {
+                child.kill()?; child.wait()?;
+                return Err(format!("{tool} {commands:?}: tool limit exceeded; elapsed={elapsed:?}, timeout={}, excessive_side_output={excessive_output}, stdout_bytes={:?}, stderr_bytes={:?}",
+                    elapsed > Duration::from_secs(60), side_bytes[0], side_bytes[1]).into());
             }
             thread::sleep(Duration::from_millis(10));
         };
         if [&stdout, &stderr].iter().any(|p| fs::metadata(p).map(|m| m.len() > 16*1024*1024).unwrap_or(true)) {
-            return Err("excessive or unreadable side output".into());
+            return Err(format!("{tool} {commands:?}: excessive or unreadable side output").into());
         }
         if !status.success() {
             return Err(format!("{tool} {commands:?} failed: {}", String::from_utf8_lossy(&fs::read(stderr)?)).into());

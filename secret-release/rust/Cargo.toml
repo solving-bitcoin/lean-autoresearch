@@ -1,5 +1,5 @@
 [workspace]
-members = ["secret-release", "g1-release-tests", "blake3-tests"]
+members = ["secret-release", "g1-release-tests", "blake3-tests", "wots-lamport-tests"]
 resolver = "2"
 
 [workspace.dependencies]

@@ -148,8 +148,15 @@ def run_limited(command: list[str], cwd: Path, timeout_seconds: int,
             f"VERIFY_REJECTED: {purpose} exceeded its working-directory limit"
         )
     if measurement.get("timedOut") is True:
+        # As with memory rejection, retain bounded progress from the killed
+        # process. Diagnostics never change the timeout's rejection status.
+        output = "\n".join(
+            f"{stream} (last 8192 characters):\n{str(measurement[stream])[-8192:]}"
+            for stream in ("stdout", "stderr") if measurement.get(stream)
+        )
         raise SystemExit(
-            f"VERIFY_REJECTED: {purpose} exceeded {timeout_seconds} seconds"
+            f"VERIFY_REJECTED: {purpose} exceeded {timeout_seconds} seconds" +
+            ("\n" + output if output else "")
         )
     if measurement.get("returnCode") != 0:
         stdout = str(measurement.get("stdout", ""))

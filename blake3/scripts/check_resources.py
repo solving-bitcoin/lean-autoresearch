@@ -21,7 +21,7 @@ for marker in ('', 'false', '1', 'true'):
         assert run.call_args.args[2] == expected_timeout
         assert run.call_args.args[6] == (32 if native else 64)
 
-for project_name in ('blake3','g1-release'):
+for project_name in ('blake3','g1-release','wots-lamport'):
     with tempfile.TemporaryDirectory(prefix='secret-release-quota-') as directory:
         root=Path(directory).resolve()
         project=root/project_name;project.mkdir()

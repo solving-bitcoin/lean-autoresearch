@@ -161,6 +161,22 @@ def check_resource_wrapper() -> None:
         else:
             raise AssertionError("memory overrun was accepted")
 
+    measurement = {"returnCode": 0, "timedOut": True,
+                   "stdout": "old-prefix" + "x" * 8192 + "last-stage",
+                   "stderr": "timeout context"}
+    helper = subprocess.CompletedProcess([], 0, json.dumps(measurement), "")
+    with mock.patch("verifier_common.subprocess.run", return_value=helper):
+        try:
+            run_limited([PYTHON], ROOT, 5, 64, 65536, 65536, 8, 65536,
+                        HELPER, "diagnostic regression")
+        except SystemExit as error:
+            message = str(error)
+            assert "exceeded 5 seconds" in message
+            assert "last-stage" in message and "timeout context" in message
+            assert "old-prefix" not in message and len(message) < 17000
+        else:
+            raise AssertionError("timeout with zero exit status was accepted")
+
     print("ok — fail-closed resource wrapper regressions")
 
 

@@ -122,6 +122,15 @@ structure Challenge where
   correctness : Correctness := .exact
   rom : ClassicalBoundedQueryROM
 
+/-- Optional packed-byte execution with a universally checked correspondence.
+The mathematical coin space remains Bytes n; this only avoids unpacking a
+large ByteArray into pointer-sized Array UInt8 entries at the runtime boundary. -/
+structure PackedGarble (n : Nat) (P IK OK A : Type)
+    (garble : Hash → Bytes n → P → IK → OK → A) where
+  run : Hash → ByteArray → P → IK → OK → A
+  agrees : ∀ h (coins : Bytes n) p ik ok,
+    run h ⟨coins.toArray⟩ p ik ok = garble h coins p ik ok
+
 structure Scheme (c : Challenge) where
   Artifact : Type
   randomnessBytes : Nat
@@ -129,6 +138,8 @@ structure Scheme (c : Challenge) where
   encode : Artifact → ByteArray
   decode : ByteArray → Option Artifact
   evaluate : Hash → Artifact → c.Input → ByteArray → Option ByteArray
+  packedGarble : Option (PackedGarble randomnessBytes c.Private c.inputs.Keys
+    c.outputs.Keys Artifact garble) := none
 
 def Scheme.garbleBytes (s : Scheme c) (h : Hash) (coins : Bytes s.randomnessBytes)
     (p : c.Private) (ik : c.inputs.Keys) (ok : c.outputs.Keys) : ByteArray :=

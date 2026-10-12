@@ -1,0 +1,212 @@
+{
+  "generator": "independent Python hashlib/integer implementation; fixtures only",
+  "publicKeySha256": "06cad9f23b18ce7829aae18830e17f8f9f8e72be043b68b447632eafd9ffebb7",
+  "signatureSha256": "d3778882f3200b6dbafe4d1401a2f69a86d552c8828896c5d10776a3703bc5fb",
+  "word": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    2,
+    0,
+    3,
+    0,
+    4,
+    0,
+    5,
+    0,
+    6,
+    0,
+    7,
+    0,
+    8,
+    0,
+    9,
+    0,
+    10,
+    0,
+    11,
+    0,
+    12,
+    0,
+    13,
+    0,
+    14,
+    0,
+    15,
+    1,
+    0,
+    1,
+    1,
+    1,
+    2,
+    1,
+    3,
+    1,
+    4,
+    1,
+    5,
+    1,
+    6,
+    1,
+    7,
+    1,
+    8,
+    1,
+    9,
+    1,
+    10,
+    1,
+    11,
+    1,
+    12,
+    1,
+    13,
+    1,
+    14,
+    1,
+    15,
+    0,
+    0,
+    11
+  ],
+  "tables": [
+    {
+      "wire": 37,
+      "value": false,
+      "length": 95232,
+      "commitment": "8d5d0b33c6b2aad9077cf387001601514ea86bd65b8aa01b6bfdccdb2b11f029",
+      "rows": [
+        {
+          "index": 0,
+          "chain": 0,
+          "node": 0,
+          "ciphertext": "37f660c833f058f63ed6d7cfa16f604b010af09b27f2c80a50297c7007b661097bfb1788843d68169accec60f227c871"
+        },
+        {
+          "index": 14,
+          "chain": 0,
+          "node": 14,
+          "ciphertext": "f6d76417393e6890af8a9e12fc8b9d2c17417e726606aa9acdb769f443aebbd4442af1a7f6b0b5d907376d220f3c997f"
+        },
+        {
+          "index": 15,
+          "chain": 1,
+          "node": 0,
+          "ciphertext": "61b9775bec9bdcb711938e422cf0cd99d853daeac2d06f07cc4ec75326dc293ab2a687e3c1d2e3ecd4d1ee4c5343bf0f"
+        },
+        {
+          "index": 143,
+          "chain": 9,
+          "node": 7,
+          "ciphertext": "fbcb7aa76cacd087e1aebc7c27013e2440a4cffa3333d2fd4ac399e9fe81e3b43931658db33a6489258598e2060dd1d6"
+        },
+        {
+          "index": 144,
+          "chain": 9,
+          "node": 8,
+          "ciphertext": "b53759ef6873cfd781e14cf3fba81a5c3f5b10b86e77cd01746e008de0467995e9c2e92d58527937ae8e85b44e447e58"
+        },
+        {
+          "index": 145,
+          "chain": 9,
+          "node": 9,
+          "ciphertext": "fc73282707b4f713ca2f71dfc6a0b38851b3e7253e23e797900d1d10382026cf911c2d59e1a4aa2c82146b16503bf288"
+        },
+        {
+          "index": 959,
+          "chain": 63,
+          "node": 13,
+          "ciphertext": "5413accf749f99e2b9f4a2d23d2bc600bc9079cc1f9d7a8ce1849f838f33d4e45c0b89744d293dc8c77b876ddfa07ca8"
+        },
+        {
+          "index": 960,
+          "chain": 63,
+          "node": 14,
+          "ciphertext": "e61b7ee627b7329f15120b687033271ed8ca6442671d95dae56e491912b94e6a9b9e12ef9b78347b66916ee7514a3167"
+        },
+        {
+          "index": 1000,
+          "chain": 65,
+          "node": 4,
+          "ciphertext": "5b68f95ecfd19e70c41e1308ae267a0b53322da26eb93dc7b71cfa2e4503c1c7b2694086691ce7a9cc45153d41742659"
+        },
+        {
+          "index": 1983,
+          "chain": 66,
+          "node": 14,
+          "ciphertext": "2b460f8b85c6c00934dd377ff250d23fc1242e8255b274e7705e5acb6ee827ecbbad27ccba9f639c3a6d70bc68d2eb6c"
+        }
+      ]
+    },
+    {
+      "wire": 37,
+      "value": true,
+      "length": 95136,
+      "commitment": "c546027fa5c5457eab42a9c844bb3e5461b1e945cb5c5fa52a03f9619c5cbf32",
+      "rows": [
+        {
+          "index": 0,
+          "chain": 0,
+          "node": 0,
+          "ciphertext": "c4d2b077da00ea5d7dbe5e6c669412baf3dcc5dfac3e70822f9b17f652c7665d0fff2fd6ae73a953a7e700ca98b9bd32"
+        },
+        {
+          "index": 14,
+          "chain": 0,
+          "node": 14,
+          "ciphertext": "d2d4d88b9d41538f054c4f80b07d2569c713fad4ddd258622f5da729e67482d078ed6e6b1a5cadc3f1bddc9e46b0480f"
+        },
+        {
+          "index": 15,
+          "chain": 1,
+          "node": 0,
+          "ciphertext": "f497e6f7327c79965c33312cf6b6b050d74cbb6489fcffd2375942fd3c9d3a74a7c85f4229d27c2da5994e36876d2290"
+        },
+        {
+          "index": 143,
+          "chain": 9,
+          "node": 9,
+          "ciphertext": "51e28ccb40b53f0c02fdc91d7a5324501b6a1bc448686b3ba11ba63e7674e57d0962e542902ba0c3cc3b953a2b3e86fc"
+        },
+        {
+          "index": 144,
+          "chain": 9,
+          "node": 10,
+          "ciphertext": "704417b95049fcfed1fc3c0cc45316afbf791d699d19dc9f19e120349cd1bc6010e9b21b21cb2909cbca673653fae2d5"
+        },
+        {
+          "index": 145,
+          "chain": 9,
+          "node": 11,
+          "ciphertext": "4c78e5f773c7d2f0f40f3c8f39d0ffb52f94ade11ec13c770cd61d2a4496fd54d603cf938bbd2b5c3acf86505a94f86c"
+        },
+        {
+          "index": 959,
+          "chain": 64,
+          "node": 0,
+          "ciphertext": "f68ae247aea0e8c336d53d8387a2cb14bea327cb7b1d1e80045ff424eb11e0c19cbb6055c85a6cd211e37ffa5def554c"
+        },
+        {
+          "index": 960,
+          "chain": 64,
+          "node": 1,
+          "ciphertext": "8480009e1523026b2793888b8117922de27289ac06ec1d7309393fe9896e9f169de21d0a52a365aa32805dccc834a3a6"
+        },
+        {
+          "index": 1000,
+          "chain": 65,
+          "node": 4,
+          "ciphertext": "effd8e6f8db41ebd8ddb7c43c5683e9847144a64d5b25e2f4517e01072d4539c42f8ceb0b6b63c1d183f38ee418a9a61"
+        },
+        {
+          "index": 1981,
+          "chain": 66,
+          "node": 14,
+          "ciphertext": "d213fb47024b3306820911e80de31588261f3b0a90ae9ac60c2e8512fd6236e2f6a633eaefa67c62d8276b7b864f3ed6"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 2,
+  "slug": "wots-lamport",
+  "status": "experimental-unranked",
+  "direction": "minimize",
+  "metric": "universal_serialized_artifact_byte_bound",
+  "unit": "bytes",
+  "wireModule": "WotsLamport.Protected.Wire",
+  "wire": "WotsLamport.Protected.wire",
+  "submissionModule": "WotsLamport.Submission.Solution",
+  "entry": "WotsLamport.Submission.entry",
+  "fixtureModule": "WotsLamport.Tests.RunnerFixture",
+  "fixtureEntry": "WotsLamport.Tests.fixtureEntry",
+  "rustPackage": "wots-lamport-tests",
+  "namespace": "WotsLamport",
+  "report": "wots-lamport-score.json",
+  "candidateAudit": "scripts/Audit.lean",
+  "policyTests": [
+    "scripts/check_boundary.py",
+    "scripts/check_model.py",
+    "scripts/check_vectors.py",
+    "scripts/check_security_arithmetic.py"
+  ],
+  "audits": [
+    "scripts/BoundaryAudit.lean",
+    "scripts/ContractChecks.lean"
+  ],
+  "proofModules": [
+    "WotsLamport.Protected.Adaptive",
+    "WotsLamport.Tests.Contract",
+    "WotsLamport.Tests.Nonvacuity"
+  ],
+  "authoringChecks": [
+    "scripts/check_lean_with_runtime.py"
+  ],
+  "editablePaths": [
+    "WotsLamport/Submission"
+  ],
+  "allowedAxioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "leanToolchain": "leanprover/lean4:v4.33.1",
+  "inputBytes": 32,
+  "outputBytes": 32,
+  "inputBits": 256,
+  "outputBits": 256,
+  "labelBytes": 32,
+  "chains": 67,
+  "checksumRadices": [
+    8,
+    8,
+    16
+  ],
+  "profile": {
+    "hash": "SHA-256",
+    "oracle": "shared ideal random function bytes -> 32 bytes",
+    "starts": "67 independent uniform 32-byte seeds",
+    "upstreamMasterSeedEquivalent": false,
+    "verifier": "FastWinternitz<32,Sha256,FullWidth>::checksig_verify",
+    "witness": "to_witness: [digit,node] x 67; canonical ScriptNum selectors",
+    "rawWitnessCorrespondence": "unproved",
+    "inputSelection": "static certificate; artifact-first adaptive theorem proved separately",
+    "implementationBridge": "Lean packed/lane execution proved; concrete SHA-256 and Rust/Script equivalence unproved",
+    "maxAdversaryQueries": 281474976710656,
+    "honestQueryBudget": 4294967296,
+    "errorTarget": "2^20 * (q + 2^32 + 1)^2 / 2^256",
+    "reductionStatus": "proved in protected ROM model; audited authoring certificate"
+  },
+  "upstream": {
+    "repository": "https://github.com/solving-bitcoin/bitcoin-scripts",
+    "revision": "bf9ee0bb34987a9130ad9dc13a06e18fef137296"
+  },
+  "scoring": {
+    "publicKeyIncluded": true,
+    "claimBytes": 48752768,
+    "certificate": true,
+    "score": null,
+    "randomnessBytes": 268173344
+  },
+  "currentSubmissionStatus": "certified-authoring-preview",
+  "localCompilerMemoryLimitBytes": 4294967296,
+  "compilerMemoryLimitBytes": 8589934592,
+  "nativeMemoryLimitBytes": 1073741824,
+  "requiredCertificateGoals": [
+    "universal serialized correctness",
+    "artifact codec laws",
+    "universal artifact byte bound",
+    "static opposite-label recovery",
+    "pre-release either-label withholding",
+    "mandatory public-key prefix"
+  ],
+  "separateUnprovedGoals": [
+    "simulation/GC composition",
+    "malicious setup",
+    "all raw Script-accepted witnesses",
+    "concrete-hash and upstream seed-law correspondence"
+  ],
+  "separateProvedGoals": [
+    "artifact-first adaptive message selection: WotsLamport.Submission.lane_adaptiveSecure"
+  ]
+}

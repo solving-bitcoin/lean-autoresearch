@@ -102,8 +102,8 @@ def protected_files():
     paths.extend(shared_source_files())
     paths.extend(REPO/'scripts'/name for name in (
         'run_with_rss.py','verifier_common.py','check_submission.py','lean_source_policy.py',
-        'dependency_builds.py','check_verifier_regressions.py'))
-    for name in ('secret-release.yml','secret-release-submission.yml'):
+        'dependency_builds.py','cache_trust.py','check_cache_trust.py','check_verifier_regressions.py'))
+    for name in ('secret-release.yml','secret-release-submission.yml','secret-release-cache.yml'):
         workflow=REPO/'.github/workflows'/name
         if workflow.exists():paths.append(workflow)
     return sorted(set(paths))
