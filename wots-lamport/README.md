@@ -242,9 +242,9 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. Run 68 checked all 120 source modules, including the exact lane
+immediately. Run 69 checked all 120 source modules, including the exact lane
 certificate and complete adaptive/static post-release ROM security. The isolated
-candidate audit then rejected a lazily generated protected codec equation; the
+candidate audit then rejected a lazily generated shared byte-codec equation; the
 current repair keeps these unfolding equalities inside the submission namespace.
 The unchanged final audit/native gates remain pending. Run 66 passed generated
 lane SDK tests and full independent reference-artifact/later-message correspondence.

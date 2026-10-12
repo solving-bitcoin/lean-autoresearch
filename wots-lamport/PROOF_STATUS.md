@@ -1,18 +1,18 @@
 # Proof and validation status
 
-**All 120 source modules and the certificate assembly compiled in run 68;
+**All 120 source modules and the certificate assembly compiled in run 69;
 final isolated acceptance is pending.** The pinned compiler is Lean 4.33.1.
 The complete correctness, withholding, static post-release and artifact-first
 adaptive security proofs apply to the protected ROM model. The candidate has
 a proof-bearing certificate and `score.txt = 48752768`. Its isolated namespace
-audit rejected a lazily generated protected codec equation; the current repair
+audit rejected a lazily generated shared byte-codec equation; the current repair
 is not yet checked. No accepted or externally ranked submission is claimed.
 Rust/Python tests are independent validation, not Lean proofs.
 
 ## Compiler-checked results
 
 The following modules passed hosted Lean elaboration. All imported submission
-sources and certificate assembly passed run 68. Final isolated acceptance remains
+sources and certificate assembly passed run 69. Final isolated acceptance remains
 a separate check.
 
 | Result | Checked modules | Evidence commit |
@@ -81,24 +81,24 @@ a separate check.
 
 ## Current validation attempt
 
-Run 68 (`6bd0042`) checked **120 of 120 modules**, including certificate
+Run 69 (`7d33a2c`) checked **120 of 120 modules**, including certificate
 assembly and the separate `lane_adaptiveSecure` theorem. There were no failed
-or blocked source modules. Source batches took 571.843 seconds across 38
-batches with 4,373,127,168 bytes peak RSS.
+or blocked source modules. Source batches took 727.903 seconds across 38
+batches with 4,367,511,552 bytes peak RSS.
 
 The isolated verifier built protected imports/shared checks, passed protected
 boundary/axiom audits, negative certificate/packed-proof checks and fixture
 native/SDK tests. It built the candidate, then rejected the namespace audit:
-`submission declares outside its namespace: WotsLamport.Protected.outputCodec.eq_1`.
-The prior `romTarget` unfolding repair worked. The current repair replaces
-first-use unfolding of the output codec, bit-index helpers and chain weights
-with definitional changes or submission-owned reflexive equalities. Protected
-definitions and the audit checks remain unchanged. Final candidate native tests
-and bundle acceptance did not run; no run-68 correspondence pass is claimed.
+`submission declares outside its namespace: SecretRelease.Codec.byteVector.eq_1`.
+The prior protected output-codec/bit/weight unfolding repairs compiled. The
+current repair replaces the remaining shared byte-codec unfold in
+`LabelBridge.byteVector_encode_raw` with its explicit bit-vector expression.
+Protected definitions and audit checks remain unchanged. Final candidate native
+tests and bundle acceptance did not run; no run-69 correspondence pass is claimed.
 
-The separate run-68 Rust reference test passed in 39.25 seconds with
-320,266,240 bytes peak RSS. Both shared previews passed run 65; their unchanged
-run-68 repeats were still active at publication and may be superseded.
+The separate run-69 Rust reference test passed in 38.12 seconds with
+320,237,568 bytes peak RSS. BLAKE3 passed run 69; the unchanged G1 repeat was
+still active at publication and may be superseded. Both passed run 65.
 
 **Run 66 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -133,8 +133,8 @@ SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 The current candidate assembles the checked correctness, codec, size and
 security theorems, transfers them through `laneConstruction_eq`, and exposes
 `lane_adaptiveSecure`. The private-leakage field is vacuous for this Unit/none
-profile; it is not a GC simulation claim. Certificate assembly compiled in run 68; the codec/bit/weight
-unfolding repairs require a new compiler/audit run. No security statement,
+profile; it is not a GC simulation claim. Certificate assembly compiled in run 69; the remaining shared byte-codec
+unfolding repair requires a new compiler/audit run. No security statement,
 sampler, executable construction, resource cap or acceptance gate was weakened.
 
 The runtime probe now atomically retains its last completed phase and available
@@ -154,7 +154,7 @@ The optional diagnostic stays inside the **same single 1,800-second author
 check**, with unchanged memory and per-tool limits. Source errors remain fatal;
 resource failures stop immediately. The diagnostic cannot produce an accepted
 submission. Failure-injection tests cover both the requested-proof gate and
-the executable builder's independent proof gate. The certificate remains absent.
+the executable builder's independent proof gate. A diagnostic cannot certify an entry.
 
 Completed run 35 at `d1648af` reached the **machine** runtime diagnostic,
 whose selection requires successful compilation of `MachineSharing` and all
@@ -195,7 +195,7 @@ source compilation. Their axioms must still pass the final candidate audit.
 
 | Obligation | Remaining work |
 | --- | --- |
-| Namespace and axiom closure | Validate the codec/bit/weight unfolding repairs with the unchanged isolated candidate audit |
+| Namespace and axiom closure | Validate the remaining shared byte-codec unfolding repair with the unchanged isolated candidate audit |
 | Final certified bundle | Run candidate native/SDK tests and binary/kernel/score consistency checks |
 
 The mathematical ROM obligations are checked. Concrete SHA-256 security,

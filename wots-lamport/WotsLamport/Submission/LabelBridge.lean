@@ -77,8 +77,9 @@ theorem byteVector_encode_raw {n : Nat} (bytes : Bytes n) :
     omega)
   intro i hi hi'
   have hin : i < n := by simpa only [vectorBytes_size] using hi'
-  change (packBits ((Codec.byteVector n).encode bytes))[i] = bytes[i]'hin
-  simp only [packBits, Codec.byteVector, ByteArray.getElem_eq_getElem_data,
+  change (packBits (Vector.ofFn (fun j : Fin (n*8) =>
+    bytes[j.val/8].toNat.testBit (j.val%8))))[i] = bytes[i]'hin
+  simp only [packBits, ByteArray.getElem_eq_getElem_data,
     Vector.toArray_ofFn, Array.getElem_ofFn, Vector.getElem_ofFn]
   have he : (fun j : Fin 8 => if h : 8*i+j.val < n*8 then
       bytes[(8*i+j.val)/8].toNat.testBit ((8*i+j.val)%8) else false) =
