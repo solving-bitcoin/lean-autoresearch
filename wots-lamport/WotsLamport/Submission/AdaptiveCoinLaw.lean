@@ -30,10 +30,6 @@ theorem actual_allocated_from_blocks (coins : Bytes randomnessBytes) :
   apply congrArg polynomialTableEquiv
   funext index
   simp only [blockFields, nonceCoefficientEquiv_coefficient, actualFieldTable]
-  generalize fieldBlock (coefficientBlock coins index) = value
-  apply Fin.ext
-  change value.val = value.val % 65537
-  exact (Nat.mod_eq_of_lt value.isLt).symm
 
 abbrev AdaptiveAux (inputs : Finset OracleInput) :=
   PublicKey × HiddenChainTape × (Fin 256 → Pair) ×
@@ -92,6 +88,16 @@ def coinAdaptiveEvent (inputs : Finset OracleInput) (a : AdaptiveAdversary) :
     fieldAdaptiveEvent ((ByteArray.mk sample.1.toArray).extract 0 32) sample.2.2.2.2.1
       (ROM.hash (extendOracleTable inputs sample.2.2.2.2.2)) a}
 
+def outerFieldAdaptiveEvent (inputs : Finset OracleInput) (a : AdaptiveAdversary) :
+    Set (AdaptiveOuter inputs × (PublicKey × AfterInnerSample)) :=
+  {sample | sample.2 ∈ fieldAdaptiveEvent (ByteArray.mk sample.1.1.toArray) sample.1.2.1
+    (ROM.hash (extendOracleTable inputs sample.1.2.2)) a}
+
+theorem flatAdaptiveEvent_coordinates (inputs : Finset OracleInput) (a : AdaptiveAdversary) :
+    flatAdaptiveEvent inputs a =
+      (uniformFieldCoordinates inputs) ⁻¹' outerFieldAdaptiveEvent inputs a := rfl
+
+set_option diagnostics true in
 theorem uniform_flat_adaptive_bound (inputs : Finset OracleInput) (a : AdaptiveAdversary)
     (q₁ q₂ : Nat) (chooseBound : ROM.Bounded a.choose q₁)
     (finishBound : ∀ state, ROM.Bounded (a.finish state) q₂) :
@@ -99,15 +105,12 @@ theorem uniform_flat_adaptive_bound (inputs : Finset OracleInput) (a : AdaptiveA
       ((1056 : ENNReal)^2/2^256 + ((512 : ENNReal)/2^256 + (1501 : ENNReal)*q₂/2^256)) +
         (3002 : ENNReal)*q₁/2^256 := by
   classical
-  let event : Set (AdaptiveOuter inputs × (PublicKey × AfterInnerSample)) :=
-    {sample | sample.2 ∈ fieldAdaptiveEvent (ByteArray.mk sample.1.1.toArray) sample.1.2.1
-      (ROM.hash (extendOracleTable inputs sample.1.2.2)) a}
-  change uniformOn (Set.univ : Set (FlatAdaptiveSample inputs))
-    ((uniformFieldCoordinates inputs) ⁻¹' event) ≤ _
-  rw [Shamir.uniform_event_equiv, uniform_product]
+  rw [flatAdaptiveEvent_coordinates, Shamir.uniform_event_equiv (uniformFieldCoordinates inputs),
+    uniform_product (A := AdaptiveOuter inputs) (B := PublicKey × AfterInnerSample)]
   apply product_event_constant_bound
   intro environment
-  exact field_adaptive_probability_bound _ _ _ a q₁ q₂ chooseBound finishBound
+  exact field_adaptive_probability_bound (ByteArray.mk environment.1.toArray) environment.2.1
+    (ROM.hash (extendOracleTable inputs environment.2.2)) a q₁ q₂ chooseBound finishBound
 
 /-- Actual packed coins, exact nonce and all allocated coefficients. The
 single sampler loss applies to the complete adaptive event jointly with every
@@ -121,6 +124,10 @@ theorem coin_adaptive_probability_bound (inputs : Finset OracleInput) (a : Adapt
   classical
   have h := (nonceCoefficient_environment_event_bounds
     coefficientCount (flatAdaptiveEvent inputs a)).1
+  change uniformOn (Set.univ : Set (Bytes randomnessBytes × AdaptiveAux inputs))
+      {sample | (((nonceCoefficientEquiv coefficientCount sample.1).1,sample.2),
+        blockFields coefficientCount (nonceCoefficientEquiv coefficientCount sample.1).2) ∈
+        flatAdaptiveEvent inputs a} ≤ _ at h
   have actual :
       {sample : Bytes randomnessBytes × AdaptiveAux inputs |
         (((nonceCoefficientEquiv coefficientCount sample.1).1,sample.2),
@@ -131,7 +138,7 @@ theorem coin_adaptive_probability_bound (inputs : Finset OracleInput) (a : Adapt
         allocatedFinEquiv (blockFields coefficientCount (nonceCoefficientEquiv coefficientCount sample.1).2)) ∈
       fieldAdaptiveEvent (ByteArray.mk (nonceCoefficientEquiv coefficientCount sample.1).1.toArray)
         sample.2.2.2.2.1 (ROM.hash (extendOracleTable inputs sample.2.2.2.2.2)) a) ↔ _
-    rw [actual_allocated_from_blocks, nonceCoefficientEquiv_nonce]
+    rw [actual_allocated_from_blocks, nonceCoefficientEquiv_nonce coefficientCount sample.1]
     rfl
   rw [actual] at h
   exact h.trans (add_le_add (uniform_flat_adaptive_bound inputs a q₁ q₂ chooseBound finishBound) le_rfl)

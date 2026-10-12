@@ -7,6 +7,10 @@ open SecretRelease WotsLamport.Protected MeasureTheory ProbabilityTheory
 
 local instance AdaptiveFiniteGame.keysMeasurable : MeasurableSpace Keys := ⊤
 local instance AdaptiveFiniteGame.labelsMeasurable : MeasurableSpace (Fin 256 → Pair) := ⊤
+local instance AdaptiveFiniteGame.labelSingleton : MeasurableSingletonClass Label :=
+  AfterReleaseLaw.labelSingleton
+local instance AdaptiveFiniteGame.labelsSingleton : MeasurableSingletonClass (Fin 256 → Pair) :=
+  ⟨fun _ => MeasurableSpace.measurableSet_top⟩
 
 theorem raw_programmed_adaptive_bound (inputs : Finset OracleInput)
     (contains : wotsProgrammingInputs ⊆ inputs) (a : AdaptiveAdversary) (q₁ q₂ : Nat)
@@ -16,6 +20,18 @@ theorem raw_programmed_adaptive_bound (inputs : Finset OracleInput)
         (3002 : ENNReal)*q₁/2^256) + (coefficientCount : ENNReal)*Sampler.exceptionWeight) +
         (1056 : ENNReal)^2/2^256 := by
   classical
+  haveI : MeasurableSingletonClass (CombinedIdeal inputs) := inferInstance
+  haveI : MeasurableSingletonClass (RawProgrammedSample inputs) := inferInstance
+  haveI : DiscreteMeasurableSpace (RawProgrammedSample inputs) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
+  haveI : MeasurableSingletonClass PublicKey := inferInstance
+  haveI : MeasurableSingletonClass HiddenChainTape := inferInstance
+  haveI : MeasurableSingletonClass (SharePosition → Bytes 64) := inferInstance
+  haveI : MeasurableSingletonClass (CommitmentCell → Label) := inferInstance
+  haveI : MeasurableSingletonClass (AdaptiveAux inputs) := inferInstance
+  haveI : MeasurableSingletonClass (Bytes randomnessBytes × AdaptiveAux inputs) := inferInstance
+  haveI : DiscreteMeasurableSpace (Bytes randomnessBytes × AdaptiveAux inputs) :=
+    ⟨fun s => (Set.toFinite s).measurableSet⟩
   have comparison := event_bound_of_agree_on_good
     (uniformOn (Set.univ : Set (RawProgrammedSample inputs)))
     (rawProgrammedAdaptiveEvent inputs contains a)
@@ -55,9 +71,8 @@ theorem finite_adaptive_success (inputs : Finset OracleInput) (a : AdaptiveAdver
     ROM.run (ROM.hash (extendOracleTable inputs sample.2)) (adaptiveGameProgram a sample.1) = true ↔
       (initialPreCoordinates inputs sample).2 ∈ finiteAdaptiveEvent inputs
         (initialPreCoordinates inputs sample).1.1 (initialPreCoordinates inputs sample).1.2 a := by
-  simp only [adaptiveGameProgram, run_bind, run_map, run_pure,
-    run_wrappedPrepareProgram, run_signProgram, decide_eq_true_eq]
-  rfl
+  exact adaptiveGame_success a
+    (sample.1.1,sample.1.2.1,sample.1.2.2,extendOracleTable inputs sample.2)
 
 /-- Actual protected infinite-oracle adaptive game, with the exact sampler,
 artifact and signature. Compilation of this reduction and every prerequisite

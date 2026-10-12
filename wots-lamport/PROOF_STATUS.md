@@ -72,23 +72,23 @@ complete imported submission or its security certificate passed.
 
 ## Current validation attempt
 
-Run 62 (`a2dd73f`) checked **116 of 120 modules**. One module had direct
-errors (`AdaptiveCoinLaw`); three dependents were blocked. The direct errors
-are a field-cast elaboration timeout and discrete-measurable-space instance
-synthesis for nested adaptive sample products. `AdaptiveFieldGame` is newly
-checked, including the adaptive uniform-field probability bound. Complete
-protected withholding security, universal correctness, the artifact bound,
-honest query budget, grouped finite oracle law and optimized implementation
-equality remain checked. The complete adaptive and static post-release security
-reductions remain unchecked.
+Run 63 (`c21186a`) checked **116 of 120 modules**. One module had direct
+errors (`AdaptiveCoinLaw`); three dependents were blocked. The finite sample
+instances elaborate, but the module still has redundant tactics after a solved
+cast identity, a uniform-event elaboration timeout, and rewrites across two
+definitionally equal coin-size expressions. The adaptive uniform-field bound
+was checked in run 62. Complete protected withholding security, universal
+correctness, the artifact bound, honest query budget, grouped finite oracle law
+and optimized implementation equality remain checked. The complete adaptive
+and static post-release security reductions remain unchecked.
 
-Run 62 reached the unchanged 1,800-second author cap during executable building.
-Its retained phase is `building-executable`, entered 9.153 seconds into the
+Run 63 reached the unchanged 1,800-second author cap during executable building.
+Its retained phase is `building-executable`, entered 8.701 seconds into the
 runtime probe; this is not a build duration. No completed SDK or correspondence
-result is available for run 62. Successful source batches took 758.685 seconds
+result is available for run 63. Successful source batches took 687.475 seconds
 across 34 batches, excluding failed batches/retries. The separate full Rust
-reference test passed in 30.19 seconds with 320,442,368 bytes peak RSS. Both
-shared G1 and BLAKE3 previews passed run 62. Full validation has not passed.
+reference test passed in 38.25 seconds with 320,311,296 bytes peak RSS. BLAKE3
+passed run 63; both shared previews passed run 62. Full validation has not passed.
 
 **Run 57 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -117,11 +117,12 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repairs abstract the decoded field value before proving its
-cast identity and materialize discrete instances for adaptive sample products.
-These repairs and the final adaptive label-table measure-space transport remain
-compiler-unchecked. No security statement, sampler, executable construction,
-resource cap or acceptance gate was weakened.
+The latest local repairs remove tactics after the solved cast identity, name
+the reindexed event, and normalize the coin-size representation before rewriting.
+The final adaptive bridge now supplies explicit finite-measure instances and
+reuses the checked game-execution theorem. These repairs and the final label-table
+measure-space transport remain compiler-unchecked. No security statement,
+sampler, executable construction, resource cap or acceptance gate was weakened.
 
 Publication resumed after explicit approval. Source review has found no
 additional mathematical gap in the joint sampler loss, full oracle/ciphertext
