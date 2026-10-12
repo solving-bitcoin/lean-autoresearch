@@ -26,7 +26,7 @@ theorem target_maximum (i : Fin 256) : maximum (targetChain i) = 15 := by
 
 theorem target_weight (i : Fin 256) : weight (targetChain i) = 1 := by
   have hi : (targetChain i).val < 64 := (bitChain i).isLt
-  simp [weight, show (targetChain i).val ≠ 65 by omega,
+  simp [weight_eq, show (targetChain i).val ≠ 65 by omega,
     show (targetChain i).val ≠ 66 by omega]
 
 set_option maxRecDepth 4096 in
@@ -47,7 +47,8 @@ theorem chain_slot_count (i : Fin 256) (value : Bool) (j : Fin 67) :
   by_cases h : j = targetChain i
   · subst j
     simp only [target_maximum, target_weight, ite_true, eq_self, Nat.cast_one]
-    unfold holds digitBit
+    unfold holds
+    simp only [digitBit_eq]
     exact nibble_multiplicity_sum ⟨bitInNibble i, Nat.mod_lt i.val (by decide)⟩ value
   · simp [h, Nat.mul_comm]
 

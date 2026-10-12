@@ -4,6 +4,9 @@ import Mathlib.Algebra.BigOperators.Fin
 namespace WotsLamport.Submission
 open WotsLamport.Protected
 
+theorem weight_eq (i : Fin 67) :
+    weight i = (if i.val = 65 then 8 else if i.val = 66 then 64 else 1) := rfl
+
 /-- Direct data digits contribute their ordinary sum; checksum digits use
 weights 1, 8, and 64. The complete weighted codeword sum is always 960. -/
 theorem encoded_weighted_sum (m : Message) :
@@ -16,11 +19,11 @@ theorem encoded_weighted_sum (m : Message) :
     have h64 : (Fin.castAdd 3 j).val < 64 := j.isLt
     have h65 : j.val ≠ 65 := by omega
     have h66 : j.val ≠ 66 := by omega
-    simp [weight, encodeWord, h64, h65, h66]
+    simp [weight_eq, encodeWord, h64, h65, h66]
   have last : (∑ j : Fin 3,
       weight (Fin.natAdd 64 j) * encodeWord m (Fin.natAdd 64 j)) =
       checksum m % 8 + 8 * ((checksum m / 8) % 8) + 64 * (checksum m / 64) := by
-    simp [Fin.sum_univ_succ, weight, encodeWord, Nat.add_assoc]
+    simp [Fin.sum_univ_succ, weight_eq, encodeWord, Nat.add_assoc]
   change (∑ j : Fin (64+3), weight j * encodeWord m j) = 960
   rw [Fin.sum_univ_add, first, last]
   simpa [Nat.add_assoc] using checksum_weighted m

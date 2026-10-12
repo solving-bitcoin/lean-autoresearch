@@ -1,8 +1,8 @@
 # Direct-base-16 WOTS to fixed Lamport labels
 
-**All Lean source proofs compile; final certificate validation is pending.**
+**All source proofs and certificate assembly compile; final isolated acceptance is pending.**
 The current candidate assembles the checked theorems into a certificate with
-`score.txt = 48752768`. That assembly and the isolated namespace/axiom audit
+`score.txt = 48752768`. The isolated namespace/axiom audit and final bundle tests
 still require validation. The authoring track remains unranked externally.
 See [PROOF_STATUS.md](PROOF_STATUS.md).
 
@@ -153,8 +153,8 @@ The author-owned numerical target is
 budget and `2^20` multi-target allowance are deliberately explicit. This is a
 nontrivial acceptance target. The checked joint reductions meet it while
 accounting for all 67 chains, seeds, endpoints, masks, label commitments, setup
-queries, collision events and coefficient bias. Final certificate assembly and
-isolated acceptance remain pending.
+queries, collision events and coefficient bias. Certificate assembly compiles; final
+isolated acceptance remains pending.
 
 `Protected/Adaptive.lean` separately models artifact-first adaptive message
 selection followed by exactly one release and a second adversary stage. The
@@ -242,12 +242,12 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. Run 67 checked all 120 source modules, including complete adaptive
-and static post-release ROM security. The isolated candidate audit then rejected
-a lazily generated protected equation; the current repair keeps that equality
-inside the submission namespace. The newly assembled certificate and unchanged
-final audit/native gates remain pending. Run 66 passed generated lane SDK tests
-and full independent reference-artifact/later-message correspondence.
+immediately. Run 68 checked all 120 source modules, including the exact lane
+certificate and complete adaptive/static post-release ROM security. The isolated
+candidate audit then rejected a lazily generated protected codec equation; the
+current repair keeps these unfolding equalities inside the submission namespace.
+The unchanged final audit/native gates remain pending. Run 66 passed generated
+lane SDK tests and full independent reference-artifact/later-message correspondence.
 See [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
 
 Runtime phase evidence is retained atomically across an outer timeout. It is

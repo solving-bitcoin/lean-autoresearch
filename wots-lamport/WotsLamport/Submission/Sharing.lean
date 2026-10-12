@@ -1,9 +1,8 @@
 import WotsLamport.Submission.Threshold
 
-/-! Executable weighted-Shamir research candidate. No certificate is claimed.
-PROOF_STATUS.md records which supporting modules the pinned compiler accepted.
-The complete wrapper, security certificate and native runtime validation remain
-separate requirements; reference tests do not discharge them. -/
+/-! Executable weighted-Shamir reference construction. Universal proofs and the
+final certificate are assembled in separate modules. PROOF_STATUS.md records
+compiler/audit results; independent reference tests do not establish security. -/
 namespace WotsLamport.Submission
 open SecretRelease WotsLamport.Protected
 
