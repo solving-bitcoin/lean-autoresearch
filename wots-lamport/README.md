@@ -1,15 +1,16 @@
 # Direct-base-16 WOTS to fixed Lamport labels
 
-**Experimental authoring track; unranked; full Lean validation is pending.**
-The candidate has `certificate := none` and `score.txt` contains `unranked`.
-This is a research implementation and test harness, not a completed
-cryptographic certification. See [PROOF_STATUS.md](PROOF_STATUS.md).
+**All Lean source proofs compile; final certificate validation is pending.**
+The current candidate assembles the checked theorems into a certificate with
+`score.txt = 48752768`. That assembly and the isolated namespace/axiom audit
+still require validation. The authoring track remains unranked externally.
+See [PROOF_STATUS.md](PROOF_STATUS.md).
 
 The reference is identity on **all 32-byte messages**. Before seeing a message,
 `Prepare(keys, fixed_labels, coins)` builds one artifact. Later, a canonical
 WOTS signature enables `Expand` to recover the supplied label for each of the
 256 message bits. Labels are never redefined or derived from message hashes.
-Correctness is intended for every distinct-pair label table. The security
+Correctness is proved for every distinct-pair label table. The security
 experiment independently samples the built-in Lamport key space, WOTS seeds
 and coins uniformly; this is not a shared-XOR-offset GC label distribution.
 
@@ -150,14 +151,15 @@ local computation and arbitrary decoding algorithms.
 The author-owned numerical target is
 `2^20 * (q + 2^32 + 1)^2 / 2^256`, for `q <= 2^48`. The `2^32` honest-query
 budget and `2^20` multi-target allowance are deliberately explicit. This is a
-nontrivial acceptance target, not a derived bound. The joint proof must account
-for all 67 chains, seeds, endpoints, masks, label commitments, setup queries,
-collision events and coefficient bias; it may reveal that this target needs
-author review. No candidate is currently certified against it.
+nontrivial acceptance target. The checked joint reductions meet it while
+accounting for all 67 chains, seeds, endpoints, masks, label commitments, setup
+queries, collision events and coefficient bias. Final certificate assembly and
+isolated acceptance remain pending.
 
 `Protected/Adaptive.lean` separately models artifact-first adaptive message
 selection followed by exactly one release and a second adversary stage. The
-static certificate does not imply it. Simulation/indistinguishability for GC
+static certificate does not imply it; `construction_adaptiveSecure` proves it
+separately and compiled in run 67. Simulation/indistinguishability for GC
 composition, shared-XOR-offset labels, malicious setup and all raw accepted
 Script witnesses are NOT proved or claimed. No simulation certificate type is
 invented with competitor-selected assumptions.
@@ -240,13 +242,12 @@ does not establish the WOTS executable's performance or security.
 Author preview checks ready dependency layers in one Lake invocation to reduce
 graph startup overhead, retaining one Lean thread and the same single author
 time cap. Ordinary failures are rechecked per target; resource failures stop
-immediately. Run 66 checked 118 of 120 modules and passed generated lane SDK
-integration and full independent reference-artifact/later-message correspondence
-within the same cap. Complete withholding security, the actual packed-coin
-adaptive bound and the programmed-game bridge compile. One source failure in
-the final adaptive module blocks Solution and the complete adaptive/static
-post-release ROM security claims.
-There is no security certificate.
+immediately. Run 67 checked all 120 source modules, including complete adaptive
+and static post-release ROM security. The isolated candidate audit then rejected
+a lazily generated protected equation; the current repair keeps that equality
+inside the submission namespace. The newly assembled certificate and unchanged
+final audit/native gates remain pending. Run 66 passed generated lane SDK tests
+and full independent reference-artifact/later-message correspondence.
 See [PROOF_STATUS.md](PROOF_STATUS.md) for exact evidence and outstanding work.
 
 Runtime phase evidence is retained atomically across an outer timeout. It is

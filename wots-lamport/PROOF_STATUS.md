@@ -1,14 +1,20 @@
 # Proof and validation status
 
-The candidate remains **uncertified and unranked**. The pinned compiler is
-Lean 4.33.1. Source declarations count as proved only after that compiler
-accepts them; Rust/Python tests are independent validation, not Lean proofs.
-`Submission.submission.certificate = none` and `score.txt = unranked`.
+**All 120 Lean source modules compiled in run 67; final certification is pending.**
+The pinned compiler is Lean 4.33.1. Run 67 checked complete correctness,
+withholding, static post-release and artifact-first adaptive security in the
+protected ROM model. Its isolated candidate audit then rejected a generated
+equation outside the submission namespace. The current candidate assembles
+those theorems into a certificate and sets `score.txt` to `48752768`; that
+assembly and the audit repair are not yet compiler-validated. No accepted or
+externally ranked submission is claimed. Rust/Python tests are independent
+validation, not Lean proofs.
 
 ## Compiler-checked results
 
-The following modules passed hosted Lean elaboration. This does not mean the
-complete imported submission or its security certificate passed.
+The following modules passed hosted Lean elaboration. All imported submission
+sources passed run 67; certificate assembly and final isolated acceptance remain
+separate checks.
 
 | Result | Checked modules | Evidence commit |
 | --- | --- | --- |
@@ -71,19 +77,28 @@ complete imported submission or its security certificate passed.
 | Adaptive uniform-field probability bound with whole message/state coupling | AdaptiveFieldGame | `a2dd73f` |
 | Actual packed-coin adaptive bound with one joint sampler loss | AdaptiveCoinLaw | `b7acbfa` |
 | Exact adaptive programmed-game, ciphertext and actual-coin event correspondence | AdaptiveProgrammingBridge | `b03588e` |
+| Complete protected adaptive and static post-release ROM security, all imported source modules | AdaptiveFiniteGame.construction_adaptiveSecure, construction_releaseSecure, Solution | `f8597c9` |
 
 ## Current validation attempt
 
-Run 66 (`b03588e`) checked **118 of 120 modules**. One module had a direct
-error (`AdaptiveFiniteGame`); `Solution` was blocked. `AdaptiveProgrammingBridge`
-is newly checked. The remaining error is a mismatch between the equal product
-and discrete measurable-space representations of the public-key table in the
-final probability transport. The actual packed-coin adaptive bound, complete
-protected withholding security, universal correctness, artifact bound, honest
-query budget, grouped finite oracle law and optimized implementation equality
-remain checked. Complete adaptive and static post-release ROM security remain
-unchecked. Successful source batches took 487.206 seconds across 36 batches,
-excluding failed batches/retries. Source errors remain fatal.
+Run 67 (`f8597c9`) checked **120 of 120 modules**, with no failed or blocked
+source modules. The complete protected adaptive and static post-release ROM
+security reductions now compile. Source batches took 736.657 seconds across
+38 batches with 4,356,173,824 bytes peak RSS.
+
+The isolated verifier built protected proof imports and shared checks, passed
+protected boundary/axiom audits, rejected incomplete certificates and unproved
+packed implementations as required, and passed fixture native/SDK tests. It
+then built the candidate and rejected its namespace audit:
+`submission declares outside its namespace: WotsLamport.Protected.romTarget.eq_1`.
+This equation was generated lazily by submission-side unfolding of a protected
+definition. The latest repair uses a submission-owned reflexive target equality
+instead; the audit itself is unchanged. Final candidate native tests and bundle
+acceptance did not run. No run-67 generated correspondence pass is claimed.
+
+The separate run-67 Rust reference test passed in 39.28 seconds with
+320,258,048 bytes peak RSS. BLAKE3 passed; the unchanged G1 repeat was still
+active at publication. Both shared previews passed run 65.
 
 **Run 66 passed generated SDK integration and full independent reference
 correspondence**, observing the exact **48,752,768-byte artifact** and 8,192
@@ -92,7 +107,7 @@ released bytes. The SDK suite took 53.05 seconds and independent correspondence
 9.078928507 seconds. Compiler, SDK-native and independent-native peak RSS were
 3,421,310,976 / 883,707,904 / 854,679,552 bytes. The runtime probe completed in
 920.097 seconds inside the unchanged 1,800-second author cap. Full validation
-has not passed because of the source error. The separate Rust reference test
+did not pass in run 66 because of its then-remaining source error. The separate Rust reference test
 passed in 23.36 seconds with 320,413,696 bytes peak RSS. Both shared previews
 passed run 65; their unchanged run-66 repeats were still active at publication.
 
@@ -115,17 +130,12 @@ expansions 10.013809353 / 11.430133555 / 10.188375942 seconds. Its compiler,
 SDK-native and independent-native peaks were 3,421,212,672 / 833,302,528 /
 789,868,544 bytes respectively.
 
-The latest local repair proves that the finite public-key product sigma algebra
-is discrete and uses that equality in the final probability transport. This
-repair and the final adaptive module remain compiler-unchecked. No security
-statement, sampler, executable construction, resource cap or acceptance gate
-was weakened.
-
-Publication resumed after explicit approval. Source review has found no
-additional mathematical gap in the joint sampler loss, full oracle/ciphertext
-coordinates, message/state coupling before message-specific partitioning, or
-three collision losses. This does not certify the remaining bridge proofs.
-The certificate remains absent and the score unranked.
+The current candidate assembles the checked correctness, codec, size and
+security theorems, transfers them through `laneConstruction_eq`, and exposes
+`lane_adaptiveSecure`. The private-leakage field is vacuous for this Unit/none
+profile; it is not a GC simulation claim. The certificate assembly and target
+unfolding repair require a new compiler/audit run. No security statement,
+sampler, executable construction, resource cap or acceptance gate was weakened.
 
 The runtime probe now atomically retains its last completed phase and available
 build/SDK measurements. The verifier prints that evidence even after an outer
@@ -176,35 +186,28 @@ equality module. The complete machine and cached equality modules passed after t
 Lean code with a native implementation, alter the selected candidate or imply
 a timing improvement.
 
-The remaining security modules are proof attempts with explicit premises,
-not assumptions admitted into a candidate certificate. They cover coefficient
-sampling, actual oracle programs, query traces, domain separation, ideal chain
-collisions/partitions/programming, and ciphertext-preserving adaptive views.
-The actual joint real/ideal reduction remains unchecked. `FreshOracleProgramming`
-attempts a fresh-cell joint law retaining the whole oracle and fixed cache;
-`OracleOverlay` attempts joint key/oracle programming fiber counts. The fresh-cell law passed run 37; the overlay fibers remain unchecked,
-and fiber counts alone are not normalized probability laws. Source declarations in blocked modules do not count as checked results.
+The joint coefficient/nonce law, full oracle/ciphertext coordinates,
+message/state coupling before message-specific partitioning, three collision
+losses, withholding and complete adaptive/static ROM reductions all passed
+source compilation. Their axioms must still pass the final candidate audit.
 
 ## Obligations still open
 
 | Obligation | Remaining work |
 | --- | --- |
-| Universal honest correctness | Checked in run 41; carry the theorem into the final certificate |
-| Complete coefficient law | Check the byte-level plaintext specialization and integrate the checked joint nonce/field sampling law into actual games |
-| Joint visible-share privacy | Check the full sampled coefficient-table specialization, including all 16 limbs and all 512 labels |
-| Actual oracle programs | Complete measurable winning events and the honest query budget; executable reification is checked |
-| ROM reduction | Establish the real/ideal joint laws and bound chain collisions, hidden-node queries, mask/commitment programming and label guessing |
-| Pre-release withholding | Prove `ROM.WithholdingSecure` against every bounded-query program |
-| Static post-release security | Prove `ROM.ReleaseSecure` with the selected labels supplied for free |
-| Adaptive message choice | Prove the separate artifact-first two-stage `AdaptiveSecure` theorem |
-| Native implementation | Run generated Lean tools and byte-for-byte reference correspondence within all unchanged caps |
-| Certificate | Fill every field with checked proofs, run isolated source/axiom audits and validate the final bundle |
+| Certificate assembly | Compile the new proof-bearing entry and its exact 48,752,768-byte score |
+| Namespace and axiom closure | Validate the target-unfolding repair with the unchanged isolated candidate audit |
+| Final certified bundle | Run candidate native/SDK tests and binary/kernel/score consistency checks |
+
+The mathematical ROM obligations are checked. Concrete SHA-256 security,
+upstream master-seed equivalence, arbitrary raw Script witnesses, malicious
+setup and GC simulation remain separate unclaimed results.
 
 ## Fixed numerical target
 
 The author-owned target is `2^20 * (q + 2^32 + 1)^2 / 2^256`, for
-`q <= 2^48`. Its nontriviality is checked, but this is not a security reduction.
-The accounting must cover 67 correlated chains (989 endpoint steps), 512 label
+`q <= 2^48`. Its nontriviality and the complete ROM reductions are checked.
+The accounting covers 67 correlated chains (989 endpoint steps), 512 label
 commitments, 1,015,296 encrypted evaluations with two mask queries each,
 8,380,416 allocated coefficient blocks, the raw nonce, and all adversarial
 queries. Repeated calls count again. The scalar sampler is biased because
@@ -231,7 +234,7 @@ denied by proxy 403; no Bitcoin Core consensus or relay-policy result is claimed
 Canonical signing, every raw Script witness, simulation/GC composition,
 malicious setup, authenticated transaction/label binding, availability, and a
 Bitcoin-verifiable fraud protocol are distinct statements. They are not
-implied by the current construction or the intended static ROM certificate.
+implied by the checked ROM reductions or the candidate certificate.
 The protected seed distribution uses independent seeds, not the upstream
 master-seed derivation.
 

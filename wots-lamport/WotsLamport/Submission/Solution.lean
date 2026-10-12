@@ -80,10 +80,28 @@ import WotsLamport.Submission.CanonicalVisibleOracle
 import WotsLamport.Submission.AdaptiveFiniteGame
 
 namespace WotsLamport.Submission
-open WotsLamport.Protected
+open SecretRelease WotsLamport.Protected
 
-/-- Research candidate only. No certificate, score or security theorem. -/
-def submission : Option Entry := some ⟨laneConstruction, artifactBytes, none⟩
-def entry : Option (SecretRelease.Candidate challenge) := submission.map Entry.candidate
+/-- Assemble the checked mathematical construction's required certificate fields. -/
+def constructionCertificate : Certificate (wrapped construction) artifactBytes where
+  correct := construction_correct
+  decode_encode := wrapped_decode_encode construction
+  encode_decode := wrapped_encode_decode construction
+  artifactBound := artifact_bound
+  releaseSecure := construction_releaseSecure
+  withholdingSecure := construction_withholdingSecure
+  functionPrivate := by intro leakage h; cases h
+
+/-- Transfer the certificate to the byte-for-byte equal executable construction. -/
+def laneCertificate : Certificate (wrapped laneConstruction) artifactBytes := by
+  rw [laneConstruction_eq]
+  exact constructionCertificate
+
+theorem lane_adaptiveSecure : AdaptiveSecure (wrapped laneConstruction) := by
+  rw [laneConstruction_eq]
+  exact construction_adaptiveSecure
+
+def submission : Option Entry := some ⟨laneConstruction, artifactBytes, some laneCertificate⟩
+def entry : Option (Candidate challenge) := submission.map Entry.candidate
 
 end WotsLamport.Submission

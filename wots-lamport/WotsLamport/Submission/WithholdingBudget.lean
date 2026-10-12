@@ -7,6 +7,11 @@ import Mathlib.Tactic.Linarith
 namespace WotsLamport.Submission
 open WotsLamport.Protected
 
+/-- Expose the fixed target without generating an equation declaration in the
+protected namespace while compiling a submission module. -/
+theorem romTarget_error_eq (q : Nat) :
+    romTarget.error q = 2^20*((q : ℚ≥0)+2^32+1)^2/2^256 := rfl
+
 /-- Arithmetic only: the proposed withholding reduction fits the unchanged
 challenge target, even without using its upper bound on adversarial queries. -/
 theorem withholding_bound_fits_target (q : Nat) :
@@ -20,7 +25,7 @@ theorem withholding_bound_fits_target (q : Nat) :
   have rationalBound :
       (((4 : ℚ≥0)/2^256 + (3002 : ℚ≥0)*q/2^256) +
         (1056 : ℚ≥0)^2/2^256) + (1056 : ℚ≥0)^2/2^256 ≤ romTarget.error q := by
-    simpa only [romTarget, ← add_div] using
+    simpa only [romTarget_error_eq, ← add_div] using
       div_le_div_of_nonneg_right rationalNumerator (by positivity : (0 : ℚ≥0) ≤ 2^256)
   have realBound :
       (((4 : NNReal)/2^256 + (3002 : NNReal)*q/2^256) +

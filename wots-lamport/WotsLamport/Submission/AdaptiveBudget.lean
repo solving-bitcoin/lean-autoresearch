@@ -22,7 +22,7 @@ theorem adaptive_bound_fits_target (q₁ q₂ : Nat) :
       (((((1056 : ℚ≥0)^2/2^256 + ((512 : ℚ≥0)/2^256 + (1501 : ℚ≥0)*q₂/2^256)) +
         (3002 : ℚ≥0)*q₁/2^256) + (coefficientCount : ℚ≥0)/2^256) +
         (1056 : ℚ≥0)^2/2^256) + (1056 : ℚ≥0)^2/2^256 ≤ romTarget.error (q₁+q₂) := by
-    simpa only [romTarget, Nat.cast_add, ← add_div] using
+    simpa only [romTarget_error_eq, Nat.cast_add, ← add_div] using
       div_le_div_of_nonneg_right rationalNumerator (by positivity : (0 : ℚ≥0) ≤ 2^256)
   have realBound :
       (((((1056 : NNReal)^2/2^256 + ((512 : NNReal)/2^256 + (1501 : NNReal)*q₂/2^256)) +
